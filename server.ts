@@ -149,6 +149,28 @@ const fetchNews = async () => {
   }
 };
 
+// API routes
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+app.get("/api/stocks", async (req, res) => {
+  // In serverless, we might want to refresh data if it's stale
+  // For now, just return current and trigger a background fetch
+  fetchStocks(); 
+  res.json(currentStocks);
+});
+
+app.get("/api/indicators", async (req, res) => {
+  fetchMarketIndicators();
+  res.json(marketIndicators);
+});
+
+app.get("/api/news", async (req, res) => {
+  if (currentNews.length === 0) await fetchNews();
+  res.json(currentNews);
+});
+
 async function setupServer() {
   // Initial fetch
   fetchNews();
@@ -176,23 +198,6 @@ async function setupServer() {
     ws.on('close', () => console.log('Client disconnected'));
   });
 
-  // API routes
-  app.get("/api/health", (req, res) => {
-    res.json({ status: "ok" });
-  });
-
-  app.get("/api/stocks", (req, res) => {
-    res.json(currentStocks);
-  });
-
-  app.get("/api/indicators", (req, res) => {
-    res.json(marketIndicators);
-  });
-
-  app.get("/api/news", (req, res) => {
-    res.json(currentNews);
-  });
-
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -211,13 +216,25 @@ async function setupServer() {
   return app;
 }
 
-// For local development
-if (process.env.NODE_ENV !== "production") {
+// For local development or persistent servers
+if (process.env.NODE_ENV !== "production" || process.env.PERSISTENT_SERVER) {
   setupServer().then(() => {
     httpServer.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
   });
+} else {
+  // In Vercel production, we still need to serve static files
+  const distPath = path.join(process.cwd(), 'dist');
+  app.use(express.static(distPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+  
+  // Trigger initial fetches for the warm instance
+  fetchNews();
+  fetchStocks();
+  fetchMarketIndicators();
 }
 
 export default app;

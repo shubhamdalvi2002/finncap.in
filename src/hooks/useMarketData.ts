@@ -73,11 +73,18 @@ export const useMarketData = () => {
           fetch('/api/news')
         ]);
         
-        if (stocksRes.ok) setStocks(await stocksRes.json());
+        if (stocksRes.ok) {
+          setStocks(await stocksRes.json());
+          setConnected(true); // Mark as connected if polling works
+        }
         if (indicatorsRes.ok) setIndicators(await indicatorsRes.json());
         if (newsRes.ok) setNews(await newsRes.json());
       } catch (err) {
         console.error('Polling error:', err);
+        // If both WS and Polling fail, then we are truly offline
+        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
+          setConnected(false);
+        }
       }
     };
 
