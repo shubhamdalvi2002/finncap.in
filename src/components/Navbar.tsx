@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Moon, Sun } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -39,15 +39,6 @@ export const Navbar: React.FC = () => {
         </ul>
 
         <div className="flex items-center gap-4">
-          <button
-            onClick={toggleTheme}
-            className="w-11 h-6 rounded-full bg-bg-dark-3 border border-gold/20 relative transition-colors hover:border-gold/40"
-          >
-            <div className={`absolute top-0.5 w-4.5 h-4.5 rounded-full bg-gold transition-transform duration-300 flex items-center justify-center ${theme === 'light' ? 'translate-x-5.5' : 'translate-x-0.5'}`}>
-              {theme === 'light' ? <Sun size={10} className="text-bg-dark" /> : <Moon size={10} className="text-bg-dark" />}
-            </div>
-          </button>
-          
           <a href="http://p.njw.bz/103924" target="_blank" className="hidden sm:block border border-gold text-gold px-6 py-2 rounded-full text-sm font-medium hover:bg-gold hover:text-bg-dark transition-all">
             Start Investing
           </a>
