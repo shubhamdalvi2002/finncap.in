@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", serif;
+
+  --color-gold: #C9A84C;
+  --color-gold-light: #E8C97A;
+  --color-gold-dim: #8a6f30;
+  --color-bg-dark: #0A0A0C;
+  --color-bg-dark-2: #111116;
+  --color-bg-dark-3: #17171E;
+  
+  --radius-xl: 12px;
+  --radius-2xl: 18px;
+}
+
+@layer base {
+  :root {
+    --background: 245 242 235;
+    --foreground: 26 26 24;
+    --muted: 107 104 96;
+    --border: 138 111 48 / 0.22;
+  }
+
+  .dark {
+    --background: 10 10 12;
+    --foreground: 240 237 230;
+    --muted: 136 136 128;
+    --border: 201 168 76 / 0.18;
+  }
+
+  body {
+    @apply bg-[rgb(var(--background))] text-[rgb(var(--foreground))] font-sans antialiased;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap');
+
+/* Custom Utilities */
+.glass {
+  @apply backdrop-blur-lg bg-white/10 border border-white/20;
+}
+
+.dark .glass {
+  @apply bg-black/40 border-white/10;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-ticker {
+  animation: tickerScroll 40s linear infinite;
+}
+
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
