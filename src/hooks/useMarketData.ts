@@ -64,12 +64,34 @@ export const useMarketData = () => {
       };
     };
 
+    // HTTP Polling Fallback for environments without WebSocket support (like Vercel serverless)
+    const pollData = async () => {
+      try {
+        const [stocksRes, indicatorsRes, newsRes] = await Promise.all([
+          fetch('/api/stocks'),
+          fetch('/api/indicators'),
+          fetch('/api/news')
+        ]);
+        
+        if (stocksRes.ok) setStocks(await stocksRes.json());
+        if (indicatorsRes.ok) setIndicators(await indicatorsRes.json());
+        if (newsRes.ok) setNews(await newsRes.json());
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    };
+
     connect();
+    
+    // Set up polling interval as a fallback/supplement
+    const pollInterval = setInterval(pollData, 15000);
+    pollData(); // Initial poll
 
     return () => {
       if (wsRef.current) {
         wsRef.current.close();
       }
+      clearInterval(pollInterval);
     };
   }, []);
 
