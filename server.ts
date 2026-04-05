@@ -39,10 +39,19 @@ let marketIndicators = {
   goldRate: 73245
 };
 
+let isApiKeyInvalid = false;
+
 const fetchMarketIndicators = async () => {
   const apiKey = process.env.FINANCIAL_API_KEY;
-  if (!apiKey) {
-    // Simulation for indicators
+  // Skip if key is missing, a placeholder, or known to be invalid
+  if (!apiKey || apiKey === 'your_fmp_api_key' || apiKey.includes('TODO') || isApiKeyInvalid) {
+    if (!apiKey && !isApiKeyInvalid) console.log('No FINANCIAL_API_KEY, using simulated indicators');
+    else if (isApiKeyInvalid) {
+      // Silent fallback
+    } else {
+      console.log('FINANCIAL_API_KEY is a placeholder, using simulated indicators');
+    }
+    
     marketIndicators = {
       inflation: parseFloat((5.5 + Math.random()).toFixed(2)),
       interestRate: parseFloat((8.0 + Math.random()).toFixed(2)),
@@ -63,15 +72,36 @@ const fetchMarketIndicators = async () => {
       if (inflationRes.ok) {
         const data = await inflationRes.json();
         if (data && data.length > 0) marketIndicators.inflation = parseFloat(data[0].value);
+      } else {
+        if (inflationRes.status === 401) {
+          isApiKeyInvalid = true;
+          console.warn('FINANCIAL_API_KEY is invalid (401). Switching to simulation mode.');
+        } else {
+          console.warn(`Inflation API Error: ${inflationRes.status}`);
+        }
       }
+
       if (interestRes.ok) {
         const data = await interestRes.json();
         if (data && data.length > 0) marketIndicators.interestRate = parseFloat(data[0].value);
+      } else {
+        if (interestRes.status === 401) {
+          isApiKeyInvalid = true;
+        } else {
+          console.warn(`Interest Rate API Error: ${interestRes.status}`);
+        }
       }
       
       marketIndicators.marketReturn = parseFloat((12.5 + (Math.random() - 0.5)).toFixed(2));
     } catch (err) {
       console.error('Error fetching market indicators:', err);
+      // Simulation as fallback
+      marketIndicators = {
+        ...marketIndicators,
+        inflation: parseFloat((5.5 + Math.random()).toFixed(2)),
+        interestRate: parseFloat((8.0 + Math.random()).toFixed(2)),
+        marketReturn: parseFloat((11.5 + Math.random() * 2).toFixed(2)),
+      };
     }
   }
 
@@ -85,7 +115,15 @@ const fetchMarketIndicators = async () => {
 
 const fetchStocks = async () => {
   const apiKey = process.env.FINANCIAL_API_KEY;
-  if (!apiKey) {
+  // Skip if key is missing, a placeholder, or known to be invalid
+  if (!apiKey || apiKey === 'your_fmp_api_key' || apiKey.includes('TODO') || isApiKeyInvalid) {
+    if (!apiKey && !isApiKeyInvalid) console.log('No FINANCIAL_API_KEY, using simulated stocks');
+    else if (isApiKeyInvalid) {
+      // Silent fallback
+    } else {
+      console.log('FINANCIAL_API_KEY is a placeholder, using simulated stocks');
+    }
+    
     currentStocks = currentStocks.map(s => {
       const drift = (Math.random() - 0.498) * 0.12;
       const newChange = parseFloat((s.change + drift).toFixed(2));
@@ -106,16 +144,39 @@ const fetchStocks = async () => {
       clearTimeout(timeoutId);
       if (response.ok) {
         const data = await response.json();
-        if (Array.isArray(data)) {
+        if (Array.isArray(data) && data.length > 0) {
           currentStocks = data.map((item: any) => ({
             name: item.name || item.symbol.replace('.NS', ''),
             price: item.price,
             change: parseFloat(item.changesPercentage.toFixed(2))
           }));
+        } else {
+          console.warn('Stocks API returned empty or invalid data:', data);
+          // Fallback to simulation if data is empty
+          throw new Error('Empty data from API');
+        }
+      } else {
+        if (response.status === 401) {
+          isApiKeyInvalid = true;
+          console.warn('FINANCIAL_API_KEY is invalid (401). Switching to simulation mode.');
+          throw new Error('Invalid API Key');
+        } else {
+          const errorText = await response.text();
+          console.error(`Stocks API Error: ${response.status} ${response.statusText}`, errorText);
+          throw new Error(`Response status: ${response.status}`);
         }
       }
     } catch (err) {
-      console.error('Error fetching stocks from FMP:', err);
+      if (!isApiKeyInvalid) {
+        console.error('Error fetching stocks from FMP, falling back to simulation:', err);
+      }
+      // Simulation as fallback
+      currentStocks = currentStocks.map(s => {
+        const drift = (Math.random() - 0.498) * 0.12;
+        const newChange = parseFloat((s.change + drift).toFixed(2));
+        const newPrice = parseFloat((s.price * (1 + drift / 100)).toFixed(2));
+        return { ...s, price: newPrice, change: newChange };
+      });
     }
   }
 
@@ -137,16 +198,27 @@ const fetchNews = async () => {
     if (response.ok) {
       const data = await response.json();
       currentNews = data.articles.slice(0, 10);
-      const message = JSON.stringify({ type: 'NEWS_UPDATE', data: currentNews });
-      wss.clients.forEach(client => {
-        if (client.readyState === WebSocket.OPEN) {
-          client.send(message);
-        }
-      });
+    } else {
+      throw new Error('News API response not OK');
     }
   } catch (err) {
     console.error('Error fetching news on server:', err);
+    // Fallback news if API fails
+    if (currentNews.length === 0) {
+      currentNews = [
+        { title: "Market Update: NIFTY 50 hits new high", description: "The Indian stock market continues its bullish trend with NIFTY 50 reaching record levels.", url: "#", urlToImage: "https://picsum.photos/seed/market/800/400" },
+        { title: "RBI maintains repo rate at 6.5%", description: "The Reserve Bank of India keeps interest rates steady in its latest monetary policy review.", url: "#", urlToImage: "https://picsum.photos/seed/rbi/800/400" },
+        { title: "Gold prices stabilize near record highs", description: "Safe-haven demand keeps gold prices firm amid global economic uncertainty.", url: "#", urlToImage: "https://picsum.photos/seed/gold/800/400" }
+      ];
+    }
   }
+
+  const message = JSON.stringify({ type: 'NEWS_UPDATE', data: currentNews });
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(message);
+    }
+  });
 };
 
 // API routes
@@ -155,20 +227,39 @@ app.get("/api/health", (req, res) => {
 });
 
 app.get("/api/stocks", async (req, res) => {
-  // In serverless, we might want to refresh data if it's stale
-  // For now, just return current and trigger a background fetch
-  fetchStocks(); 
-  res.json(currentStocks);
+  try {
+    // In serverless, we always try to get fresh data or at least trigger a fetch
+    // If it's the first time (cold start), we await it to ensure user sees real/simulated data
+    await fetchStocks(); 
+    res.json(currentStocks);
+  } catch (err) {
+    console.error('API stocks error:', err);
+    res.json(currentStocks); // Return whatever we have
+  }
 });
 
 app.get("/api/indicators", async (req, res) => {
-  fetchMarketIndicators();
-  res.json(marketIndicators);
+  try {
+    await fetchMarketIndicators();
+    res.json(marketIndicators);
+  } catch (err) {
+    console.error('API indicators error:', err);
+    res.json(marketIndicators);
+  }
 });
 
 app.get("/api/news", async (req, res) => {
-  if (currentNews.length === 0) await fetchNews();
-  res.json(currentNews);
+  try {
+    if (currentNews.length === 0) {
+      await fetchNews();
+    } else {
+      fetchNews(); // Background refresh
+    }
+    res.json(currentNews);
+  } catch (err) {
+    console.error('API news error:', err);
+    res.json(currentNews);
+  }
 });
 
 async function setupServer() {

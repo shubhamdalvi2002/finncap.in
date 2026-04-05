@@ -66,6 +66,7 @@ export const useMarketData = () => {
 
     // HTTP Polling Fallback for environments without WebSocket support (like Vercel serverless)
     const pollData = async () => {
+      console.log('Polling market data...');
       try {
         const [stocksRes, indicatorsRes, newsRes] = await Promise.all([
           fetch('/api/stocks'),
@@ -74,11 +75,26 @@ export const useMarketData = () => {
         ]);
         
         if (stocksRes.ok) {
-          setStocks(await stocksRes.json());
-          setConnected(true); // Mark as connected if polling works
+          const stocksData = await stocksRes.json();
+          console.log('Stocks received:', stocksData.length);
+          if (stocksData.length > 0) {
+            setStocks(stocksData);
+            setConnected(true);
+          }
+        } else {
+          console.error('Stocks fetch failed:', stocksRes.status);
         }
-        if (indicatorsRes.ok) setIndicators(await indicatorsRes.json());
-        if (newsRes.ok) setNews(await newsRes.json());
+
+        if (indicatorsRes.ok) {
+          const indicatorsData = await indicatorsRes.json();
+          setIndicators(indicatorsData);
+        }
+
+        if (newsRes.ok) {
+          const newsData = await newsRes.json();
+          console.log('News received:', newsData.length);
+          setNews(newsData);
+        }
       } catch (err) {
         console.error('Polling error:', err);
         // If both WS and Polling fail, then we are truly offline

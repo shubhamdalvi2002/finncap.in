@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ChevronLeft, ChevronRight, ExternalLink, Newspaper } from 'lucide-react';
+import { useMarketData } from '../hooks/useMarketData';
 
 interface NewsArticle {
   title: string;
@@ -12,14 +13,13 @@ interface NewsArticle {
 }
 
 export const NewsFeed: React.FC = () => {
-  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const { news: articles, connected } = useMarketData();
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [error, setError] = useState<string | null>(null);
   const [showUpdateBadge, setShowUpdateBadge] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const wsRef = useRef<WebSocket | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
+  const prevArticlesLength = useRef(0);
 
   const playNotificationSound = () => {
     try {
@@ -49,57 +49,16 @@ export const NewsFeed: React.FC = () => {
   };
 
   useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    const wsUrl = `${protocol}//${host}`;
-
-    const connect = () => {
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
-
-      ws.onopen = () => {
-        console.log('Connected to NewsFeed WebSocket');
-        setError(null);
-      };
-
-      ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.type === 'NEWS_UPDATE') {
-            const isInitial = articles.length === 0;
-            setArticles(message.data);
-            setLoading(false);
-
-            if (!isInitial) {
-              setShowUpdateBadge(true);
-              playNotificationSound();
-              setTimeout(() => setShowUpdateBadge(false), 5000);
-            }
-          }
-        } catch (err) {
-          console.error('Error parsing NewsFeed WebSocket message:', err);
-        }
-      };
-
-      ws.onclose = () => {
-        console.log('Disconnected from NewsFeed WebSocket, retrying...');
-        setTimeout(connect, 3000);
-      };
-
-      ws.onerror = (err) => {
-        console.error('NewsFeed WebSocket error:', err);
-        ws.close();
-      };
-    };
-
-    connect();
-
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
+    if (articles.length > 0) {
+      setLoading(false);
+      if (prevArticlesLength.current > 0 && articles.length !== prevArticlesLength.current) {
+        setShowUpdateBadge(true);
+        playNotificationSound();
+        setTimeout(() => setShowUpdateBadge(false), 5000);
       }
-    };
-  }, []);
+      prevArticlesLength.current = articles.length;
+    }
+  }, [articles]);
 
   const resetTimeout = () => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -136,11 +95,12 @@ export const NewsFeed: React.FC = () => {
     );
   }
 
-  if (error || articles.length === 0) {
+  if (articles.length === 0) {
     return null;
   }
 
   const current = articles[currentIndex];
+  if (!current) return null;
 
   return (
     <div className={`relative bg-bg-dark-3 border-y transition-all duration-700 overflow-hidden ${showUpdateBadge ? 'border-gold shadow-[inset_0_0_20px_rgba(201,168,76,0.15)]' : 'border-gold/10'}`}>
