@@ -246,7 +246,7 @@ const RetirementCalculator = ({ onSave, indicators }: { onSave: (s: any) => void
 
   const data = [
     { name: 'Invested', value: invested, color: '#C9A84C' },
-    { name: 'Returns', value: estReturns, color: '#3b2a08' },
+    { name: 'Returns', value: estReturns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
   const handleSave = () => {
@@ -260,83 +260,90 @@ const RetirementCalculator = ({ onSave, indicators }: { onSave: (s: any) => void
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 30 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 lg:gap-16 bg-bg-dark-3 border border-gold/20 rounded-[32px] p-6 md:p-12 shadow-2xl relative overflow-hidden group"
+      initial={{ opacity: 0, scale: 0.98 }} 
+      animate={{ opacity: 1, scale: 1 }} 
+      transition={{ duration: 0.5 }}
+      className="bg-bg-dark-3/80 backdrop-blur-xl border border-gold/10 rounded-[40px] overflow-hidden shadow-2xl"
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[100px] -z-10 group-hover:bg-gold/10 transition-colors duration-700" />
-      <div>
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
-          <div>
-            <h3 className="font-serif text-3xl font-bold mb-2">Retirement Planner</h3>
-            <p className="text-sm text-muted-foreground max-w-md">Calculate the corpus you need for a comfortable retirement and the savings required today.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button 
-              onClick={applyRealTime}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/10 transition-all text-gold bg-gold/5 shadow-lg shadow-gold/5"
-              title="Apply real-time inflation and market returns"
-            >
-              <Zap size={14} className="fill-gold" />
-              Live Data
-            </button>
-            <SaveButton onSave={handleSave} />
-            <ShareButton title="Retirement Plan" summary={`Corpus Required: ${formatCurrency(corpusRequired)}\nMonthly Savings: ${formatCurrency(monthlySavings)}`} />
-          </div>
-        </div>
-
-        <Slider label="Current Age" value={currentAge} onChange={setCurrentAge} min={18} max={60} step={1} format={v => `${v} yrs`} helpText="Your current age in years." />
-        <Slider label="Retirement Age" value={retireAge} onChange={setRetireAge} min={currentAge + 1} max={75} step={1} format={v => `${v} yrs`} helpText="The age at which you plan to stop working." />
-        <Slider label="Monthly Expenses (Today)" value={expenses} onChange={setExpenses} min={10000} max={500000} step={5000} format={v => formatCurrency(v)} helpText="Your current monthly living expenses." />
-        <Slider label="Expected Inflation" value={inflation} onChange={(v) => { setInflation(v); setIsLive(false); }} min={1} max={15} step={0.5} format={v => `${v}%`} isLive={isLive} helpText="The expected annual increase in the cost of living." />
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8">
-          <ResultBox label="Required Corpus" value={formatCurrency(corpusRequired)} highlight helpText="The total amount needed at retirement to sustain your lifestyle." />
-          <ResultBox label="Monthly Savings" value={formatCurrency(monthlySavings)} helpText="The amount you need to save every month starting today." />
-        </div>
-        <a href="https://wa.me/919423669236" target="_blank" className="mt-6 inline-block bg-gold text-bg-dark px-8 py-3 rounded-full font-medium hover:bg-gold-light transition-all">Plan My Retirement →</a>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-6">
-        <div className="w-full h-64 relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie 
-                data={data} 
-                innerRadius={60} 
-                outerRadius={80} 
-                paddingAngle={5} 
-                dataKey="value"
-                nameKey="name"
-                animationDuration={400}
-                animationEasing="ease-out"
-              >
-                {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <motion.div 
-              key={corpusRequired}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="font-serif text-lg font-bold"
-            >
-              {formatCurrencyShort(corpusRequired)}
-            </motion.div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Target Corpus</div>
-          </div>
-        </div>
-        <div className="flex gap-6">
-          {data.map(d => (
-            <div key={d.name} className="flex items-center gap-2 text-[10px] text-muted-foreground">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-              {d.name}
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        {/* Input Region */}
+        <div className="lg:col-span-7 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-gold/10">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-10">
+            <div>
+              <h3 className="font-serif text-3xl font-bold text-white mb-2">Retirement Planner</h3>
+              <p className="text-sm text-muted-foreground">Calculate your retirement corpus accurately.</p>
             </div>
-          ))}
+            <div className="flex flex-wrap gap-2">
+              <button 
+                onClick={applyRealTime}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gold/10 border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/20 transition-all text-gold"
+              >
+                <Zap size={14} className="fill-gold" />
+                Live Data
+              </button>
+              <SaveButton onSave={handleSave} />
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <Slider label="Current Age" value={currentAge} onChange={setCurrentAge} min={18} max={60} step={1} format={v => `${v} yrs`} />
+            <Slider label="Retirement Age" value={retireAge} onChange={setRetireAge} min={currentAge + 1} max={75} step={1} format={v => `${v} yrs`} />
+            <Slider label="Monthly Expenses" value={expenses} onChange={setExpenses} min={10000} max={500000} step={5000} format={v => formatCurrency(v)} />
+            <Slider label="Expectation Inflation" value={inflation} onChange={v => { setInflation(v); setIsLive(false); }} min={1} max={15} step={0.5} format={v => `${v}%`} isLive={isLive} />
+          </div>
+
+          <div className="mt-12">
+            <a href="https://wa.me/919423669236" target="_blank" className="inline-flex items-center gap-3 bg-gold text-bg-dark px-10 py-4 rounded-2xl font-bold hover:bg-gold-light transition-all shadow-xl shadow-gold/10 group">
+              Get Personalised Plan
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </a>
+          </div>
         </div>
-        <div className="bg-gold/10 border border-gold/20 rounded-xl p-4 text-xs text-muted-foreground text-center w-full">
-          Your monthly expenses will grow to <strong className="text-gold">{formatCurrency(monthlyExpAtRetire)}</strong> by age {retireAge}.
+
+        {/* Results Region */}
+        <div className="lg:col-span-5 p-8 md:p-12 bg-gold/5 flex flex-col items-center justify-between gap-12">
+          <div className="w-full space-y-6">
+            <ResultBox label="Target Corpus" value={formatCurrency(corpusRequired)} highlight />
+            <ResultBox label="Monthly Savings Needed" value={formatCurrency(monthlySavings)} />
+          </div>
+
+          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
+            <div className="w-full h-full min-h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie 
+                    data={data} 
+                    innerRadius="65%" 
+                    outerRadius="85%" 
+                    paddingAngle={8} 
+                    dataKey="value"
+                    stroke="none"
+                    cx="50%"
+                    cy="50%"
+                  >
+                    {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <div className="text-2xl font-serif font-bold text-white">{formatCurrencyShort(corpusRequired)}</div>
+                <div className="text-[10px] uppercase tracking-widest text-gold font-bold">Corpus</div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center gap-8 mt-4">
+              {data.map(d => (
+                <div key={d.name} className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{d.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="w-full p-6 bg-white/5 border border-white/10 rounded-[24px] text-xs text-muted-foreground leading-relaxed">
+            Your expenses will adjust to <span className="text-gold font-bold">{formatCurrency(monthlyExpAtRetire)}</span>/month by age {retireAge}.
+          </div>
         </div>
       </div>
     </motion.div>
@@ -364,7 +371,7 @@ const EMICalculator = ({ onSave, indicators }: { onSave: (s: any) => void, indic
 
   const data = [
     { name: 'Principal', value: loanAmount, color: '#C9A84C' },
-    { name: 'Interest', value: totalInterest, color: '#3b2a08' },
+    { name: 'Interest', value: totalInterest, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
   const handleSave = () => {
@@ -378,83 +385,81 @@ const EMICalculator = ({ onSave, indicators }: { onSave: (s: any) => void, indic
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 30 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 lg:gap-16 bg-bg-dark-3 border border-gold/20 rounded-[32px] p-6 md:p-12 shadow-2xl relative overflow-hidden group"
+      initial={{ opacity: 0, scale: 0.98 }} 
+      animate={{ opacity: 1, scale: 1 }} 
+      transition={{ duration: 0.5 }}
+      className="bg-bg-dark-3/80 backdrop-blur-xl border border-gold/10 rounded-[40px] overflow-hidden shadow-2xl"
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[100px] -z-10 group-hover:bg-gold/10 transition-colors duration-700" />
-      <div>
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
-          <div>
-            <h3 className="font-serif text-3xl font-bold mb-2">Loan EMI Calculator</h3>
-            <p className="text-sm text-muted-foreground max-w-md">Equated Monthly Installment — calculate your monthly loan repayments and total interest cost.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button 
-              onClick={applyRealTime}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/10 transition-all text-gold bg-gold/5 shadow-lg shadow-gold/5"
-              title="Apply real-time bank interest rates"
-            >
-              <Zap size={14} className="fill-gold" />
-              Live Rates
-            </button>
-            <SaveButton onSave={handleSave} />
-            <ShareButton title="Loan EMI" summary={`Monthly EMI: ${formatCurrency(emi)}\nTotal Interest: ${formatCurrency(totalInterest)}`} />
-          </div>
-        </div>
-
-        <Slider label="Loan Amount" value={loanAmount} onChange={setLoanAmount} min={100000} max={50000000} step={100000} format={v => formatCurrency(v)} helpText="The total principal amount you wish to borrow." />
-        <Slider label="Interest Rate (p.a)" value={interestRate} onChange={(v) => { setInterestRate(v); setIsLive(false); }} min={5} max={20} step={0.1} format={v => `${v}%`} isLive={isLive} helpText="The annual interest rate charged on the loan." />
-        <Slider label="Loan Tenure" value={tenure} onChange={setTenure} min={1} max={30} step={1} format={v => `${v} yrs`} helpText="The duration of the loan in years." />
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8">
-          <ResultBox label="Monthly EMI" value={formatCurrency(emi)} highlight helpText="The fixed amount you pay every month towards loan repayment." />
-          <ResultBox label="Total Interest" value={formatCurrency(totalInterest)} helpText="The total interest cost over the entire loan tenure." />
-          <ResultBox label="Total Payment" value={formatCurrency(totalPayment)} helpText="The total amount (Principal + Interest) paid over the loan tenure." />
-        </div>
-        <a href="https://wa.me/919423669236" target="_blank" className="mt-6 inline-block bg-gold text-bg-dark px-8 py-3 rounded-full font-medium hover:bg-gold-light transition-all">Get Loan Advice →</a>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-6">
-        <div className="w-full h-64 relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie 
-                data={data} 
-                innerRadius={60} 
-                outerRadius={80} 
-                paddingAngle={5} 
-                dataKey="value"
-                nameKey="name"
-                animationDuration={400}
-                animationEasing="ease-out"
-              >
-                {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <motion.div 
-              key={totalPayment}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="font-serif text-xl font-bold"
-            >
-              {formatCurrencyShort(totalPayment)}
-            </motion.div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</div>
-          </div>
-        </div>
-        <div className="flex gap-6">
-          {data.map(d => (
-            <div key={d.name} className="flex items-center gap-2 text-[10px] text-muted-foreground">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-              {d.name}
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        <div className="lg:col-span-7 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-gold/10">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-10">
+            <div>
+              <h3 className="font-serif text-3xl font-bold text-white mb-2">Loan EMI Calculator</h3>
+              <p className="text-sm text-muted-foreground">Calculate your monthly loan repayments.</p>
             </div>
-          ))}
+            <div className="flex flex-wrap gap-2">
+              <button 
+                onClick={applyRealTime}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gold/10 border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/20 transition-all text-gold"
+              >
+                <Zap size={14} className="fill-gold" />
+                Live Rates
+              </button>
+              <SaveButton onSave={handleSave} />
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <Slider label="Loan Amount" value={loanAmount} onChange={setLoanAmount} min={100000} max={50000000} step={100000} format={v => formatCurrency(v)} />
+            <Slider label="Interest Rate (p.a)" value={interestRate} onChange={v => { setInterestRate(v); setIsLive(false); }} min={5} max={20} step={0.1} format={v => `${v}%`} isLive={isLive} />
+            <Slider label="Loan Tenure" value={tenure} onChange={setTenure} min={1} max={30} step={1} format={v => `${v} yrs`} />
+          </div>
+
+          <div className="mt-12">
+            <a href="https://wa.me/919423669236" target="_blank" className="inline-flex items-center gap-3 bg-gold text-bg-dark px-10 py-4 rounded-2xl font-bold hover:bg-gold-light transition-all shadow-xl shadow-gold/10 group">
+              Get Loan Advice
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </a>
+          </div>
         </div>
-        <div className="bg-gold/10 border border-gold/20 rounded-xl p-4 text-xs text-muted-foreground text-center w-full">
-          Total interest is <strong className="text-gold">{((totalInterest / totalPayment) * 100).toFixed(1)}%</strong> of your total payment.
+
+        <div className="lg:col-span-5 p-8 md:p-12 bg-gold/5 flex flex-col items-center justify-between gap-12">
+          <div className="w-full space-y-4">
+            <ResultBox label="Monthly EMI" value={formatCurrency(emi)} highlight />
+            <div className="grid grid-cols-2 gap-4">
+              <ResultBox label="Total Interest" value={formatCurrency(totalInterest)} />
+              <ResultBox label="Total Payment" value={formatCurrency(totalPayment)} />
+            </div>
+          </div>
+
+          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
+            <div className="w-full h-full min-h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie 
+                    data={data} 
+                    innerRadius="65%" 
+                    outerRadius="85%" 
+                    paddingAngle={8} 
+                    dataKey="value"
+                    stroke="none"
+                    cx="50%"
+                    cy="50%"
+                  >
+                    {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <div className="text-2xl font-serif font-bold text-white">{formatCurrencyShort(totalPayment)}</div>
+                <div className="text-[10px] uppercase tracking-widest text-gold font-bold">Total</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full p-6 bg-white/5 border border-white/10 rounded-[24px] text-xs text-muted-foreground leading-relaxed text-center">
+            Total interest is <span className="text-gold font-bold">{((totalInterest / totalPayment) * 100).toFixed(1)}%</span> of your total payment.
+          </div>
         </div>
       </div>
     </motion.div>
@@ -493,7 +498,7 @@ const GoalCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => vo
 
   const data = [
     { name: 'Invested', value: invested, color: '#C9A84C' },
-    { name: 'Returns', value: estReturns, color: '#3b2a08' },
+    { name: 'Returns', value: estReturns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
   const handleSave = () => {
@@ -507,103 +512,94 @@ const GoalCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => vo
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 30 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 lg:gap-16 bg-bg-dark-3 border border-gold/20 rounded-[32px] p-6 md:p-12 shadow-2xl relative overflow-hidden group"
+      initial={{ opacity: 0, scale: 0.98 }} 
+      animate={{ opacity: 1, scale: 1 }} 
+      transition={{ duration: 0.5 }}
+      className="bg-bg-dark-3/80 backdrop-blur-xl border border-gold/10 rounded-[40px] overflow-hidden shadow-2xl"
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[100px] -z-10 group-hover:bg-gold/10 transition-colors duration-700" />
-      <div>
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
-          <div>
-            <h3 className="font-serif text-3xl font-bold mb-2">Goal Planner</h3>
-            <p className="text-sm text-muted-foreground max-w-md">Plan for your dreams — calculate how much you need to save every month to reach your target goal.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button 
-              onClick={applyRealTime}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/10 transition-all text-gold bg-gold/5 shadow-lg shadow-gold/5"
-              title="Apply real-time inflation and market returns"
-            >
-              <Zap size={14} className="fill-gold" />
-              Live Data
-            </button>
-            <SaveButton onSave={handleSave} />
-            <ShareButton title="Goal Plan" summary={`Target: ${formatCurrency(target)}\nMonthly Savings: ${formatCurrency(monthlySavings)}`} />
-          </div>
-        </div>
-
-        <Slider label="Target Amount" value={target} onChange={setTarget} min={100000} max={100000000} step={100000} format={v => formatCurrency(v)} helpText="The future value of the goal you want to achieve." />
-        <Slider label="Time Period" value={years} onChange={setYears} min={1} max={30} step={1} format={v => `${v} yrs`} helpText="The number of years you have to reach your goal." />
-        <Slider label="Expected Return" value={returns} onChange={(v) => { setReturns(v); setIsLive(false); }} min={1} max={30} step={0.5} format={v => `${v}%`} isLive={isLive} helpText="The anticipated annual growth rate of your investments." />
-
-        <div className="mb-8 p-4 rounded-2xl bg-gold/5 border border-gold/10">
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold/60 mb-4 px-1">Benchmark with Market Leaders</div>
-          <div className="flex flex-wrap gap-2">
-            {stocks.slice(0, 6).map(stock => (
-              <motion.button
-                whileHover={{ scale: 1.05, backgroundColor: 'rgba(201,168,76,0.15)' }}
-                whileTap={{ scale: 0.95 }}
-                key={stock.name}
-                onClick={() => handleStockReturn(stock.name)}
-                className="px-4 py-2 rounded-xl bg-bg-dark-2 border border-gold/10 hover:border-gold/30 transition-all text-[10px] font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm"
-              >
-                <span className={`text-[8px] ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {stock.change >= 0 ? '▲' : '▼'}
-                </span>
-                <span className="text-white/80">{stock.name}</span>
-                <span className="text-gold/60 ml-1">{stock.change >= 0 ? '+' : ''}{stock.change}%</span>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-8">
-          <ResultBox label="Monthly Savings" value={formatCurrency(monthlySavings)} highlight helpText="The amount you need to save every month to reach your goal." />
-          <ResultBox label="Total Invested" value={formatCurrency(monthlySavings * n)} helpText="The total principal amount invested over the time period." />
-        </div>
-        <a href="https://wa.me/919423669236" target="_blank" className="mt-6 inline-block bg-gold text-bg-dark px-8 py-3 rounded-full font-medium hover:bg-gold-light transition-all">Start Saving Now →</a>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-6">
-        <div className="w-full h-64 relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie 
-                data={data} 
-                innerRadius={60} 
-                outerRadius={80} 
-                paddingAngle={5} 
-                dataKey="value"
-                nameKey="name"
-                animationDuration={400}
-                animationEasing="ease-out"
-              >
-                {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <motion.div 
-              key={target}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="font-serif text-xl font-bold"
-            >
-              {formatCurrencyShort(target)}
-            </motion.div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Target</div>
-          </div>
-        </div>
-        <div className="flex gap-6">
-          {data.map(d => (
-            <div key={d.name} className="flex items-center gap-2 text-[10px] text-muted-foreground">
-              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: d.color }} />
-              {d.name}
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        <div className="lg:col-span-7 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-gold/10">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-10">
+            <div>
+              <h3 className="font-serif text-3xl font-bold text-white mb-2">Goal Planner</h3>
+              <p className="text-sm text-muted-foreground">Track your way to financial milestones.</p>
             </div>
-          ))}
+            <div className="flex flex-wrap gap-2">
+              <button 
+                onClick={applyRealTime}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gold/10 border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/20 transition-all text-gold"
+              >
+                <Zap size={14} className="fill-gold" />
+                Live Data
+              </button>
+              <SaveButton onSave={handleSave} />
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <Slider label="Target Amount" value={target} onChange={setTarget} min={100000} max={100000000} step={100000} format={v => formatCurrency(v)} />
+            
+            <div className="p-4 rounded-2xl bg-gold/5 border border-gold/10">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-gold/60 mb-4 px-1">Market Benchmark</div>
+              <div className="flex flex-wrap gap-2">
+                {stocks.slice(0, 6).map(stock => (
+                  <button
+                    key={stock.name}
+                    onClick={() => handleStockReturn(stock.name)}
+                    className="px-3 py-1.5 rounded-lg bg-bg-dark-2 border border-gold/10 text-[10px] font-bold text-white hover:border-gold/40 transition-all"
+                  >
+                    {stock.name} <span className="text-gold/60">{stock.change}%</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Slider label="Time Period" value={years} onChange={setYears} min={1} max={30} step={1} format={v => `${v} yrs`} />
+            <Slider label="Expected Return (p.a)" value={returns} onChange={v => { setReturns(v); setIsLive(false); }} min={1} max={30} step={0.5} format={v => `${v}%`} isLive={isLive} />
+          </div>
+
+          <div className="mt-12">
+            <a href="https://wa.me/919423669236" target="_blank" className="inline-flex items-center gap-3 bg-gold text-bg-dark px-10 py-4 rounded-2xl font-bold hover:bg-gold-light transition-all shadow-xl shadow-gold/10 group">
+              Start Saving Now
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </a>
+          </div>
         </div>
-        <div className="bg-gold/10 border border-gold/20 rounded-xl p-4 text-xs text-muted-foreground text-center w-full">
-          To reach <strong className="text-gold">{formatCurrencyShort(target)}</strong> in {years} years, you need to save <strong className="text-gold">{formatCurrency(monthlySavings)}</strong> monthly.
+
+        <div className="lg:col-span-5 p-8 md:p-12 bg-gold/5 flex flex-col items-center justify-between gap-12">
+          <div className="w-full space-y-4">
+            <ResultBox label="Monthly Savings Needed" value={formatCurrency(monthlySavings)} highlight />
+            <ResultBox label="Total Invested Amount" value={formatCurrency(monthlySavings * n)} />
+          </div>
+
+          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
+            <div className="w-full h-full min-h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie 
+                    data={data} 
+                    innerRadius="65%" 
+                    outerRadius="85%" 
+                    paddingAngle={8} 
+                    dataKey="value"
+                    stroke="none"
+                    cx="50%"
+                    cy="50%"
+                  >
+                    {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <div className="text-2xl font-serif font-bold text-white">{formatCurrencyShort(target)}</div>
+                <div className="text-[10px] uppercase tracking-widest text-gold font-bold">Target</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full p-6 bg-white/5 border border-white/10 rounded-[24px] text-xs text-muted-foreground leading-relaxed text-center">
+            To reach <span className="text-gold font-bold">{formatCurrencyShort(target)}</span> in {years} years, you need <span className="text-gold font-bold">{formatCurrency(monthlySavings)}</span> monthly.
+          </div>
         </div>
       </div>
     </motion.div>
@@ -643,7 +639,7 @@ const SIPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
 
   const data = [
     { name: 'Invested', value: invested, color: '#C9A84C' },
-    { name: 'Returns', value: returns, color: '#3b2a08' },
+    { name: 'Returns', value: returns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
   const handleSave = () => {
@@ -657,105 +653,108 @@ const SIPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 30 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 lg:gap-16 bg-bg-dark-3 border border-gold/20 rounded-[32px] p-6 md:p-12 shadow-2xl relative overflow-hidden group"
+      initial={{ opacity: 0, scale: 0.98 }} 
+      animate={{ opacity: 1, scale: 1 }} 
+      transition={{ duration: 0.5 }}
+      className="bg-bg-dark-3/80 backdrop-blur-xl border border-gold/10 rounded-[40px] overflow-hidden shadow-2xl"
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[100px] -z-10 group-hover:bg-gold/10 transition-colors duration-700" />
-      <div>
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
-          <div>
-            <h3 className="font-serif text-3xl font-bold mb-2">SIP Calculator</h3>
-            <p className="text-sm text-muted-foreground max-w-md">Systematic Investment Plan — invest a fixed amount every month and watch your wealth grow.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button 
-              onClick={applyRealTime}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/10 transition-all text-gold bg-gold/5 shadow-lg shadow-gold/5"
-              title="Apply real-time market returns"
-            >
-              <Zap size={14} className="fill-gold" />
-              Live Data
-            </button>
-            <SaveButton onSave={handleSave} />
-            <ShareButton title="SIP Plan" summary={`Monthly SIP: ${formatCurrency(amount)}\nTotal Value: ${formatCurrency(fv)}`} />
-          </div>
-        </div>
-
-        <Slider label="Monthly Investment" value={amount} onChange={(v) => { setAmount(v); setIsLive(false); }} min={500} max={100000} step={500} format={v => `₹${v.toLocaleString('en-IN')}`} helpText="The fixed amount you invest every month." />
-        <Slider label="Expected Annual Return" value={rate} onChange={(v) => { setRate(v); setIsLive(false); }} min={1} max={30} step={0.5} format={v => `${v}%`} isLive={isLive} helpText="The anticipated annual growth rate of your SIP." />
-        
-        <div className="mb-8 p-4 rounded-2xl bg-gold/5 border border-gold/10">
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold/60 mb-4 px-1">Benchmark with Market Leaders</div>
-          <div className="flex flex-wrap gap-2">
-            {stocks.slice(0, 6).map(stock => (
-              <motion.button
-                whileHover={{ scale: 1.05, backgroundColor: 'rgba(201,168,76,0.15)' }}
-                whileTap={{ scale: 0.95 }}
-                key={stock.name}
-                onClick={() => handleStockReturn(stock.name)}
-                className="px-4 py-2 rounded-xl bg-bg-dark-2 border border-gold/10 hover:border-gold/30 transition-all text-[10px] font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm"
-              >
-                <span className={`text-[8px] ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {stock.change >= 0 ? '▲' : '▼'}
-                </span>
-                <span className="text-white/80">{stock.name}</span>
-                <span className="text-gold/60 ml-1">{stock.change >= 0 ? '+' : ''}{stock.change}%</span>
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        <Slider label="Investment Period" value={years} onChange={setYears} min={1} max={40} step={1} format={v => `${v} yrs`} helpText="The total duration of your systematic investment." />
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8">
-          <ResultBox label="Invested" value={formatCurrency(invested)} helpText="Total principal amount invested over the period." />
-          <ResultBox label="Est. Returns" value={formatCurrency(returns)} highlight helpText="Estimated wealth gained through market returns." />
-          <ResultBox label="Total Value" value={formatCurrency(fv)} helpText="The total maturity value of your investment." />
-        </div>
-        <a href="http://p.njw.bz/103924" target="_blank" className="mt-6 inline-block bg-gold text-bg-dark px-8 py-3 rounded-full font-medium hover:bg-gold-light transition-all">Start SIP Now →</a>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-6">
-        <div className="w-full h-64 relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie 
-                data={data} 
-                innerRadius={60} 
-                outerRadius={80} 
-                paddingAngle={5} 
-                dataKey="value"
-                nameKey="name"
-                animationDuration={400}
-                animationEasing="ease-out"
-              >
-                {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <motion.div 
-              key={fv}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="font-serif text-xl font-bold"
-            >
-              {formatCurrencyShort(fv)}
-            </motion.div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Total</div>
-          </div>
-        </div>
-        <div className="flex gap-6">
-          {data.map(d => (
-            <div key={d.name} className="flex items-center gap-2 text-xs text-muted-foreground">
-              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
-              {d.name}
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        {/* Input Region */}
+        <div className="lg:col-span-7 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-gold/10">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-10">
+            <div>
+              <h3 className="font-serif text-3xl font-bold text-white mb-2">SIP Calculator</h3>
+              <p className="text-sm text-muted-foreground">Plan your long-term wealth creation.</p>
             </div>
-          ))}
+            <div className="flex flex-wrap gap-2">
+              <button 
+                onClick={applyRealTime}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gold/10 border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/20 transition-all text-gold"
+              >
+                <Zap size={14} className="fill-gold" />
+                Live Data
+              </button>
+              <SaveButton onSave={handleSave} />
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <Slider label="Monthly SIP Amount" value={amount} onChange={v => { setAmount(v); setIsLive(false); }} min={500} max={100000} step={500} format={v => `₹${v.toLocaleString('en-IN')}`} />
+            
+            <div className="p-4 rounded-2xl bg-gold/5 border border-gold/10">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-gold/60 mb-4 px-1">Market Benchmark</div>
+              <div className="flex flex-wrap gap-2">
+                {stocks.slice(0, 6).map(stock => (
+                  <button
+                    key={stock.name}
+                    onClick={() => handleStockReturn(stock.name)}
+                    className="px-3 py-1.5 rounded-lg bg-bg-dark-2 border border-gold/10 text-[10px] font-bold text-white hover:border-gold/40 transition-all"
+                  >
+                    {stock.name} <span className="text-gold/60">{stock.change}%</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Slider label="Expected Return (p.a)" value={rate} onChange={v => { setRate(v); setIsLive(false); }} min={1} max={30} step={0.5} format={v => `${v}%`} isLive={isLive} />
+            <Slider label="Investment Period" value={years} onChange={setYears} min={1} max={40} step={1} format={v => `${v} yrs`} />
+          </div>
+
+          <div className="mt-12">
+            <a href="http://p.njw.bz/103924" target="_blank" className="inline-flex items-center gap-3 bg-gold text-bg-dark px-10 py-4 rounded-2xl font-bold hover:bg-gold-light transition-all shadow-xl shadow-gold/10 group">
+              Start SIP Now
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </a>
+          </div>
         </div>
-        <div className="bg-gold/10 border border-gold/20 rounded-xl p-4 text-xs text-muted-foreground text-center w-full">
-          Your {formatCurrencyShort(invested)} grows to <strong className="text-gold">{formatCurrency(fv)}</strong> — a <strong className="text-gold">{(fv / invested).toFixed(1)}x</strong> return over {years} years!
+
+        {/* Results Region */}
+        <div className="lg:col-span-5 p-8 md:p-12 bg-gold/5 flex flex-col items-center justify-between gap-12">
+          <div className="w-full space-y-4">
+            <ResultBox label="Estimated Total Value" value={formatCurrency(fv)} highlight />
+            <div className="grid grid-cols-2 gap-4">
+              <ResultBox label="Invested" value={formatCurrency(invested)} />
+              <ResultBox label="Returns" value={formatCurrency(returns)} />
+            </div>
+          </div>
+
+          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
+            <div className="w-full h-full min-h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie 
+                    data={data} 
+                    innerRadius="65%" 
+                    outerRadius="85%" 
+                    paddingAngle={8} 
+                    dataKey="value"
+                    stroke="none"
+                    cx="50%"
+                    cy="50%"
+                  >
+                    {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                <div className="text-2xl font-serif font-bold text-white">{formatCurrencyShort(fv)}</div>
+                <div className="text-[10px] uppercase tracking-widest text-gold font-bold">Total</div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center gap-8 mt-4">
+              {data.map(d => (
+                <div key={d.name} className="flex items-center gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.color }} />
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{d.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="w-full p-6 bg-white/5 border border-white/10 rounded-[24px] text-xs text-muted-foreground leading-relaxed">
+            Your {formatCurrencyShort(invested)} grows to <span className="text-gold font-bold">{formatCurrencyShort(fv)}</span> — a <span className="text-gold font-bold">{(fv / invested).toFixed(1)}x</span> wealth multiplier!
+          </div>
         </div>
       </div>
     </motion.div>
@@ -796,7 +795,7 @@ const SWPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
 
   const data = [
     { name: 'Remaining', value: remaining, color: '#C9A84C' },
-    { name: 'Withdrawn', value: totalWithdrawn, color: '#3b2a08' },
+    { name: 'Withdrawn', value: totalWithdrawn, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
   const handleSave = () => {
@@ -810,96 +809,81 @@ const SWPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 30 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 lg:gap-16 bg-bg-dark-3 border border-gold/20 rounded-[32px] p-6 md:p-12 shadow-2xl relative overflow-hidden group"
+      initial={{ opacity: 0, scale: 0.98 }} 
+      animate={{ opacity: 1, scale: 1 }} 
+      transition={{ duration: 0.5 }}
+      className="bg-bg-dark-3/80 backdrop-blur-xl border border-gold/10 rounded-[40px] overflow-hidden shadow-2xl"
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[100px] -z-10 group-hover:bg-gold/10 transition-colors duration-700" />
-      <div>
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
-          <div>
-            <h3 className="font-serif text-3xl font-bold mb-2">SWP Calculator</h3>
-            <p className="text-sm text-muted-foreground max-w-md">Systematic Withdrawal Plan — generate a regular income stream from your existing corpus.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button 
-              onClick={applyRealTime}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/10 transition-all text-gold bg-gold/5 shadow-lg shadow-gold/5"
-              title="Apply real-time market returns"
-            >
-              <Zap size={14} className="fill-gold" />
-              Live Data
-            </button>
-            <SaveButton onSave={handleSave} />
-            <ShareButton title="SWP Plan" summary={`Monthly Withdrawal: ${formatCurrency(withdrawal)}\nTotal Withdrawn: ${formatCurrency(totalWithdrawn)}`} />
-          </div>
-        </div>
-
-        <Slider label="Total Investment" value={corpus} onChange={setCorpus} min={100000} max={10000000} step={50000} format={v => formatCurrency(v)} helpText="The initial lump sum amount you invest." />
-        <Slider label="Monthly Withdrawal" value={withdrawal} onChange={setWithdrawal} min={1000} max={200000} step={1000} format={v => `₹${v.toLocaleString('en-IN')}`} helpText="The fixed amount you withdraw every month." />
-        <Slider label="Expected Annual Return" value={rate} onChange={(v) => { setRate(v); setIsLive(false); }} min={1} max={20} step={0.5} format={v => `${v}%`} isLive={isLive} helpText="The anticipated annual growth rate of the remaining corpus." />
-
-        <div className="mb-8 p-4 rounded-2xl bg-gold/5 border border-gold/10">
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold/60 mb-4 px-1">Benchmark with Market Leaders</div>
-          <div className="flex flex-wrap gap-2">
-            {stocks.slice(0, 6).map(stock => (
-              <motion.button
-                whileHover={{ scale: 1.05, backgroundColor: 'rgba(201,168,76,0.15)' }}
-                whileTap={{ scale: 0.95 }}
-                key={stock.name}
-                onClick={() => handleStockReturn(stock.name)}
-                className="px-4 py-2 rounded-xl bg-bg-dark-2 border border-gold/10 hover:border-gold/30 transition-all text-[10px] font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm"
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        <div className="lg:col-span-7 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-gold/10">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-10">
+            <div>
+              <h3 className="font-serif text-3xl font-bold text-white mb-2">SWP Calculator</h3>
+              <p className="text-sm text-muted-foreground">Systematic Withdrawal Plan for regular income.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button 
+                onClick={applyRealTime}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gold/10 border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/20 transition-all text-gold"
               >
-                <span className={`text-[8px] ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {stock.change >= 0 ? '▲' : '▼'}
-                </span>
-                <span className="text-white/80">{stock.name}</span>
-                <span className="text-gold/60 ml-1">{stock.change >= 0 ? '+' : ''}{stock.change}%</span>
-              </motion.button>
-            ))}
+                <Zap size={14} className="fill-gold" />
+                Live Data
+              </button>
+              <SaveButton onSave={handleSave} />
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <Slider label="Total Investment" value={corpus} onChange={setCorpus} min={100000} max={100000000} step={100000} format={v => formatCurrency(v)} />
+            <Slider label="Monthly Withdrawal" value={withdrawal} onChange={setWithdrawal} min={1000} max={500000} step={1000} format={v => formatCurrency(v)} />
+            <Slider label="Expected Return (p.a)" value={rate} onChange={v => { setRate(v); setIsLive(false); }} min={1} max={20} step={0.5} format={v => `${v}%`} isLive={isLive} />
+          </div>
+
+          <div className="mt-12">
+            <a href="https://wa.me/919423669236" target="_blank" className="inline-flex items-center gap-3 bg-gold text-bg-dark px-10 py-4 rounded-2xl font-bold hover:bg-gold-light transition-all shadow-xl shadow-gold/10 group">
+              Get Tax Planning Advice
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </a>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8">
-          <ResultBox label="Total Withdrawn" value={formatCurrency(totalWithdrawn)} helpText="Total amount withdrawn over the duration." />
-          <ResultBox label="Corpus Lasts" value={exhausted ? `${yrs}y ${mos}m` : '50+ years'} highlight helpText="How long your initial investment will last given the withdrawals and returns." />
-          <ResultBox label="Remaining" value={formatCurrency(remaining)} helpText="The balance left in your corpus after the period." />
-        </div>
-        <a href="http://p.njw.bz/103924" target="_blank" className="mt-6 inline-block bg-gold text-bg-dark px-8 py-3 rounded-full font-medium hover:bg-gold-light transition-all">Start SWP Now →</a>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-6">
-        <div className="w-full h-64 relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie 
-                data={data} 
-                innerRadius={60} 
-                outerRadius={80} 
-                paddingAngle={5} 
-                dataKey="value"
-                nameKey="name"
-                animationDuration={400}
-                animationEasing="ease-out"
-              >
-                {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <motion.div 
-              key={remaining}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="font-serif text-xl font-bold"
-            >
-              {formatCurrencyShort(remaining)}
-            </motion.div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Balance</div>
+        <div className="lg:col-span-5 p-8 md:p-12 bg-gold/5 flex flex-col items-center justify-between gap-12">
+          <div className="w-full space-y-4">
+            <ResultBox label="Payout Duration" value={exhausted ? `${yrs}y ${mos}m` : '50+ years'} highlight />
+            <ResultBox label="Total Amount Withdrawn" value={formatCurrency(totalWithdrawn)} />
           </div>
-        </div>
-        <div className="bg-gold/10 border border-gold/20 rounded-xl p-4 text-xs text-muted-foreground text-center w-full">
-          {exhausted ? `Your corpus will last ${yrs} years ${mos} months.` : 'Your corpus outlasts 50 years!'}
+
+          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
+            <div className="w-full h-full min-h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie 
+                    data={data} 
+                    innerRadius="65%" 
+                    outerRadius="85%" 
+                    paddingAngle={8} 
+                    dataKey="value"
+                    stroke="none"
+                    cx="50%"
+                    cy="50%"
+                  >
+                    {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                <div className="text-2xl font-serif font-bold text-white max-w-[120px] truncate">{formatCurrencyShort(remaining)}</div>
+                <div className="text-[10px] uppercase tracking-widest text-gold font-bold">Remaining</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full p-6 bg-white/5 border border-white/10 rounded-[24px] text-xs text-muted-foreground leading-relaxed text-center">
+            {exhausted 
+              ? `Your corpus will last for approximately ${yrs} years and ${mos} months.`
+              : `Your corpus is sustainable indefinitely at this withdrawal rate.`
+            }
+          </div>
         </div>
       </div>
     </motion.div>
@@ -946,7 +930,7 @@ const STPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
 
   const data = [
     { name: 'Target Fund', value: tgtBalance, color: '#C9A84C' },
-    { name: 'Source Fund', value: srcBalance, color: '#3b2a08' },
+    { name: 'Source Fund', value: srcBalance, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
   const handleSave = () => {
@@ -960,97 +944,81 @@ const STPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 30 }} 
-      animate={{ opacity: 1, y: 0 }} 
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-8 lg:gap-16 bg-bg-dark-3 border border-gold/20 rounded-[32px] p-6 md:p-12 shadow-2xl relative overflow-hidden group"
+      initial={{ opacity: 0, scale: 0.98 }} 
+      animate={{ opacity: 1, scale: 1 }} 
+      transition={{ duration: 0.5 }}
+      className="bg-bg-dark-3/80 backdrop-blur-xl border border-gold/10 rounded-[40px] overflow-hidden shadow-2xl"
     >
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gold/5 blur-[100px] -z-10 group-hover:bg-gold/10 transition-colors duration-700" />
-      <div>
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-6">
-          <div>
-            <h3 className="font-serif text-3xl font-bold mb-2">STP Calculator</h3>
-            <p className="text-sm text-muted-foreground max-w-md">Systematic Transfer Plan — gradually move money from one fund to another to reduce risk.</p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <button 
-              onClick={applyRealTime}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/10 transition-all text-gold bg-gold/5 shadow-lg shadow-gold/5"
-              title="Apply real-time market returns"
-            >
-              <Zap size={14} className="fill-gold" />
-              Live Data
-            </button>
-            <SaveButton onSave={handleSave} />
-            <ShareButton title="STP Plan" summary={`Monthly Transfer: ${formatCurrency(transfer)}\nTarget Value: ${formatCurrency(tgtBalance)}`} />
-          </div>
-        </div>
-
-        <Slider label="Lump Sum Amount" value={lump} onChange={setLump} min={10000} max={5000000} step={10000} format={v => formatCurrency(v)} helpText="The initial amount in the source fund." />
-        <Slider label="Monthly Transfer" value={transfer} onChange={setTransfer} min={1000} max={200000} step={1000} format={v => `₹${v.toLocaleString('en-IN')}`} helpText="The amount transferred from source to target fund every month." />
-        <Slider label="Source Fund Return" value={srcRate} onChange={(v) => { setSrcRate(v); setIsLive(false); }} min={1} max={15} step={0.5} format={v => `${v}%`} isLive={isLive} helpText="Expected returns from the lower-risk source fund (e.g., Liquid Fund)." />
-        <Slider label="Target Fund Return" value={tgtRate} onChange={(v) => { setTgtRate(v); setIsLive(false); }} min={1} max={30} step={0.5} format={v => `${v}%`} isLive={isLive} helpText="Expected returns from the higher-risk target fund (e.g., Equity Fund)." />
-
-        <div className="mb-8 p-4 rounded-2xl bg-gold/5 border border-gold/10">
-          <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-gold/60 mb-4 px-1">Benchmark Target with Market Leaders</div>
-          <div className="flex flex-wrap gap-2">
-            {stocks.slice(0, 6).map(stock => (
-              <motion.button
-                whileHover={{ scale: 1.05, backgroundColor: 'rgba(201,168,76,0.15)' }}
-                whileTap={{ scale: 0.95 }}
-                key={stock.name}
-                onClick={() => handleStockReturn(stock.name)}
-                className="px-4 py-2 rounded-xl bg-bg-dark-2 border border-gold/10 hover:border-gold/30 transition-all text-[10px] font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm"
+      <div className="grid grid-cols-1 lg:grid-cols-12">
+        <div className="lg:col-span-7 p-8 md:p-12 border-b lg:border-b-0 lg:border-r border-gold/10">
+          <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-10">
+            <div>
+              <h3 className="font-serif text-3xl font-bold text-white mb-2">STP Calculator</h3>
+              <p className="text-sm text-muted-foreground">Optimize your market entry with Systematic Transfer.</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button 
+                onClick={applyRealTime}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gold/10 border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/20 transition-all text-gold"
               >
-                <span className={`text-[8px] ${stock.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {stock.change >= 0 ? '▲' : '▼'}
-                </span>
-                <span className="text-white/80">{stock.name}</span>
-                <span className="text-gold/60 ml-1">{stock.change >= 0 ? '+' : ''}{stock.change}%</span>
-              </motion.button>
-            ))}
+                <Zap size={14} className="fill-gold" />
+                Live Data
+              </button>
+              <SaveButton onSave={handleSave} />
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <Slider label="Lump Sum Amount" value={lump} onChange={setLump} min={10000} max={100000000} step={10000} format={v => formatCurrency(v)} />
+            <Slider label="Monthly Transfer" value={transfer} onChange={setTransfer} min={1000} max={1000000} step={1000} format={v => formatCurrency(v)} />
+            <Slider label="Target Fund Return (p.a)" value={tgtRate} onChange={v => { setTgtRate(v); setIsLive(false); }} min={1} max={30} step={0.5} format={v => `${v}%`} isLive={isLive} />
+          </div>
+
+          <div className="mt-12">
+            <a href="http://p.njw.bz/103924" target="_blank" className="inline-flex items-center gap-3 bg-gold text-bg-dark px-10 py-4 rounded-2xl font-bold hover:bg-gold-light transition-all shadow-xl shadow-gold/10 group">
+              Start STP Journey
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
+            </a>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8">
-          <ResultBox label="Duration" value={`${yrs}y ${mos}m`} helpText="Total time taken to transfer the entire lump sum." />
-          <ResultBox label="Target Value" value={formatCurrency(tgtBalance)} highlight helpText="The final value accumulated in the target fund." />
-          <ResultBox label="Source Rem." value={formatCurrency(srcBalance)} helpText="Any remaining balance in the source fund." />
-        </div>
-        <a href="http://p.njw.bz/103924" target="_blank" className="mt-6 inline-block bg-gold text-bg-dark px-8 py-3 rounded-full font-medium hover:bg-gold-light transition-all">Start STP Now →</a>
-      </div>
-      <div className="flex flex-col items-center justify-center gap-6">
-        <div className="w-full h-64 relative">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie 
-                data={data} 
-                innerRadius={60} 
-                outerRadius={80} 
-                paddingAngle={5} 
-                dataKey="value"
-                nameKey="name"
-                animationDuration={400}
-                animationEasing="ease-out"
-              >
-                {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
-              </Pie>
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-            <motion.div 
-              key={tgtBalance}
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="font-serif text-xl font-bold"
-            >
-              {formatCurrencyShort(tgtBalance)}
-            </motion.div>
-            <div className="text-[10px] text-muted-foreground uppercase tracking-wider">Target</div>
+        <div className="lg:col-span-5 p-8 md:p-12 bg-gold/5 flex flex-col items-center justify-between gap-12">
+          <div className="w-full space-y-4">
+            <ResultBox label="Target Fund Value" value={formatCurrency(tgtBalance)} highlight />
+            <div className="grid grid-cols-2 gap-4">
+              <ResultBox label="Duration" value={`${yrs}y ${mos}m`} />
+              <ResultBox label="Source Rem." value={formatCurrency(srcBalance)} />
+            </div>
           </div>
-        </div>
-        <div className="bg-gold/10 border border-gold/20 rounded-xl p-4 text-xs text-muted-foreground text-center w-full">
-          Building target fund to <strong className="text-gold">{formatCurrency(tgtBalance)}</strong>.
+
+          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
+            <div className="w-full h-full min-h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie 
+                    data={data} 
+                    innerRadius="65%" 
+                    outerRadius="85%" 
+                    paddingAngle={8} 
+                    dataKey="value"
+                    stroke="none"
+                    cx="50%"
+                    cy="50%"
+                  >
+                    {data.map((entry, index) => <Cell key={`cell-${index}`} fill={entry.color} />)}
+                  </Pie>
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                <div className="text-2xl font-serif font-bold text-white max-w-[120px] truncate">{formatCurrencyShort(tgtBalance)}</div>
+                <div className="text-[10px] uppercase tracking-widest text-gold font-bold">Target Value</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full p-6 bg-white/5 border border-white/10 rounded-[24px] text-xs text-muted-foreground leading-relaxed text-center">
+            Building target fund to <span className="text-gold font-bold">{formatCurrency(tgtBalance)}</span>.
+          </div>
         </div>
       </div>
     </motion.div>
@@ -1066,44 +1034,51 @@ const Tooltip = ({ text }: { text: string }) => (
 
 const Slider = ({ label, value, onChange, min, max, step, format, helpText, isLive }: { label: string, value: number, onChange: (v: number) => void, min: number, max: number, step: number, format: (v: number) => string, helpText?: string, isLive?: boolean }) => (
   <motion.div 
-    initial={{ opacity: 0, x: -10 }}
-    animate={{ opacity: 1, x: 0 }}
-    whileHover={{ scale: 1.01 }}
-    className="mb-6 group relative p-3 rounded-xl hover:bg-gold/5 transition-colors duration-300"
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    className="group"
   >
-    <div className="flex justify-between items-center mb-3">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
       <div className="flex items-center gap-2">
-        <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground group-hover:text-gold transition-colors">{label}</label>
+        <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground group-hover:text-gold transition-colors">{label}</label>
         <AnimatePresence>
           {isLive && (
             <motion.span 
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[8px] font-bold text-green-500 uppercase tracking-tighter animate-pulse"
+              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[8px] font-bold text-green-500 uppercase"
             >
               <Zap size={8} className="fill-green-500" />
               Live
             </motion.span>
           )}
         </AnimatePresence>
-        {helpText && (
-          <div className="relative group/tooltip">
-            <div className="w-3.5 h-3.5 rounded-full border border-muted-foreground/30 flex items-center justify-center text-[8px] text-muted-foreground/50 cursor-help hover:border-gold/50 hover:text-gold transition-colors">?</div>
-            <Tooltip text={helpText} />
-          </div>
-        )}
       </div>
-      <motion.span 
-        key={value}
-        initial={{ scale: 1.2, color: '#F27D26' }}
-        animate={{ scale: 1, color: '#C9A84C' }}
-        className="text-sm font-mono font-bold"
-      >
-        {format(value)}
-      </motion.span>
+      
+      <div className="flex items-center gap-3">
+        <div className="relative group/input">
+          <input
+            type="number"
+            min={min}
+            max={max}
+            step={step}
+            value={value}
+            onChange={e => {
+              const val = parseFloat(e.target.value);
+              if (!isNaN(val)) onChange(val);
+            }}
+            className="w-32 bg-bg-dark-2/50 border border-gold/10 rounded-xl px-3 py-2 text-right text-sm font-mono font-bold text-gold focus:outline-none focus:border-gold/50 focus:bg-bg-dark-2 transition-all outline-none"
+          />
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-mono opacity-40 group-focus-within/input:opacity-100 transition-opacity">EDIT</div>
+        </div>
+        <div className="text-[10px] font-mono font-medium text-muted-foreground opacity-60 w-24 text-right hidden sm:block">
+          {format(value)}
+        </div>
+      </div>
     </div>
-    <div className="relative flex items-center h-6">
+
+    <div className="px-1">
       <input
         type="range"
         min={min}
@@ -1111,12 +1086,12 @@ const Slider = ({ label, value, onChange, min, max, step, format, helpText, isLi
         step={step}
         value={value}
         onChange={e => onChange(parseFloat(e.target.value))}
-        className="w-full h-1 bg-bg-dark-2 rounded-lg appearance-none cursor-pointer accent-gold hover:accent-gold-light transition-all focus:outline-none focus:ring-2 focus:ring-gold/20"
+        className="w-full h-1.5 bg-gold/10 rounded-full appearance-none cursor-pointer accent-gold hover:accent-gold-light transition-all focus:outline-none"
       />
-    </div>
-    <div className="flex justify-between text-[9px] font-medium text-muted-foreground mt-1 opacity-40 group-hover:opacity-80 transition-opacity">
-      <span>{format(min)}</span>
-      <span>{format(max)}</span>
+      <div className="flex justify-between text-[9px] font-bold text-muted-foreground/40 mt-3 uppercase tracking-tighter">
+        <span>Min {format(min)}</span>
+        <span>Max {format(max)}</span>
+      </div>
     </div>
   </motion.div>
 );
@@ -1124,40 +1099,16 @@ const Slider = ({ label, value, onChange, min, max, step, format, helpText, isLi
 const ResultBox = ({ label, value, highlight, helpText }: { label: string, value: string, highlight?: boolean, helpText?: string }) => (
   <motion.div 
     layout
-    whileHover={{ y: -2, scale: 1.02 }}
-    className={`p-4 rounded-2xl border text-center transition-all duration-500 group/res relative overflow-hidden ${
+    whileHover={{ y: -4 }}
+    className={`p-6 rounded-[28px] border transition-all duration-500 relative overflow-hidden flex flex-col items-center justify-center text-center ${
       highlight 
-        ? 'bg-gold/10 border-gold/40 shadow-[0_10px_30px_rgba(201,168,76,0.15)]' 
-        : 'bg-bg-dark-2 border-gold/10 hover:border-gold/30 shadow-lg'
+        ? 'bg-gold text-bg-dark border-transparent shadow-xl shadow-gold/20' 
+        : 'bg-bg-dark-2/40 border-gold/10 hover:border-gold/30 shadow-lg'
     }`}
   >
-    {highlight && (
-      <motion.div 
-        animate={{ 
-          opacity: [0.1, 0.2, 0.1],
-          scale: [1, 1.05, 1]
-        }}
-        transition={{ duration: 4, repeat: Infinity }}
-        className="absolute inset-0 bg-gold/5 pointer-events-none"
-      />
-    )}
-    <div className="flex items-center justify-center gap-1.5 mb-2 relative z-10">
-      <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.15em]">{label}</div>
-      {helpText && (
-        <div className="relative group/tooltip">
-          <div className="w-3 h-3 rounded-full border border-muted-foreground/20 flex items-center justify-center text-[7px] text-muted-foreground/40 cursor-help hover:border-gold/40 hover:text-gold transition-colors">?</div>
-          <Tooltip text={helpText} />
-        </div>
-      )}
-    </div>
-    <motion.div 
-      key={value}
-      initial={{ scale: 0.9, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className={`text-base md:text-lg font-bold relative z-10 ${highlight ? 'text-gold' : 'text-white'}`}
-    >
+    <div className={`text-[9px] font-bold uppercase tracking-widest mb-2 ${highlight ? 'text-bg-dark/60' : 'text-muted-foreground'}`}>{label}</div>
+    <div className={`text-xl md:text-2xl font-serif font-black ${highlight ? 'text-bg-dark' : 'text-white'}`}>
       {value}
-    </motion.div>
+    </div>
   </motion.div>
 );

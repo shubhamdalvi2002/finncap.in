@@ -18,19 +18,14 @@ export const Contact: React.FC = () => {
       return;
     }
 
-    let text = `Hi FinAura Capital! 👋\n\nI'm interested in your services.\n\n📝 *Name:* ${formData.name}\n📞 *Phone:* ${formData.phone}`;
-    if (formData.email) text += `\n✉️ *Email:* ${formData.email}`;
-    if (formData.service) text += `\n💼 *Service:* ${formData.service}`;
-    if (formData.message) text += `\n💬 *Message:* ${formData.message}`;
-    text += `\n\nPlease get in touch. Thank you!`;
-
-    window.open(`https://wa.me/919423669236?text=${encodeURIComponent(text)}`, '_blank');
-    setStatus({ type: 'success', msg: '✅ Opening WhatsApp with your message...' });
+    // In a real app, you'd send this to a backend. 
+    // Here we'll just simulate a successful enquiry submission.
+    setStatus({ type: 'success', msg: '✅ Thank you! Your enquiry has been received. We will contact you soon.' });
     
     setTimeout(() => {
       setFormData({ name: '', phone: '', email: '', service: '', message: '' });
       setStatus(null);
-    }, 3000);
+    }, 5000);
   };
 
   return (
@@ -83,8 +78,8 @@ export const Contact: React.FC = () => {
             />
           </div>
 
-          <button type="submit" className="bg-gold text-bg-dark py-4 rounded-full font-medium hover:bg-gold-light transition-all flex items-center justify-center gap-2">
-            💬 Send via WhatsApp →
+          <button type="submit" className="bg-gold text-bg-dark py-4 rounded-full font-bold hover:bg-gold-light transition-all flex items-center justify-center gap-2">
+            Send Enquiry
           </button>
 
           {status && (
