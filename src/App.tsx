@@ -14,10 +14,8 @@ export default function App() {
   return (
     <div className="min-h-screen selection:bg-gold selection:text-bg-dark">
       <Navbar />
-      <MarketTicker />
       <main>
         <Hero />
-        <NewsFeed />
         <Services />
         <Calculators />
         <Blog />

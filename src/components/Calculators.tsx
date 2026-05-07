@@ -2,44 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { formatCurrency, formatCurrencyShort } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
-import { Save, Share2, Trash2, Copy, Check, BarChart2, Zap } from 'lucide-react';
+import { Share2, Copy, Check, Zap } from 'lucide-react';
 import { useMarketData, MarketIndicators } from '../hooks/useMarketData';
 
-type CalcType = 'sip' | 'swp' | 'stp' | 'retirement' | 'emi' | 'goal' | 'compare';
-
-interface SavedScenario {
-  id: string;
-  type: CalcType;
-  label: string;
-  params: Record<string, any>;
-  results: Record<string, any>;
-  timestamp: number;
-}
+type CalcType = 'sip' | 'swp' | 'stp' | 'retirement' | 'emi' | 'goal';
 
 export const Calculators: React.FC = () => {
   const [activeTab, setActiveTab] = useState<CalcType>('sip');
   const { indicators, stocks } = useMarketData();
-  const [savedScenarios, setSavedScenarios] = useState<SavedScenario[]>(() => {
-    const saved = localStorage.getItem('finaura_scenarios');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const saveScenario = (scenario: Omit<SavedScenario, 'id' | 'timestamp'>) => {
-    const newScenario: SavedScenario = {
-      ...scenario,
-      id: Math.random().toString(36).substr(2, 9),
-      timestamp: Date.now(),
-    };
-    const updated = [newScenario, ...savedScenarios];
-    setSavedScenarios(updated);
-    localStorage.setItem('finaura_scenarios', JSON.stringify(updated));
-  };
-
-  const deleteScenario = (id: string) => {
-    const updated = savedScenarios.filter(s => s.id !== id);
-    setSavedScenarios(updated);
-    localStorage.setItem('finaura_scenarios', JSON.stringify(updated));
-  };
 
   return (
     <section id="calculators" className="py-24 px-6 relative overflow-hidden">
@@ -51,7 +21,7 @@ export const Calculators: React.FC = () => {
 
       <div className="flex justify-center mb-12">
         <div className="flex overflow-x-auto no-scrollbar max-w-full border border-gold/20 rounded-2xl md:rounded-full bg-bg-dark-3/50 backdrop-blur-sm px-2 md:px-0">
-          {(['sip', 'swp', 'stp', 'retirement', 'emi', 'goal', 'compare'] as const).map(tab => (
+          {(['sip', 'swp', 'stp', 'retirement', 'emi', 'goal'] as const).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -59,13 +29,7 @@ export const Calculators: React.FC = () => {
                 activeTab === tab ? 'bg-gold text-bg-dark shadow-lg' : 'text-muted-foreground hover:bg-gold/10 hover:text-gold'
               }`}
             >
-              {tab === 'compare' && <BarChart2 size={14} />}
               {tab === 'emi' ? 'Loan EMI' : tab}
-              {tab === 'compare' && savedScenarios.length > 0 && (
-                <span className="bg-bg-dark text-gold text-[8px] px-1.5 py-0.5 rounded-full border border-gold/30">
-                  {savedScenarios.length}
-                </span>
-              )}
             </button>
           ))}
         </div>
@@ -73,20 +37,12 @@ export const Calculators: React.FC = () => {
 
       <div className="max-w-5xl mx-auto">
         <AnimatePresence mode="wait">
-          {activeTab === 'sip' && <SIPCalculator key="sip" onSave={saveScenario} indicators={indicators} stocks={stocks} />}
-          {activeTab === 'swp' && <SWPCalculator key="swp" onSave={saveScenario} indicators={indicators} stocks={stocks} />}
-          {activeTab === 'stp' && <STPCalculator key="stp" onSave={saveScenario} indicators={indicators} stocks={stocks} />}
-          {activeTab === 'retirement' && <RetirementCalculator key="retirement" onSave={saveScenario} indicators={indicators} />}
-          {activeTab === 'emi' && <EMICalculator key="emi" onSave={saveScenario} indicators={indicators} />}
-          {activeTab === 'goal' && <GoalCalculator key="goal" onSave={saveScenario} indicators={indicators} stocks={stocks} />}
-          {activeTab === 'compare' && (
-            <CompareView 
-              key="compare" 
-              scenarios={savedScenarios} 
-              onDelete={deleteScenario} 
-              onSwitchTab={setActiveTab}
-            />
-          )}
+          {activeTab === 'sip' && <SIPCalculator key="sip" indicators={indicators} stocks={stocks} />}
+          {activeTab === 'swp' && <SWPCalculator key="swp" indicators={indicators} stocks={stocks} />}
+          {activeTab === 'stp' && <STPCalculator key="stp" indicators={indicators} stocks={stocks} />}
+          {activeTab === 'retirement' && <RetirementCalculator key="retirement" indicators={indicators} />}
+          {activeTab === 'emi' && <EMICalculator key="emi" indicators={indicators} />}
+          {activeTab === 'goal' && <GoalCalculator key="goal" indicators={indicators} stocks={stocks} />}
         </AnimatePresence>
       </div>
     </section>
@@ -122,96 +78,11 @@ const ShareButton = ({ title, summary }: { title: string, summary: string }) => 
   );
 };
 
-const SaveButton = ({ onSave }: { onSave: () => void }) => {
-  const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
-    onSave();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
 
-  return (
-    <button 
-      onClick={handleSave}
-      className="flex items-center gap-2 px-4 py-2 rounded-full border border-gold/20 text-[10px] uppercase tracking-widest font-bold hover:bg-gold/10 transition-all text-muted-foreground hover:text-gold"
-    >
-      {saved ? <Check size={14} /> : <Save size={14} />}
-      {saved ? 'Saved' : 'Save'}
-    </button>
-  );
-};
 
-const CompareView = ({ scenarios, onDelete, onSwitchTab }: { scenarios: SavedScenario[], onDelete: (id: string) => void, onSwitchTab: (tab: CalcType) => void }) => {
-  if (scenarios.length === 0) {
-    return (
-      <motion.div 
-        initial={{ opacity: 0 }} 
-        animate={{ opacity: 1 }} 
-        className="text-center py-20 bg-bg-dark-3 border border-gold/10 rounded-[20px]"
-      >
-        <BarChart2 size={48} className="mx-auto mb-4 text-gold/20" />
-        <h3 className="text-xl font-serif mb-2">No saved scenarios yet</h3>
-        <p className="text-muted-foreground mb-8">Save your calculations to compare different financial strategies side-by-side.</p>
-        <button 
-          onClick={() => onSwitchTab('sip')}
-          className="bg-gold text-bg-dark px-8 py-3 rounded-full font-medium hover:bg-gold-light transition-all"
-        >
-          Go to Calculators
-        </button>
-      </motion.div>
-    );
-  }
 
-  return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
-      <div className="flex justify-between items-center">
-        <h3 className="font-serif text-2xl font-bold">Comparison Dashboard</h3>
-        <div className="text-xs text-muted-foreground">{scenarios.length} Scenarios Saved</div>
-      </div>
-
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {scenarios.map((s) => (
-          <div key={s.id} className="bg-bg-dark-3 border border-gold/20 rounded-2xl p-6 relative group overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-              <button 
-                onClick={() => onDelete(s.id)}
-                className="text-muted-foreground hover:text-red-400 transition-colors"
-              >
-                <Trash2 size={16} />
-              </button>
-            </div>
-            
-            <div className="text-[10px] uppercase tracking-widest text-gold mb-2">{s.type}</div>
-            <h4 className="font-serif text-lg font-bold mb-4">{s.label}</h4>
-            
-            <div className="space-y-4 mb-6">
-              <div className="grid grid-cols-2 gap-4">
-                {Object.entries(s.params).map(([key, val]) => (
-                  <div key={key}>
-                    <div className="text-[9px] text-muted-foreground uppercase">{key.replace(/([A-Z])/g, ' $1')}</div>
-                    <div className="text-xs font-medium">{val}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-gold/10">
-              {Object.entries(s.results).map(([key, val]) => (
-                <div key={key} className="flex justify-between items-center mb-1">
-                  <div className="text-[10px] text-muted-foreground uppercase">{key}</div>
-                  <div className="text-sm font-bold text-gold">{val}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-    </motion.div>
-  );
-};
-
-const RetirementCalculator = ({ onSave, indicators }: { onSave: (s: any) => void, indicators: MarketIndicators }) => {
+const RetirementCalculator = ({ indicators }: { indicators: MarketIndicators }) => {
   const [currentAge, setCurrentAge] = useState(30);
   const [retireAge, setRetireAge] = useState(60);
   const [expenses, setExpenses] = useState(50000);
@@ -249,15 +120,6 @@ const RetirementCalculator = ({ onSave, indicators }: { onSave: (s: any) => void
     { name: 'Returns', value: estReturns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
-  const handleSave = () => {
-    onSave({
-      type: 'retirement',
-      label: `Retirement at ${retireAge}`,
-      params: { currentAge, retireAge, expenses, inflation },
-      results: { corpus: formatCurrency(corpusRequired), savings: formatCurrency(monthlySavings) }
-    });
-  };
-
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }} 
@@ -281,7 +143,6 @@ const RetirementCalculator = ({ onSave, indicators }: { onSave: (s: any) => void
                 <Zap size={14} className="fill-gold" />
                 Live Data
               </button>
-              <SaveButton onSave={handleSave} />
             </div>
           </div>
 
@@ -350,7 +211,7 @@ const RetirementCalculator = ({ onSave, indicators }: { onSave: (s: any) => void
   );
 };
 
-const EMICalculator = ({ onSave, indicators }: { onSave: (s: any) => void, indicators: MarketIndicators }) => {
+const EMICalculator = ({ indicators }: { indicators: MarketIndicators }) => {
   const [loanAmount, setLoanAmount] = useState(1000000);
   const [interestRate, setInterestRate] = useState(8.5);
   const [tenure, setTenure] = useState(20);
@@ -374,15 +235,6 @@ const EMICalculator = ({ onSave, indicators }: { onSave: (s: any) => void, indic
     { name: 'Interest', value: totalInterest, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
-  const handleSave = () => {
-    onSave({
-      type: 'emi',
-      label: `Loan: ${formatCurrencyShort(loanAmount)}`,
-      params: { amount: formatCurrencyShort(loanAmount), rate: interestRate, tenure },
-      results: { emi: formatCurrency(emi), total: formatCurrency(totalPayment) }
-    });
-  };
-
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }} 
@@ -405,7 +257,6 @@ const EMICalculator = ({ onSave, indicators }: { onSave: (s: any) => void, indic
                 <Zap size={14} className="fill-gold" />
                 Live Rates
               </button>
-              <SaveButton onSave={handleSave} />
             </div>
           </div>
 
@@ -466,7 +317,7 @@ const EMICalculator = ({ onSave, indicators }: { onSave: (s: any) => void, indic
   );
 };
 
-const GoalCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => void, indicators: MarketIndicators, stocks: any[] }) => {
+const GoalCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, stocks: any[] }) => {
   const [target, setTarget] = useState(1000000);
   const [years, setYears] = useState(5);
   const [returns, setReturns] = useState(12);
@@ -501,15 +352,6 @@ const GoalCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => vo
     { name: 'Returns', value: estReturns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
-  const handleSave = () => {
-    onSave({
-      type: 'goal',
-      label: `Goal: ${formatCurrencyShort(target)}`,
-      params: { target: formatCurrencyShort(target), years, returns },
-      results: { monthly: formatCurrency(monthlySavings), invested: formatCurrency(monthlySavings * n) }
-    });
-  };
-
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }} 
@@ -532,7 +374,6 @@ const GoalCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => vo
                 <Zap size={14} className="fill-gold" />
                 Live Data
               </button>
-              <SaveButton onSave={handleSave} />
             </div>
           </div>
 
@@ -606,7 +447,7 @@ const GoalCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => vo
   );
 };
 
-const SIPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => void, indicators: MarketIndicators, stocks: any[] }) => {
+const SIPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, stocks: any[] }) => {
   const [amount, setAmount] = useState(5000);
   const [rate, setRate] = useState(12);
   const [years, setYears] = useState(10);
@@ -642,15 +483,6 @@ const SIPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
     { name: 'Returns', value: returns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
-  const handleSave = () => {
-    onSave({
-      type: 'sip',
-      label: `SIP: ${formatCurrencyShort(amount)}/mo`,
-      params: { amount: formatCurrencyShort(amount), rate, years },
-      results: { total: formatCurrency(fv), returns: formatCurrency(returns) }
-    });
-  };
-
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }} 
@@ -674,7 +506,6 @@ const SIPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
                 <Zap size={14} className="fill-gold" />
                 Live Data
               </button>
-              <SaveButton onSave={handleSave} />
             </div>
           </div>
 
@@ -761,7 +592,7 @@ const SIPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
   );
 };
 
-const SWPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => void, indicators: MarketIndicators, stocks: any[] }) => {
+const SWPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, stocks: any[] }) => {
   const [corpus, setCorpus] = useState(1000000);
   const [withdrawal, setWithdrawal] = useState(10000);
   const [rate, setRate] = useState(10);
@@ -798,15 +629,6 @@ const SWPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
     { name: 'Withdrawn', value: totalWithdrawn, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
-  const handleSave = () => {
-    onSave({
-      type: 'swp',
-      label: `SWP: ${formatCurrencyShort(withdrawal)}/mo`,
-      params: { corpus: formatCurrencyShort(corpus), withdrawal: formatCurrencyShort(withdrawal), rate },
-      results: { total: formatCurrency(totalWithdrawn), lasts: exhausted ? `${yrs}y ${mos}m` : '50+ y' }
-    });
-  };
-
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }} 
@@ -829,7 +651,6 @@ const SWPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
                 <Zap size={14} className="fill-gold" />
                 Live Data
               </button>
-              <SaveButton onSave={handleSave} />
             </div>
           </div>
 
@@ -890,7 +711,7 @@ const SWPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
   );
 };
 
-const STPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => void, indicators: MarketIndicators, stocks: any[] }) => {
+const STPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, stocks: any[] }) => {
   const [lump, setLump] = useState(500000);
   const [transfer, setTransfer] = useState(20000);
   const [srcRate, setSrcRate] = useState(7);
@@ -933,15 +754,6 @@ const STPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
     { name: 'Source Fund', value: srcBalance, color: 'rgba(201, 168, 76, 0.2)' },
   ];
 
-  const handleSave = () => {
-    onSave({
-      type: 'stp',
-      label: `STP: ${formatCurrencyShort(transfer)}/mo`,
-      params: { lump: formatCurrencyShort(lump), transfer: formatCurrencyShort(transfer), srcRate, tgtRate },
-      results: { target: formatCurrency(tgtBalance), duration: `${yrs}y ${mos}m` }
-    });
-  };
-
   return (
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }} 
@@ -964,7 +776,6 @@ const STPCalculator = ({ onSave, indicators, stocks }: { onSave: (s: any) => voi
                 <Zap size={14} className="fill-gold" />
                 Live Data
               </button>
-              <SaveButton onSave={handleSave} />
             </div>
           </div>
 
