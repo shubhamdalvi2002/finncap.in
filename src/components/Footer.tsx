@@ -14,8 +14,13 @@ export const Footer: React.FC = () => {
           <a href="https://www.instagram.com/finnauracapital" target="_blank" className="text-muted-foreground text-sm hover:text-gold transition-colors">Instagram</a>
         </div>
 
-        <div className="text-muted-foreground text-[0.8rem]">
-          © {new Date().getFullYear()} FinAura Capital. All rights reserved.
+        <div className="flex flex-col items-center md:items-end gap-1">
+          <div className="text-muted-foreground text-[0.8rem]">
+            © {new Date().getFullYear()} FinAura Capital. All rights reserved.
+          </div>
+          <div className="text-[0.65rem] text-muted-foreground/60 uppercase tracking-widest font-medium">
+            NISM Certified Mutual Fund Distributor
+          </div>
         </div>
       </div>
     </footer>

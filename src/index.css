@@ -31,7 +31,7 @@
   }
 
   body {
-    @apply bg-[rgb(var(--background))] text-[rgb(var(--foreground))] font-sans antialiased;
+    @apply bg-[rgb(var(--background))] text-[rgb(var(--foreground))] font-sans antialiased overflow-x-hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
@@ -60,6 +60,23 @@
   scrollbar-width: none;
 }
 
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(201, 168, 76, 0.05);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(201, 168, 76, 0.2);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(201, 168, 76, 0.4);
+}
+
 @keyframes tickerScroll {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -67,6 +84,10 @@
 
 .animate-ticker {
   animation: tickerScroll 40s linear infinite;
+}
+
+.pause-animation {
+  animation-play-state: paused;
 }
 
 .animate-ticker:hover {

@@ -7,8 +7,18 @@ export interface MarketIndicators {
   goldRate: number;
 }
 
+export interface Stock {
+  name: string;
+  price: number;
+  change: number;
+  high?: number;
+  low?: number;
+  volume?: number;
+  marketCap?: number;
+}
+
 export const useMarketData = () => {
-  const [stocks, setStocks] = useState<any[]>([]);
+  const [stocks, setStocks] = useState<Stock[]>([]);
   const [indicators, setIndicators] = useState<MarketIndicators>({
     inflation: 6.0,
     interestRate: 8.5,
@@ -16,7 +26,8 @@ export const useMarketData = () => {
     goldRate: 73245
   });
   const [news, setNews] = useState<any[]>([]);
-  const [connected, setConnected] = useState(false);
+  const [connected, setConnected] = useState(true); // Start as true to avoid initial flicker
+  const lastUpdateTimeRef = useRef<number>(Date.now());
   const wsRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -24,47 +35,59 @@ export const useMarketData = () => {
     const host = window.location.host;
     const wsUrl = `${protocol}//${host}`;
 
+    const handleDataReceived = () => {
+      lastUpdateTimeRef.current = Date.now();
+      setConnected(true);
+    };
+
     const connect = () => {
       if (wsRef.current) {
         wsRef.current.close();
       }
 
-      const ws = new WebSocket(wsUrl);
-      wsRef.current = ws;
+      // Skip WebSocket if we are in an environment known to be flaky with them (optional, but keep it for now)
+      try {
+        const ws = new WebSocket(wsUrl);
+        wsRef.current = ws;
 
-      ws.onopen = () => {
-        setConnected(true);
-      };
+        ws.onopen = () => {
+          console.log('WebSocket connected');
+          setConnected(true);
+        };
 
-      ws.onmessage = (event) => {
-        try {
-          const message = JSON.parse(event.data);
-          if (message.type === 'STOCK_UPDATE') {
-            setStocks(message.data);
-          } else if (message.type === 'MARKET_INDICATORS') {
-            setIndicators(message.data);
-          } else if (message.type === 'NEWS_UPDATE') {
-            setNews(message.data);
+        ws.onmessage = (event) => {
+          handleDataReceived();
+          try {
+            const message = JSON.parse(event.data);
+            if (message.type === 'STOCK_UPDATE') {
+              setStocks(message.data);
+            } else if (message.type === 'MARKET_INDICATORS') {
+              setIndicators(message.data);
+            } else if (message.type === 'NEWS_UPDATE') {
+              setNews(message.data);
+            }
+          } catch (err) {
+            console.error('Error parsing WebSocket message:', err);
           }
-        } catch (err) {
-          console.error('Error parsing WebSocket message:', err);
-        }
-      };
+        };
 
-      ws.onclose = () => {
-        setConnected(false);
-        // Only reconnect if the component is still mounted and the current ws is the one that closed
-        if (wsRef.current === ws) {
-          setTimeout(connect, 3000);
-        }
-      };
+        ws.onclose = () => {
+          // Don't immediately set connected to false, polling might be working
+          console.log('WebSocket closed');
+          if (wsRef.current === ws) {
+            setTimeout(connect, 5000);
+          }
+        };
 
-      ws.onerror = () => {
-        ws.close();
-      };
+        ws.onerror = () => {
+          ws.close();
+        };
+      } catch (e) {
+        console.error('WebSocket connection error:', e);
+      }
     };
 
-    // HTTP Polling Fallback for environments without WebSocket support (like Vercel serverless)
+    // HTTP Polling Fallback for environments without WebSocket support
     const pollData = async () => {
       console.log('Polling market data...');
       try {
@@ -76,47 +99,49 @@ export const useMarketData = () => {
         
         if (stocksRes.ok) {
           const stocksData = await stocksRes.json();
-          console.log('Stocks received:', stocksData.length);
           if (stocksData.length > 0) {
             setStocks(stocksData);
-            setConnected(true);
+            handleDataReceived();
           }
-        } else {
-          console.error('Stocks fetch failed:', stocksRes.status);
         }
 
         if (indicatorsRes.ok) {
           const indicatorsData = await indicatorsRes.json();
           setIndicators(indicatorsData);
+          handleDataReceived();
         }
 
         if (newsRes.ok) {
           const newsData = await newsRes.json();
-          console.log('News received:', newsData.length);
           setNews(newsData);
+          handleDataReceived();
         }
       } catch (err) {
         console.error('Polling error:', err);
-        // If both WS and Polling fail, then we are truly offline
-        if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) {
-          setConnected(false);
-        }
       }
     };
 
     connect();
     
-    // Set up polling interval as a fallback/supplement
-    const pollInterval = setInterval(pollData, 15000);
-    pollData(); // Initial poll
+    const pollInterval = setInterval(pollData, 10000);
+    pollData();
+
+    // Secondary check for "Offline" status - if no data received for 30 seconds
+    const statusCheckInterval = setInterval(() => {
+      const timeSinceLastUpdate = Date.now() - lastUpdateTimeRef.current;
+      if (timeSinceLastUpdate > 30000) {
+        setConnected(false);
+      }
+    }, 5000);
 
     return () => {
       if (wsRef.current) {
         wsRef.current.close();
       }
       clearInterval(pollInterval);
+      clearInterval(statusCheckInterval);
     };
-  }, []);
+  }, []); // Empty deps - run once on mount
 
   return { stocks, indicators, news, connected };
 };

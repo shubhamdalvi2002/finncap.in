@@ -8,21 +8,21 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const INITIAL_STOCKS = [
-  { name: 'NIFTY 50', price: 24356.55, change: +0.43 },
-  { name: 'SENSEX', price: 80218.37, change: +0.38 },
-  { name: 'NIFTY BANK', price: 52134.10, change: -0.21 },
-  { name: 'RELIANCE', price: 2987.45, change: +1.12 },
-  { name: 'TCS', price: 4123.80, change: +0.67 },
-  { name: 'HDFC BANK', price: 1712.30, change: -0.45 },
-  { name: 'INFOSYS', price: 1894.55, change: +0.89 },
-  { name: 'ICICI BANK', price: 1298.70, change: +0.34 },
-  { name: 'WIPRO', price: 567.25, change: -0.18 },
-  { name: 'BAJAJ FIN', price: 7234.90, change: +1.45 },
-  { name: 'LT', price: 3654.20, change: +0.72 },
-  { name: 'MARUTI', price: 12450.60, change: -0.30 },
-  { name: 'NIFTY MID', price: 58934.20, change: +0.61 },
-  { name: 'GOLD', price: 73245.00, change: +0.25 },
-  { name: 'NIFTY IT', price: 39812.45, change: +1.02 },
+  { name: 'NIFTY 50', price: 24356.55, change: +0.43, high: 24410.20, low: 24290.15, volume: 245600000, marketCap: 185000000000000 },
+  { name: 'SENSEX', price: 80218.37, change: +0.38, high: 80350.50, low: 80120.10, volume: 15600000, marketCap: 410000000000000 },
+  { name: 'NIFTY BANK', price: 52134.10, change: -0.21, high: 52300.00, low: 52050.45, volume: 85400000, marketCap: 35000000000000 },
+  { name: 'RELIANCE', price: 2987.45, change: +1.12, high: 3010.00, low: 2965.20, volume: 4500000, marketCap: 20200000000000 },
+  { name: 'TCS', price: 4123.80, change: +0.67, high: 4150.00, low: 4105.50, volume: 1200000, marketCap: 14900000000000 },
+  { name: 'HDFC BANK', price: 1712.30, change: -0.45, high: 1730.00, low: 1705.10, volume: 12500000, marketCap: 13000000000000 },
+  { name: 'INFOSYS', price: 1894.55, change: +0.89, high: 1910.20, low: 1880.00, volume: 3200000, marketCap: 7800000000000 },
+  { name: 'ICICI BANK', price: 1298.70, change: +0.34, high: 1305.00, low: 1288.40, volume: 8900000, marketCap: 9100000000000 },
+  { name: 'WIPRO', price: 567.25, change: -0.18, high: 575.00, low: 562.10, volume: 5600000, marketCap: 2900000000000 },
+  { name: 'BAJAJ FIN', price: 7234.90, change: +1.45, high: 7280.00, low: 7150.00, volume: 980000, marketCap: 4400000000000 },
+  { name: 'LT', price: 3654.20, change: +0.72, high: 3680.00, low: 3630.00, volume: 1100000, marketCap: 5100000000000 },
+  { name: 'MARUTI', price: 12450.60, change: -0.30, high: 12550.00, low: 12380.00, volume: 450000, marketCap: 3900000000000 },
+  { name: 'NIFTY MID', price: 58934.20, change: +0.61, high: 59100.00, low: 58750.00, volume: 125000000, marketCap: 25000000000000 },
+  { name: 'GOLD', price: 73245.00, change: +0.25, high: 73500.00, low: 73100.00, volume: 5000, marketCap: 0 },
+  { name: 'NIFTY IT', price: 39812.45, change: +1.02, high: 40050.00, low: 39600.00, volume: 45000000, marketCap: 15000000000000 },
 ];
 
 const app = express();
@@ -128,7 +128,17 @@ const fetchStocks = async () => {
       const drift = (Math.random() - 0.498) * 0.12;
       const newChange = parseFloat((s.change + drift).toFixed(2));
       const newPrice = parseFloat((s.price * (1 + drift / 100)).toFixed(2));
-      return { ...s, price: newPrice, change: newChange };
+      const newHigh = Math.max(s.high || newPrice, newPrice);
+      const newLow = Math.min(s.low || newPrice, newPrice);
+      const newVolume = (s.volume || 1000000) + Math.floor((Math.random() - 0.5) * 10000);
+      return { 
+        ...s, 
+        price: newPrice, 
+        change: newChange,
+        high: newHigh,
+        low: newLow,
+        volume: Math.max(0, newVolume)
+      };
     });
   } else {
     try {
@@ -148,7 +158,11 @@ const fetchStocks = async () => {
           currentStocks = data.map((item: any) => ({
             name: item.name || item.symbol.replace('.NS', ''),
             price: item.price,
-            change: parseFloat(item.changesPercentage.toFixed(2))
+            change: parseFloat(item.changesPercentage.toFixed(2)),
+            high: item.dayHigh,
+            low: item.dayLow,
+            volume: item.volume,
+            marketCap: item.marketCap
           }));
         } else {
           console.warn('Stocks API returned empty or invalid data:', data);
@@ -175,7 +189,17 @@ const fetchStocks = async () => {
         const drift = (Math.random() - 0.498) * 0.12;
         const newChange = parseFloat((s.change + drift).toFixed(2));
         const newPrice = parseFloat((s.price * (1 + drift / 100)).toFixed(2));
-        return { ...s, price: newPrice, change: newChange };
+        const newHigh = Math.max(s.high || newPrice, newPrice);
+        const newLow = Math.min(s.low || newPrice, newPrice);
+        const newVolume = (s.volume || 1000000) + Math.floor((Math.random() - 0.5) * 10000);
+        return { 
+          ...s, 
+          price: newPrice, 
+          change: newChange,
+          high: newHigh,
+          low: newLow,
+          volume: Math.max(0, newVolume)
+        };
       });
     }
   }
@@ -262,34 +286,8 @@ app.get("/api/news", async (req, res) => {
   }
 });
 
-async function setupServer() {
-  // Initial fetch
-  fetchNews();
-  fetchStocks();
-  fetchMarketIndicators();
-  
-  // Fetch news every 5 minutes
-  setInterval(fetchNews, 5 * 60 * 1000);
-  
-  // Fetch stocks every 10 seconds (or 2 seconds if simulating)
-  setInterval(fetchStocks, process.env.FINANCIAL_API_KEY ? 10000 : 2000);
-  
-  // Fetch indicators every 10 minutes
-  setInterval(fetchMarketIndicators, 10 * 60 * 1000);
-
-  wss.on('connection', (ws) => {
-    console.log('Client connected to WebSocket');
-    // Send initial data
-    ws.send(JSON.stringify({ type: 'STOCK_UPDATE', data: currentStocks }));
-    ws.send(JSON.stringify({ type: 'MARKET_INDICATORS', data: marketIndicators }));
-    if (currentNews.length > 0) {
-      ws.send(JSON.stringify({ type: 'NEWS_UPDATE', data: currentNews }));
-    }
-    
-    ws.on('close', () => console.log('Client disconnected'));
-  });
-
-  // Vite middleware for development
+// Vite middleware / static files setup
+async function configureApp() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -303,29 +301,53 @@ async function setupServer() {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
+}
 
-  return app;
+async function startBackgroundTasks() {
+  // Initial fetch
+  await Promise.allSettled([
+    fetchNews(),
+    fetchStocks(),
+    fetchMarketIndicators()
+  ]);
+  
+  // These intervals will only run in standalone mode/persistent environments
+  if (process.env.NODE_ENV !== "production" || process.env.PERSISTENT_SERVER) {
+    // Fetch news every 5 minutes
+    setInterval(fetchNews, 5 * 60 * 1000);
+    
+    // Fetch stocks every 10 seconds
+    setInterval(fetchStocks, process.env.FINANCIAL_API_KEY ? 10000 : 2000);
+    
+    // Fetch indicators every 10 minutes
+    setInterval(fetchMarketIndicators, 10 * 60 * 1000);
+
+    wss.on('connection', (ws) => {
+      console.log('Client connected to WebSocket');
+      ws.send(JSON.stringify({ type: 'STOCK_UPDATE', data: currentStocks }));
+      ws.send(JSON.stringify({ type: 'MARKET_INDICATORS', data: marketIndicators }));
+      if (currentNews.length > 0) {
+        ws.send(JSON.stringify({ type: 'NEWS_UPDATE', data: currentNews }));
+      }
+      ws.on('close', () => console.log('Client disconnected'));
+    });
+  }
 }
 
 // For local development or persistent servers
-if (process.env.NODE_ENV !== "production" || process.env.PERSISTENT_SERVER) {
-  setupServer().then(() => {
+const isStandalone = process.env.NODE_ENV !== "production" || process.env.PERSISTENT_SERVER || !process.env.VERCEL;
+
+async function init() {
+  await startBackgroundTasks();
+  await configureApp();
+
+  if (isStandalone) {
     httpServer.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on http://localhost:${PORT}`);
     });
-  });
-} else {
-  // In Vercel production, we still need to serve static files
-  const distPath = path.join(process.cwd(), 'dist');
-  app.use(express.static(distPath));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(distPath, 'index.html'));
-  });
-  
-  // Trigger initial fetches for the warm instance
-  fetchNews();
-  fetchStocks();
-  fetchMarketIndicators();
+  }
 }
+
+init().catch(console.error);
 
 export default app;
