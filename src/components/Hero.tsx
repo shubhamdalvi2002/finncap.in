@@ -1,6 +1,7 @@
 import React from 'react';
 import { HeroBackground } from './HeroBackground';
 import { motion } from 'motion/react';
+import { FinauraLogo } from './FinauraLogo';
 
 export const Hero: React.FC = () => {
   return (
@@ -12,8 +13,16 @@ export const Hero: React.FC = () => {
       <div className="absolute top-[30%] right-[10%] w-[45px] h-[45px] rounded-full bg-gradient-to-br from-gold-dim via-gold to-gold-light opacity-50 blur-[1px] animate-bounce duration-[5.5s] z-10 hidden md:block" style={{ animationDuration: '5.5s' }} />
       <div className="absolute bottom-[22%] left-[14%] w-[90px] h-[90px] rounded-full bg-gradient-to-br from-gold-dim via-gold to-gold-light opacity-40 blur-[1px] animate-bounce duration-[8s] z-10 hidden md:block" style={{ animationDuration: '8s' }} />
 
+      <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex justify-center mb-6"
+        >
+          <FinauraLogo variant="full" className="w-28 h-28 md:w-36 md:h-36 drop-shadow-[0_0_30px_rgba(201,168,76,0.3)] hover:scale-105 transition-transform duration-500 cursor-pointer" />
+        </motion.div>
 
-      <div className="relative z-10 max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

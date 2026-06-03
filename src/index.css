@@ -83,7 +83,7 @@
 }
 
 .animate-ticker {
-  animation: tickerScroll 40s linear infinite;
+  animation: tickerScroll 110s linear infinite;
 }
 
 .pause-animation {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts';
 import { formatCurrency, formatCurrencyShort } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { Share2, Copy, Check, Zap } from 'lucide-react';
@@ -78,6 +78,102 @@ const ShareButton = ({ title, summary }: { title: string, summary: string }) => 
   );
 };
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-[#0f1115] border border-gold/20 p-4 rounded-xl shadow-2xl text-xs font-sans">
+        <p className="font-bold text-gold mb-2 uppercase tracking-wider">{label}</p>
+        <div className="space-y-1">
+          {payload.map((p: any) => (
+            <div key={p.name} className="flex items-center justify-between gap-8 py-0.5 border-b border-white/5 last:border-0 pb-1 last:pb-0">
+              <span className="text-muted-foreground flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full" style={{ backgroundColor: p.stroke || p.color }} />
+                {p.name}:
+              </span>
+              <span className="font-mono font-bold text-white">{formatCurrency(p.value)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
+const GrowthChart = ({ 
+  data, 
+  keys, 
+  colors, 
+  title, 
+  description 
+}: { 
+  data: any[], 
+  keys: string[], 
+  colors: string[], 
+  title: string, 
+  description?: string 
+}) => {
+  return (
+    <div className="border-t border-gold/10 p-8 md:p-12 bg-[#090b0d]/40">
+      <div className="mb-8">
+        <h4 className="font-serif text-xl font-bold text-white mb-2">{title}</h4>
+        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      </div>
+      <div className="h-72 w-full select-none">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+            <defs>
+              {keys.map((key, i) => (
+                <linearGradient id={`grad-${key}`} key={key} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={colors[i] || '#C9A84C'} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={colors[i] || '#C9A84C'} stopOpacity={0} />
+                </linearGradient>
+              ))}
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(201, 168, 76, 0.05)" vertical={false} />
+            <XAxis 
+              dataKey="name" 
+              stroke="rgba(255,255,255,0.4)" 
+              fontSize={10} 
+              tickLine={false} 
+              axisLine={false} 
+              dy={10} 
+            />
+            <YAxis 
+              stroke="rgba(255,255,255,0.4)" 
+              fontSize={10} 
+              tickLine={false} 
+              axisLine={false} 
+              tickFormatter={v => formatCurrencyShort(v)} 
+              dx={-5} 
+            />
+            <RechartsTooltip content={<CustomTooltip />} />
+            {keys.map((key, i) => (
+              <Area 
+                key={key}
+                type="monotone" 
+                dataKey={key} 
+                stroke={colors[i] || '#C9A84C'} 
+                strokeWidth={2}
+                fillOpacity={1} 
+                fill={`url(#grad-${key})`} 
+              />
+            ))}
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="flex flex-wrap gap-6 justify-center mt-6">
+        {keys.map((key, i) => (
+          <div key={key} className="flex items-center gap-2">
+            <div className="w-3 h-1.5 rounded-full" style={{ backgroundColor: colors[i] }} />
+            <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">{key}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 
 
 
@@ -119,6 +215,32 @@ const RetirementCalculator = ({ indicators }: { indicators: MarketIndicators }) 
     { name: 'Invested', value: invested, color: '#C9A84C' },
     { name: 'Returns', value: estReturns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
+
+  const getRetirementData = () => {
+    const chartData = [];
+    const rRate = returns / 100 / 12;
+    const step = yearsToRetire <= 10 ? 1 : yearsToRetire <= 20 ? 2 : 5;
+    
+    for (let y = step; y < yearsToRetire; y += step) {
+      const m = y * 12;
+      const investedPct = monthlySavings * m;
+      const progressValue = rRate === 0 
+        ? investedPct 
+        : monthlySavings * ((Math.pow(1 + rRate, m) - 1) / rRate) * (1 + rRate);
+      chartData.push({
+        name: `Age ${currentAge + y}`,
+        Invested: Math.round(investedPct),
+        Value: Math.round(progressValue)
+      });
+    }
+    
+    chartData.push({
+      name: `Age ${retireAge}`,
+      Invested: Math.round(invested),
+      Value: Math.round(corpusRequired)
+    });
+    return chartData;
+  };
 
   return (
     <motion.div 
@@ -207,6 +329,14 @@ const RetirementCalculator = ({ indicators }: { indicators: MarketIndicators }) 
           </div>
         </div>
       </div>
+
+      <GrowthChart 
+        data={getRetirementData()}
+        keys={['Invested', 'Value']}
+        colors={['rgba(255, 255, 255, 0.2)', '#C9A84C']}
+        title="Retirement Corpus Accumulation"
+        description="See how your savings compound year-on-year to hit your golden nest egg target."
+      />
     </motion.div>
   );
 };
@@ -234,6 +364,46 @@ const EMICalculator = ({ indicators }: { indicators: MarketIndicators }) => {
     { name: 'Principal', value: loanAmount, color: '#C9A84C' },
     { name: 'Interest', value: totalInterest, color: 'rgba(201, 168, 76, 0.2)' },
   ];
+
+  const getEmiData = () => {
+    const chartData = [];
+    const rRate = interestRate / 12 / 100;
+    const totalPayments = tenure * 12;
+    const step = tenure <= 10 ? 1 : tenure <= 20 ? 2 : 5;
+    
+    chartData.push({
+      name: 'Start',
+      'Principal Paid': 0,
+      'Balance': Math.round(loanAmount)
+    });
+
+    for (let y = step; y <= tenure; y += step) {
+      const m = y * 12;
+      let remainingBalance = 0;
+      if (rRate === 0) {
+        remainingBalance = loanAmount - (loanAmount * (m / totalPayments));
+      } else {
+        remainingBalance = loanAmount * (Math.pow(1 + rRate, totalPayments) - Math.pow(1 + rRate, m)) / (Math.pow(1 + rRate, totalPayments) - 1);
+      }
+      remainingBalance = Math.max(0, remainingBalance);
+      const principalPaid = loanAmount - remainingBalance;
+      
+      chartData.push({
+        name: `Yr ${y}`,
+        'Principal Paid': Math.round(principalPaid),
+        'Balance': Math.round(remainingBalance)
+      });
+    }
+
+    if (tenure % step !== 0) {
+      chartData.push({
+        name: `Yr ${tenure}`,
+        'Principal Paid': Math.round(loanAmount),
+        'Balance': 0
+      });
+    }
+    return chartData;
+  };
 
   return (
     <motion.div 
@@ -313,6 +483,14 @@ const EMICalculator = ({ indicators }: { indicators: MarketIndicators }) => {
           </div>
         </div>
       </div>
+
+      <GrowthChart 
+        data={getEmiData()}
+        keys={['Principal Paid', 'Balance']}
+        colors={['#C9A84C', 'rgba(255, 255, 255, 0.2)']}
+        title="Amortization Schedule"
+        description="Observe how your home equity increases as the outstanding loan balance decays."
+      />
     </motion.div>
   );
 };
@@ -351,6 +529,27 @@ const GoalCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, 
     { name: 'Invested', value: invested, color: '#C9A84C' },
     { name: 'Returns', value: estReturns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
+
+  const getGoalData = () => {
+    const chartData = [];
+    const rRate = returns / 100 / 12;
+    const isShortHorizon = years <= 2;
+    const limit = isShortHorizon ? years * 12 : years;
+    
+    for (let i = 1; i <= limit; i++) {
+      const m = isShortHorizon ? i : i * 12;
+      const investedPct = monthlySavings * m;
+      const progressValue = rRate === 0 
+        ? investedPct 
+        : monthlySavings * ((Math.pow(1 + rRate, m) - 1) / rRate) * (1 + rRate);
+      chartData.push({
+        name: isShortHorizon ? `Mo ${m}` : `Yr ${i}`,
+        Invested: Math.round(investedPct),
+        Value: Math.round(progressValue)
+      });
+    }
+    return chartData;
+  };
 
   return (
     <motion.div 
@@ -443,6 +642,14 @@ const GoalCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, 
           </div>
         </div>
       </div>
+
+      <GrowthChart 
+        data={getGoalData()}
+        keys={['Invested', 'Value']}
+        colors={['rgba(255, 255, 255, 0.2)', '#C9A84C']}
+        title="Goal Target Milestone Progression"
+        description="Visualize the dynamic spacing with compounding interest tracking up to your targeted corpus."
+      />
     </motion.div>
   );
 };
@@ -482,6 +689,27 @@ const SIPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
     { name: 'Invested', value: invested, color: '#C9A84C' },
     { name: 'Returns', value: returns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
+
+  const getSipData = () => {
+    const chartData = [];
+    const rRate = rate / 100 / 12;
+    const isShortHorizon = years <= 2;
+    const limit = isShortHorizon ? years * 12 : years;
+    
+    for (let i = 1; i <= limit; i++) {
+      const m = isShortHorizon ? i : i * 12;
+      const investedPct = amount * m;
+      const progressValue = rRate === 0 
+        ? investedPct 
+        : amount * ((Math.pow(1 + rRate, m) - 1) / rRate) * (1 + rRate);
+      chartData.push({
+        name: isShortHorizon ? `Mo ${m}` : `Yr ${i}`,
+        Invested: Math.round(investedPct),
+        Value: Math.round(progressValue)
+      });
+    }
+    return chartData;
+  };
 
   return (
     <motion.div 
@@ -588,6 +816,14 @@ const SIPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
           </div>
         </div>
       </div>
+
+      <GrowthChart 
+        data={getSipData()}
+        keys={['Invested', 'Value']}
+        colors={['rgba(255, 255, 255, 0.2)', '#C9A84C']}
+        title="SIP Compound Growth Curve"
+        description="See how your monthly SIP builds massive wealth systematically through continuous compounding over your chosen horizon."
+      />
     </motion.div>
   );
 };
@@ -628,6 +864,44 @@ const SWPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
     { name: 'Remaining', value: remaining, color: '#C9A84C' },
     { name: 'Withdrawn', value: totalWithdrawn, color: 'rgba(201, 168, 76, 0.2)' },
   ];
+
+  const getSwpData = () => {
+    const chartData = [];
+    const limitYears = exhausted ? Math.max(1, yrs) : 30;
+    const step = limitYears <= 10 ? 1 : limitYears <= 20 ? 2 : 5;
+    
+    chartData.push({
+      name: 'Start',
+      Balance: Math.round(corpus),
+      Withdrawn: 0
+    });
+
+    for (let y = step; y <= limitYears; y += step) {
+      const limitMonths = y * 12;
+      let currentBal = corpus;
+      for (let m = 0; m < limitMonths; m++) {
+        currentBal = currentBal * (1 + monRate) - withdrawal;
+        if (currentBal <= 0) {
+          currentBal = 0;
+          break;
+        }
+      }
+      chartData.push({
+        name: `Yr ${y}`,
+        Balance: Math.round(currentBal),
+        Withdrawn: Math.round(y * 12 * withdrawal)
+      });
+    }
+    
+    if (exhausted && yrs > 0 && (yrs % step !== 0)) {
+      chartData.push({
+        name: `Yr ${yrs}`,
+        Balance: 0,
+        Withdrawn: Math.round(totalWithdrawn)
+      });
+    }
+    return chartData;
+  };
 
   return (
     <motion.div 
@@ -707,6 +981,14 @@ const SWPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
           </div>
         </div>
       </div>
+
+      <GrowthChart 
+        data={getSwpData()}
+        keys={['Balance', 'Withdrawn']}
+        colors={['#C9A84C', 'rgba(255, 255, 255, 0.2)']}
+        title="SWP Portfolio Projection"
+        description="Track the sustainability timeline of your corpus vs cumulative withdrawal payouts."
+      />
     </motion.div>
   );
 };
@@ -753,6 +1035,55 @@ const STPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
     { name: 'Target Fund', value: tgtBalance, color: '#C9A84C' },
     { name: 'Source Fund', value: srcBalance, color: 'rgba(201, 168, 76, 0.2)' },
   ];
+
+  const getStpData = () => {
+    const chartData = [];
+    const limitYears = Math.max(1, yrs);
+    const step = limitYears <= 10 ? 1 : limitYears <= 20 ? 2 : 5;
+
+    chartData.push({
+      name: 'Start',
+      'Source Fund': Math.round(lump),
+      'Target Fund': 0,
+      'Total Portfolio': Math.round(lump)
+    });
+
+    for (let y = step; y <= limitYears; y += step) {
+      const limitMonths = y * 12;
+      let tempSrc = lump;
+      let tempTgt = 0;
+      
+      for (let m = 0; m < limitMonths; m++) {
+        if (tempSrc > transfer) {
+          tempSrc = tempSrc * (1 + sRate) - transfer;
+          tempTgt = (tempTgt + transfer) * (1 + tRate);
+        } else if (tempSrc > 0) {
+          tempTgt = (tempTgt + tempSrc) * (1 + tRate);
+          tempSrc = 0;
+        } else {
+          tempTgt = tempTgt * (1 + tRate);
+        }
+      }
+      
+      chartData.push({
+        name: `Yr ${y}`,
+        'Source Fund': Math.round(tempSrc),
+        'Target Fund': Math.round(tempTgt),
+        'Total Portfolio': Math.round(tempSrc + tempTgt)
+      });
+    }
+
+    if (yrs > 0 && (yrs % step !== 0)) {
+      chartData.push({
+        name: `Yr ${yrs}`,
+        'Source Fund': Math.round(srcBalance),
+        'Target Fund': Math.round(tgtBalance),
+        'Total Portfolio': Math.round(srcBalance + tgtBalance)
+      });
+    }
+
+    return chartData;
+  };
 
   return (
     <motion.div 
@@ -832,6 +1163,14 @@ const STPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
           </div>
         </div>
       </div>
+
+      <GrowthChart 
+        data={getStpData()}
+        keys={['Source Fund', 'Target Fund', 'Total Portfolio']}
+        colors={['rgba(255, 255, 255, 0.2)', '#C9A84C', '#E2D2A2']}
+        title="STP Systematic Asset Migration"
+        description="Monitor how your low-risk Source Fund systematic decay compounds and appreciates inside the higher return Target Fund."
+      />
     </motion.div>
   );
 };

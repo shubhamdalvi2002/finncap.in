@@ -58,24 +58,29 @@ export const MarketTicker: React.FC = () => {
       <div className="w-full h-full flex items-center pl-[125px]">
         <div className="flex items-center gap-12 whitespace-nowrap animate-ticker py-1">
           {scrollItems.map((item, index) => (
-            <div
+            <a
+              href="http://p.njw.bz/103924"
+              target="_blank"
+              rel="noopener noreferrer"
               key={`${item.name}-${index}`}
-              className="inline-flex items-center gap-3 text-[11px] md:text-[12px] font-medium tracking-wide group cursor-default transition-all hover:text-gold"
+              className="inline-flex items-center gap-3 text-[11px] md:text-[12px] font-size-inherit font-medium tracking-wide group cursor-pointer transition-all duration-200 hover:text-gold active:scale-95"
+              title={`Click to invest & open an account for ${item.name}`}
             >
-              <Sparkles size={10} className="text-gold/60 group-hover:text-gold group-hover:scale-125 transition-transform" />
+              <Sparkles size={10} className="text-gold/60 group-hover:text-gold group-hover:scale-125 transition-transform duration-300" />
               
-              <span className="text-foreground font-semibold">
+              <span className="text-foreground font-semibold group-hover:text-gold transition-colors duration-200">
                 {item.name}
               </span>
 
-              <span className={`px-2 py-[1px] text-[8px] font-extrabold tracking-widest uppercase rounded-full ${
+              <span className={`px-2 py-[0.5px] text-[8.5px] font-extrabold tracking-wider uppercase rounded-full transition-all duration-300 border ${
                 item.type === 'Stock' 
-                  ? 'bg-blue-500/10 text-blue-400 border border-blue-500/15' 
-                  : 'bg-gold/10 text-gold-light border border-gold/15'
+                  ? 'bg-blue-500/10 text-blue-400 border-blue-500/15 group-hover:bg-gold group-hover:text-[#0b0c0e] group-hover:border-gold' 
+                  : 'bg-gold/10 text-gold-light border-gold/15 group-hover:bg-gold group-hover:text-[#0b0c0e] group-hover:border-gold'
               }`}>
-                {item.type}
+                <span className="group-hover:hidden transition-all duration-200">{item.type}</span>
+                <span className="hidden group-hover:inline transition-all duration-200 font-bold">Open Account &rarr;</span>
               </span>
-            </div>
+            </a>
           ))}
         </div>
       </div>

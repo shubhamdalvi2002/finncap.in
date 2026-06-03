@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import { motion, AnimatePresence } from 'motion/react';
+import { FinauraLogo } from './FinauraLogo';
 
 export const Navbar: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
@@ -24,8 +25,8 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <nav className={`fixed top-0 left-0 right-0 z-[200] flex items-center justify-between px-[6%] transition-all duration-300 backdrop-blur-lg border-b border-gold/10 ${scrolled ? 'py-3 bg-[rgb(var(--background))]/90' : 'py-5 bg-[rgb(var(--background))]/80'}`}>
-        <a href="#" className="font-serif text-xl md:text-2xl font-bold text-gold tracking-tight">
-          FinAura <span className="text-[rgb(var(--foreground))]">Capital</span>
+        <a href="#" className="flex items-center gap-1 hover:opacity-90 transition-opacity">
+          <FinauraLogo variant="horizontal" />
         </a>
 
         <ul className="hidden md:flex items-center gap-8">

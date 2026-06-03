@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Quote, Target, Award, Lightbulb, ShieldCheck } from 'lucide-react';
+import { FinauraLogo } from './FinauraLogo';
 
 export const About: React.FC = () => {
   return (
@@ -92,7 +93,10 @@ export const About: React.FC = () => {
                 {/* Accent shape */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-gold/5 rounded-bl-full pointer-events-none" />
                 
-                <h3 className="font-serif text-2xl font-bold text-white mb-8 border-b border-gold/10 pb-4">Key Beliefs</h3>
+                <div className="flex items-center justify-between mb-8 border-b border-gold/10 pb-4">
+                  <h3 className="font-serif text-2xl font-bold text-white">Key Beliefs</h3>
+                  <FinauraLogo variant="icon" className="h-7 w-7 opacity-90" />
+                </div>
                 
                 <div className="space-y-6">
                   <div className="flex gap-4">

@@ -1,7 +1,6 @@
 import { Navbar } from './components/Navbar';
 import { MarketTicker } from './components/MarketTicker';
 import { Hero } from './components/Hero';
-import { MarketUpdate } from './components/MarketUpdate';
 import { Services } from './components/Services';
 import { Calculators } from './components/Calculators';
 import { Blog } from './components/Blog';
@@ -17,7 +16,6 @@ export default function App() {
       <MarketTicker />
       <main className="pt-[36px]">
         <Hero />
-        <MarketUpdate />
         <Services />
         <Calculators />
         <Blog />
