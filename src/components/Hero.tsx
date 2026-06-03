@@ -69,7 +69,7 @@ export const Hero: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.7 }}
-        className="mt-20 pt-12 border-t border-gold/10 w-full max-w-2xl relative z-10 flex flex-wrap justify-center gap-12"
+        className="mt-20 pt-12 border-t border-gold/10 w-full max-w-2xl relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-12"
       >
         <Stat num="SIP" label="Systematic Plans" />
         <Stat num="ETFs" label="Exchange Traded" />

@@ -214,7 +214,7 @@ export const Blog: React.FC = () => {
               </button>
 
               {/* Left Side: Visual/Icon */}
-              <div className={`w-full md:w-1/3 flex items-center justify-center relative bg-gradient-to-br ${selectedPost.color} p-12 overflow-hidden`}>
+              <div className={`hidden md:flex md:w-1/3 items-center justify-center relative bg-gradient-to-br ${selectedPost.color} p-12 overflow-hidden`}>
                 <div className="absolute inset-0 opacity-20 pointer-events-none">
                   <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.2)_0%,transparent_70%)]" />
                 </div>
@@ -224,7 +224,7 @@ export const Blog: React.FC = () => {
               </div>
 
               {/* Right Side: Content */}
-              <div className="w-full md:w-2/3 p-8 md:p-12 overflow-y-auto custom-scrollbar">
+              <div className="w-full md:w-2/3 p-6 md:p-12 overflow-y-auto custom-scrollbar">
                 <div className="flex items-center gap-3 mb-6">
                   <span className="px-3 py-1 rounded-full text-[0.6rem] font-bold tracking-[0.15em] uppercase bg-gold/10 border border-gold/20 text-gold">
                     {selectedPost.tag}
