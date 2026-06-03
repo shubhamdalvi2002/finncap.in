@@ -56,7 +56,9 @@ export const Navbar: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed inset-0 top-[60px] z-[190] bg-[rgb(var(--background))]/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8 md:hidden"
+            className={`fixed inset-0 z-[180] bg-[rgb(var(--background))]/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8 md:hidden transition-all duration-300 ${
+              scrolled ? 'top-[100px]' : 'top-[116px]'
+            }`}
           >
             {navLinks.map(link => (
               <a

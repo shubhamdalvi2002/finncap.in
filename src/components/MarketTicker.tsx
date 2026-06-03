@@ -43,9 +43,21 @@ const ALL_TICKERS = [
 export const MarketTicker: React.FC = () => {
   // Duplicate list to ensure seamless infinite scrolling loop
   const scrollItems = [...ALL_TICKERS, ...ALL_TICKERS, ...ALL_TICKERS];
+  const [scrolled, setScrolled] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 60);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <div id="market-ticker" className="fixed top-[60px] md:top-[68px] left-0 right-0 z-[190] bg-bg-dark border-b border-gold/15 h-[36px] flex items-center overflow-hidden">
+    <div 
+      id="market-ticker" 
+      className={`fixed left-0 right-0 z-[190] bg-bg-dark border-b border-gold/15 h-[36px] flex items-center overflow-hidden transition-all duration-300 ${
+        scrolled ? 'top-[64px]' : 'top-[80px]'
+      }`}
+    >
       {/* Title Badge */}
       <div className="absolute left-0 top-0 bottom-0 px-4 bg-bg-dark border-r border-gold/15 flex items-center gap-2 z-10 select-none shadow-[4px_0_12px_rgba(0,0,0,0.8)]">
         <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
