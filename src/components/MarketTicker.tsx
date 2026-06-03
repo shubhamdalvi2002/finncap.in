@@ -1,87 +1,84 @@
-import React, { useState } from 'react';
-import { useMarketData, Stock } from '../hooks/useMarketData';
-import { motion, AnimatePresence } from 'motion/react';
+import React from 'react';
+import { motion } from 'motion/react';
+import { Sparkles } from 'lucide-react';
+
+const STOCKS_LIST = [
+  'RELIANCE INDUSTRIES',
+  'TATA CONSULTANCY SERVICES (TCS)',
+  'HDFC BANK',
+  'INFOSYS LIMITED',
+  'ICICI BANK',
+  'WIPRO',
+  'BAJAJ FINANCE',
+  'LARSEN & TOUBRO (L&T)',
+  'MARUTI SUZUKI',
+  'NIFTY 50 INDEX',
+  'SENSEX INDEX',
+  'NIFTY BANK INDEX',
+  'NIFTY MIDCAP 100',
+  'NIFTY IT INDEX'
+];
+
+const MF_LIST = [
+  'Parag Parikh Flexi Cap Fund',
+  'SBI Bluechip Fund',
+  'HDFC Mid-Cap Opportunities Fund',
+  'Mirae Asset Large Cap Fund',
+  'Nippon India Growth Fund',
+  'ICICI Prudential Bluechip Fund',
+  'Axis Small Cap Fund',
+  'Kotak Emerging Equity Fund',
+  'UTI Nifty 50 Index Fund',
+  'Tata Digital India Fund',
+  'Canara Robeco Bluechip Equity',
+  'Quant Active Fund'
+];
+
+// Combine and shuffle slightly to make the scrolling experience rich
+const ALL_TICKERS = [
+  ...STOCKS_LIST.map(name => ({ name, type: 'Stock' })),
+  ...MF_LIST.map(name => ({ name, type: 'Mutual Fund' }))
+];
 
 export const MarketTicker: React.FC = () => {
-  const { stocks, connected } = useMarketData();
-  const [hoveredStock, setHoveredStock] = useState<{ stock: Stock; index: number } | null>(null);
-
-  const formatValue = (val: number | undefined) => {
-    if (val === undefined) return 'N/A';
-    if (val >= 1e12) return (val / 1e12).toFixed(2) + 'T';
-    if (val >= 1e9) return (val / 1e9).toFixed(2) + 'B';
-    if (val >= 1e7) return (val / 1e7).toFixed(2) + 'Cr';
-    if (val >= 1e5) return (val / 1e5).toFixed(2) + 'L';
-    return val.toLocaleString('en-IN');
-  };
+  // Duplicate list to ensure seamless infinite scrolling loop
+  const scrollItems = [...ALL_TICKERS, ...ALL_TICKERS, ...ALL_TICKERS];
 
   return (
-    <div className="fixed top-[68px] left-0 right-0 z-[190] bg-[rgb(var(--background))] border-b border-gold/20 h-[34px] flex items-center">
-      <div 
-        className={`flex whitespace-nowrap animate-ticker ${hoveredStock ? 'pause-animation' : ''}`}
-      >
-        {[...stocks, ...stocks].map((s, i) => (
-          <div 
-            key={i} 
-            className="relative inline-flex items-center gap-2 px-8 text-[0.75rem] font-medium border-r border-gold/20 cursor-help group h-full"
-            onMouseEnter={() => setHoveredStock({ stock: s, index: i })}
-            onMouseLeave={() => setHoveredStock(null)}
-          >
-            <span className="text-muted-foreground tracking-wider">{s.name}</span>
-            <span className="font-semibold">
-              {s.name.includes('AAPL') || s.name.includes('GOOGL') || s.name.includes('MSFT') ? '$' : '₹'}
-              {s.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-            <span className={s.change >= 0 ? 'text-green-500' : 'text-red-500'}>
-              <span className="text-[0.65rem]">{s.change >= 0 ? '▲' : '▼'}</span> {s.change >= 0 ? '+' : ''}{s.change}%
-            </span>
-
-            <AnimatePresence>
-              {hoveredStock?.index === i && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-bg-dark-2 border border-gold/30 rounded-lg shadow-2xl p-3 z-[1000] pointer-events-none"
-                >
-                  <div className="flex flex-col gap-2">
-                    <div className="flex justify-between items-center border-b border-gold/10 pb-1 mb-1">
-                      <span className="text-gold font-bold">{s.name}</span>
-                      <span className={s.change >= 0 ? 'text-green-500' : 'text-red-500'}>{s.change}%</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[0.65rem]">
-                      <div className="flex flex-col">
-                        <span className="text-muted-foreground uppercase tracking-tighter">Day High</span>
-                        <span className="text-white font-mono">₹{s.high?.toLocaleString('en-IN')}</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-muted-foreground uppercase tracking-tighter">Day Low</span>
-                        <span className="text-white font-mono">₹{s.low?.toLocaleString('en-IN')}</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-muted-foreground uppercase tracking-tighter">Volume</span>
-                        <span className="text-white font-mono">{formatValue(s.volume)}</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <span className="text-muted-foreground uppercase tracking-tighter">Mkt Cap</span>
-                        <span className="text-white font-mono">{formatValue(s.marketCap)}</span>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Tooltip Arrow */}
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-bg-dark-2 border-b border-r border-gold/30 rotate-45" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        ))}
+    <div id="market-ticker" className="fixed top-[60px] md:top-[68px] left-0 right-0 z-[190] bg-bg-dark border-b border-gold/15 h-[36px] flex items-center overflow-hidden">
+      {/* Title Badge */}
+      <div className="absolute left-0 top-0 bottom-0 px-4 bg-bg-dark border-r border-gold/15 flex items-center gap-2 z-10 select-none shadow-[4px_0_12px_rgba(0,0,0,0.8)]">
+        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+        <span className="text-[9px] md:text-[10px] font-sans font-extrabold uppercase tracking-widest text-gold flex items-center gap-1">
+          Daily Update
+        </span>
       </div>
-      {!connected && (
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 bg-red-500/10 border border-red-500/20 px-2 py-0.5 rounded text-[0.6rem] text-red-500">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-          Offline
+
+      {/* Marquee Container */}
+      <div className="w-full h-full flex items-center pl-[125px]">
+        <div className="flex items-center gap-12 whitespace-nowrap animate-ticker py-1">
+          {scrollItems.map((item, index) => (
+            <div
+              key={`${item.name}-${index}`}
+              className="inline-flex items-center gap-3 text-[11px] md:text-[12px] font-medium tracking-wide group cursor-default transition-all hover:text-gold"
+            >
+              <Sparkles size={10} className="text-gold/60 group-hover:text-gold group-hover:scale-125 transition-transform" />
+              
+              <span className="text-foreground font-semibold">
+                {item.name}
+              </span>
+
+              <span className={`px-2 py-[1px] text-[8px] font-extrabold tracking-widest uppercase rounded-full ${
+                item.type === 'Stock' 
+                  ? 'bg-blue-500/10 text-blue-400 border border-blue-500/15' 
+                  : 'bg-gold/10 text-gold-light border border-gold/15'
+              }`}>
+                {item.type}
+              </span>
+            </div>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 };
