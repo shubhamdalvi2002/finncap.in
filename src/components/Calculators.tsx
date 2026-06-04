@@ -290,8 +290,8 @@ const RetirementCalculator = ({ indicators }: { indicators: MarketIndicators }) 
             <ResultBox label="Monthly Savings Needed" value={formatCurrency(monthlySavings)} />
           </div>
 
-          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-            <div className="w-full h-full min-h-[300px]">
+          <div className="w-full flex-1 flex flex-col items-center justify-center h-[280px] sm:h-[300px] relative">
+            <div className="w-full h-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie 
@@ -453,8 +453,8 @@ const EMICalculator = ({ indicators }: { indicators: MarketIndicators }) => {
             </div>
           </div>
 
-          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-            <div className="w-full h-full min-h-[300px]">
+          <div className="w-full flex-1 flex flex-col items-center justify-center h-[280px] sm:h-[300px] relative">
+            <div className="w-full h-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie 
@@ -612,8 +612,8 @@ const GoalCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, 
             <ResultBox label="Total Invested Amount" value={formatCurrency(monthlySavings * n)} />
           </div>
 
-          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-            <div className="w-full h-full min-h-[300px]">
+          <div className="w-full flex-1 flex flex-col items-center justify-center h-[280px] sm:h-[300px] relative">
+            <div className="w-full h-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie 
@@ -777,8 +777,8 @@ const SIPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
             </div>
           </div>
 
-          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-            <div className="w-full h-full min-h-[300px]">
+          <div className="w-full flex-1 flex flex-col items-center justify-center h-[280px] sm:h-[300px] relative">
+            <div className="w-full h-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie 
@@ -948,8 +948,8 @@ const SWPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
             <ResultBox label="Total Amount Withdrawn" value={formatCurrency(totalWithdrawn)} />
           </div>
 
-          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-            <div className="w-full h-full min-h-[300px]">
+          <div className="w-full flex-1 flex flex-col items-center justify-center h-[280px] sm:h-[300px] relative">
+            <div className="w-full h-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie 
@@ -1133,8 +1133,8 @@ const STPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
             </div>
           </div>
 
-          <div className="w-full flex-1 flex flex-col items-center justify-center min-h-[300px] relative">
-            <div className="w-full h-full min-h-[300px]">
+          <div className="w-full flex-1 flex flex-col items-center justify-center h-[280px] sm:h-[300px] relative">
+            <div className="w-full h-full">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie 

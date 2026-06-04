@@ -74,7 +74,7 @@ export const Contact: React.FC = () => {
               value={formData.message}
               onChange={e => setFormData({ ...formData, message: e.target.value })}
               placeholder="Tell us about your financial goals..."
-              className="bg-bg-dark-3 border border-gold/20 rounded-lg text-foreground text-sm p-3 outline-none focus:border-gold transition-all min-height-[110px] resize-vertical"
+              className="bg-bg-dark-3 border border-gold/20 rounded-lg text-foreground text-sm p-3 outline-none focus:border-gold transition-all min-h-[110px] resize-vertical"
             />
           </div>
 

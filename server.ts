@@ -250,6 +250,29 @@ app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
+app.get("/api/founder-image", async (req, res) => {
+  const fileId = "165KN0eFOsXd86rEWxmXaQhj-FEFmLlQd";
+  const url = `https://lh3.googleusercontent.com/d/${fileId}`;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    const response = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeoutId);
+    if (response.ok) {
+      res.setHeader("Content-Type", response.headers.get("content-type") || "image/jpeg");
+      res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for 24h
+      const arrayBuffer = await response.arrayBuffer();
+      res.send(Buffer.from(arrayBuffer));
+    } else {
+      res.status(response.status).send("Failed to fetch image");
+    }
+  } catch (err) {
+    console.warn("Error fetching founder image:", err);
+    // Redirect as browser fallback
+    res.redirect(url);
+  }
+});
+
 app.get("/api/stocks", async (req, res) => {
   try {
     // In serverless, we always try to get fresh data or at least trigger a fetch

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, TrendingUp, ShieldCheck, Wallet, ArrowLeftRight, BarChart3, Lightbulb } from 'lucide-react';
+import { X, TrendingUp, ShieldCheck, Wallet, ArrowLeftRight, BarChart3, Lightbulb, ArrowLeft } from 'lucide-react';
 
 const BLOG_POSTS = [
   {
@@ -70,6 +70,16 @@ export const Blog: React.FC = () => {
 
   return (
     <section id="blog" className="py-24 px-6 bg-bg-dark-2">
+      <div className="max-w-7xl mx-auto mb-10 -mt-6 flex justify-start">
+        <a 
+          href="#" 
+          className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-gold/60 hover:text-gold transition-colors duration-300 group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1.5 transition-transform duration-300 text-gold" />
+          <span>Back to Home</span>
+        </a>
+      </div>
+
       <div className="text-center mb-16">
         <div className="text-[0.72rem] tracking-[0.14em] uppercase text-gold mb-2">Knowledge Centre</div>
         <h2 className="font-serif text-3xl md:text-5xl font-bold mb-4">Financial Tips & Insights</h2>
