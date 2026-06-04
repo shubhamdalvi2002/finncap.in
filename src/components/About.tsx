@@ -5,18 +5,19 @@ import { FinauraLogo } from './FinauraLogo';
 
 export const About: React.FC = () => {
   const fileId = "165KN0eFOsXd86rEWxmXaQhj-FEFmLlQd";
-  const [imageSrc, setImageSrc] = React.useState<string>("/api/founder-image");
+  const [imageSrc, setImageSrc] = React.useState<string>(`https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`);
   const [isUsingPlaceholder, setIsUsingPlaceholder] = React.useState<boolean>(false);
+  const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
 
   const handleImageError = () => {
-    if (imageSrc === "/api/founder-image") {
-      // First client-side fallback: direct Google Drive thumbnail link
-      setImageSrc(`https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`);
-    } else if (imageSrc === `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`) {
-      // Second client-side fallback: standard Google User Content direct link
+    if (imageSrc === `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`) {
+      // First fallback: server-side proxy endpoint
+      setImageSrc("/api/founder-image");
+    } else if (imageSrc === "/api/founder-image") {
+      // Second fallback: standard Google User Content direct link
       setImageSrc(`https://lh3.googleusercontent.com/d/${fileId}`);
     } else if (imageSrc === `https://lh3.googleusercontent.com/d/${fileId}`) {
-      // Third client-side fallback: URL query download stream
+      // Third fallback: URL query download stream
       setImageSrc(`https://drive.google.com/uc?export=download&id=${fileId}`);
     } else if (!isUsingPlaceholder) {
       // Final cosmetic fallback: Premium professional business portrait from Unsplash
@@ -49,12 +50,30 @@ export const About: React.FC = () => {
               
               <div className="relative bg-bg-dark-3/60 backdrop-blur-xl border border-gold/10 rounded-[32px] p-8 overflow-hidden shadow-2xl flex flex-col gap-6 items-center">
                 {/* Image Frame - Beautiful Premium Portrait Container */}
-                <div className="relative w-full max-w-xs sm:max-w-sm lg:max-w-none aspect-[4/5] rounded-2xl overflow-hidden border border-gold/25 shadow-[0_15px_30px_rgba(0,0,0,0.5)] shrink-0 group-hover:border-gold/50 transition-colors duration-500 bg-bg-dark-2">
+                <div className="relative w-full max-w-xs sm:max-w-sm lg:max-w-none aspect-[4/5] rounded-2xl overflow-hidden border border-gold/25 shadow-[0_15px_30px_rgba(0,0,0,0.5)] shrink-0 group-hover:border-gold/50 transition-colors duration-500 bg-bg-dark-2 flex items-center justify-center">
+                  
+                  {/* Premium Skeleton Loader */}
+                  {!isLoaded && (
+                    <div className="absolute inset-0 bg-gradient-to-b from-bg-dark-3 via-bg-dark-2 to-bg-dark-3 flex flex-col items-center justify-center p-4">
+                      <div className="relative mb-3">
+                        <div className="absolute inset-0 rounded-full bg-gold/15 animate-ping duration-1000 scale-125" />
+                        <div className="w-12 h-12 rounded-full border border-gold/20 flex items-center justify-center bg-bg-dark-3">
+                          <User className="w-5 h-5 text-gold animate-pulse" />
+                        </div>
+                      </div>
+                      <span className="text-[10px] uppercase tracking-[0.2em] text-gold font-bold animate-pulse">Preloading Portrait</span>
+                      <span className="text-[9px] text-muted-foreground/60 mt-1">Connecting to fast CDN...</span>
+                    </div>
+                  )}
+
                   <img 
                     src={imageSrc} 
                     alt="Shubham Dalvi" 
+                    onLoad={() => setIsLoaded(true)}
                     onError={handleImageError}
-                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
+                    className={`w-full h-full object-cover object-center transition-all duration-700 ease-out group-hover:scale-[1.04] ${
+                      isLoaded ? 'opacity-100 scale-100 blur-0' : 'opacity-0 scale-98 blur-md'
+                    }`}
                     referrerPolicy="no-referrer"
                   />
                   {isUsingPlaceholder && (
