@@ -4,7 +4,27 @@ import { Quote, Target, Award, Lightbulb, ShieldCheck, User, ExternalLink, Mail 
 import { FinauraLogo } from './FinauraLogo';
 
 export const About: React.FC = () => {
-  const [imageError, setImageError] = React.useState(false);
+  const fileId = "165KN0eFOsXd86rEWxmXaQhj-FEFmLlQd";
+  const [imageSrc, setImageSrc] = React.useState<string>("/api/founder-image");
+  const [isUsingPlaceholder, setIsUsingPlaceholder] = React.useState<boolean>(false);
+
+  const handleImageError = () => {
+    if (imageSrc === "/api/founder-image") {
+      // First client-side fallback: direct Google Drive thumbnail link
+      setImageSrc(`https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`);
+    } else if (imageSrc === `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`) {
+      // Second client-side fallback: standard Google User Content direct link
+      setImageSrc(`https://lh3.googleusercontent.com/d/${fileId}`);
+    } else if (imageSrc === `https://lh3.googleusercontent.com/d/${fileId}`) {
+      // Third client-side fallback: URL query download stream
+      setImageSrc(`https://drive.google.com/uc?export=download&id=${fileId}`);
+    } else if (!isUsingPlaceholder) {
+      // Final cosmetic fallback: Premium professional business portrait from Unsplash
+      // to keep the frontend layout looking elegant and functional.
+      setImageSrc("https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600");
+      setIsUsingPlaceholder(true);
+    }
+  };
 
   return (
     <section id="about" className="py-24 px-6 relative overflow-hidden">
@@ -30,20 +50,18 @@ export const About: React.FC = () => {
               <div className="relative bg-bg-dark-3/60 backdrop-blur-xl border border-gold/10 rounded-[32px] p-8 overflow-hidden shadow-2xl flex flex-col gap-6 items-center">
                 {/* Image Frame - Beautiful Premium Portrait Container */}
                 <div className="relative w-full max-w-xs sm:max-w-sm lg:max-w-none aspect-[4/5] rounded-2xl overflow-hidden border border-gold/25 shadow-[0_15px_30px_rgba(0,0,0,0.5)] shrink-0 group-hover:border-gold/50 transition-colors duration-500 bg-bg-dark-2">
-                  {!imageError ? (
-                    <img 
-                      src="/api/founder-image" 
-                      alt="Shubham Dalvi" 
-                      onError={() => setImageError(true)}
-                      className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
-                      referrerPolicy="no-referrer"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-bg-dark-3 via-gold/5 to-bg-dark-4 flex flex-col items-center justify-center p-4 text-center">
-                      <User className="w-10 h-10 text-gold/40 mb-2 animate-pulse" />
-                      <span className="text-[10px] uppercase tracking-wider text-gold/60 font-bold mb-1">Founder Portrait</span>
-                      <span className="text-[8px] text-muted-foreground leading-normal max-w-[140px]">
-                        Ensure Drive file is shared as Public (Anyone with link)
+                  <img 
+                    src={imageSrc} 
+                    alt="Shubham Dalvi" 
+                    onError={handleImageError}
+                    className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.03]"
+                    referrerPolicy="no-referrer"
+                  />
+                  {isUsingPlaceholder && (
+                    <div className="absolute bottom-0 left-0 right-0 bg-bg-dark-3/95 backdrop-blur-md px-4 py-3 border-t border-gold/20 text-center flex flex-col gap-1 z-10 select-none">
+                      <span className="text-[10px] uppercase tracking-wider text-gold font-bold">Drive Image Not Shared</span>
+                      <span className="text-[8.5px] text-muted-foreground leading-normal max-w-[240px] mx-auto">
+                        To display your own photo, change Drive sharing settings to <strong className="text-white">"Anyone with link can view"</strong>, copy your File ID, and place it in the codebase.
                       </span>
                     </div>
                   )}

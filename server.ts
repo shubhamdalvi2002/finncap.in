@@ -252,25 +252,52 @@ app.get("/api/health", (req, res) => {
 
 app.get("/api/founder-image", async (req, res) => {
   const fileId = "165KN0eFOsXd86rEWxmXaQhj-FEFmLlQd";
-  const url = `https://lh3.googleusercontent.com/d/${fileId}`;
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 6000);
-    const response = await fetch(url, { signal: controller.signal });
-    clearTimeout(timeoutId);
-    if (response.ok) {
-      res.setHeader("Content-Type", response.headers.get("content-type") || "image/jpeg");
-      res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for 24h
-      const arrayBuffer = await response.arrayBuffer();
-      res.send(Buffer.from(arrayBuffer));
-    } else {
-      res.status(response.status).send("Failed to fetch image");
+  
+  // Try multiple Google Drive endpoints in sequence
+  const targetUrls = [
+    `https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`,
+    `https://lh3.googleusercontent.com/d/${fileId}`,
+    `https://drive.google.com/uc?export=download&id=${fileId}`
+  ];
+
+  for (const targetUrl of targetUrls) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const response = await fetch(targetUrl, {
+        signal: controller.signal,
+        headers: {
+          "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+          "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9",
+          "Cache-Control": "no-cache",
+          "Pragma": "no-cache"
+        }
+      });
+      
+      clearTimeout(timeoutId);
+      
+      if (response.ok) {
+        const contentType = response.headers.get("content-type") || "";
+        // Verify it looks like a real image and not a html login/error block page
+        if (contentType.includes("image") || contentType.includes("octet-stream") || response.headers.get("content-length") && parseInt(response.headers.get("content-length") || "0") > 1000) {
+          res.setHeader("Content-Type", contentType.includes("image") ? contentType : "image/jpeg");
+          res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for 24h
+          const arrayBuffer = await response.arrayBuffer();
+          res.send(Buffer.from(arrayBuffer));
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn(`[Founder-Image Proxy] Failed strategy with ${targetUrl}:`, err);
     }
-  } catch (err) {
-    console.warn("Error fetching founder image:", err);
-    // Redirect as browser fallback
-    res.redirect(url);
   }
+
+  // If all server-side fetches failed (likely due to Google blocking Cloud Run IP range),
+  // we redirect the browser to the direct thumbnail endpoint which is highly robust.
+  console.log(`[Founder-Image Proxy] Server-side fetches failed. Redirecting browser directly.`);
+  res.redirect(`https://drive.google.com/thumbnail?sz=w1000&id=${fileId}`);
 });
 
 app.get("/api/stocks", async (req, res) => {

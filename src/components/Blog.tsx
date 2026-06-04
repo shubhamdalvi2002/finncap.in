@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { X, TrendingUp, ShieldCheck, Wallet, ArrowLeftRight, BarChart3, Lightbulb, ArrowLeft } from 'lucide-react';
+import { Glossary } from './Glossary';
 
 const BLOG_POSTS = [
   {
@@ -288,6 +289,8 @@ export const Blog: React.FC = () => {
           </div>
         )}
       </AnimatePresence>
+
+      <Glossary />
     </section>
   );
 };
