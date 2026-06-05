@@ -18,14 +18,28 @@ export const Contact: React.FC = () => {
       return;
     }
 
-    // In a real app, you'd send this to a backend. 
-    // Here we'll just simulate a successful enquiry submission.
-    setStatus({ type: 'success', msg: '✅ Thank you! Your enquiry has been received. We will contact you soon.' });
+    // Format message for WhatsApp
+    const whatsappNumber = '919423669236'; // Standard international format without '+'
+    const text = `*New Wealth Enquiry - FinAura Capital* 🌟\n\n` +
+      `👤 *Name:* ${formData.name}\n` +
+      `📞 *Phone:* ${formData.phone}\n` +
+      `✉️ *Email:* ${formData.email || 'Not provided'}\n` +
+      `💼 *Service:* ${formData.service}\n` +
+      `📝 *Message:* ${formData.message || 'No additional message'}\n\n` +
+      `_Submitted via website form_`;
+
+    const encodedText = encodeURIComponent(text);
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
+
+    // Show success status
+    setStatus({ type: 'success', msg: '✅ Redirecting to WhatsApp to send your enquiry...' });
     
+    // Redirect / Open WhatsApp
     setTimeout(() => {
+      window.open(whatsappUrl, '_blank');
       setFormData({ name: '', phone: '', email: '', service: '', message: '' });
       setStatus(null);
-    }, 5000);
+    }, 1500);
   };
 
   return (

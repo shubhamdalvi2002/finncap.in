@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { MarketTicker } from './components/MarketTicker';
 import { Hero } from './components/Hero';
+import { BentoHub } from './components/BentoHub';
 import { Services } from './components/Services';
-import { Calculators } from './components/Calculators';
 import { About } from './components/About';
 import { Blog } from './components/Blog';
 import { Contact } from './components/Contact';
@@ -11,28 +11,39 @@ import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import { motion, AnimatePresence } from 'motion/react';
 
+export type ActivePage = 'home' | 'services' | 'calculators' | 'tips' | 'about' | 'contact';
+
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<'home' | 'tips'>('home');
+  const [currentPage, setCurrentPage] = useState<ActivePage>('home');
 
   // Handle hash or navigation events
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash === '#blog' || hash === '#/tips' || hash === '#tips') {
+      const hash = window.location.hash || '';
+      
+      if (hash === '#services' || hash === '#/services') {
+        setCurrentPage('services');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#calculators' || hash === '#/calculators') {
+        setCurrentPage('services');
+        setTimeout(() => {
+          const element = document.getElementById('calculators');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 150);
+      } else if (hash === '#blog' || hash === '#/tips' || hash === '#tips') {
         setCurrentPage('tips');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#about' || hash === '#/about') {
+        setCurrentPage('about');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#contact' || hash === '#/contact') {
+        setCurrentPage('contact');
         window.scrollTo({ top: 0, behavior: 'auto' });
       } else {
         setCurrentPage('home');
-        // If there's a specific section target, scroll to it after rendering
-        const targetId = hash.replace('#', '');
-        if (targetId && targetId !== '/' && targetId !== 'home') {
-          setTimeout(() => {
-            const element = document.getElementById(targetId);
-            if (element) {
-              element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-          }, 150);
-        }
+        window.scrollTo({ top: 0, behavior: 'auto' });
       }
     };
 
@@ -47,35 +58,76 @@ export default function App() {
 
   return (
     <div className="min-h-screen selection:bg-gold selection:text-bg-dark bg-[rgb(var(--background))] text-foreground">
-      <Navbar />
+      <Navbar currentPage={currentPage} />
       <MarketTicker />
       
       <main className="pt-[36px] overflow-hidden">
         <AnimatePresence mode="wait">
-          {currentPage === 'home' ? (
+          {currentPage === 'home' && (
             <motion.div
               key="home"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.35 }}
+              transition={{ duration: 0.3 }}
             >
               <Hero />
-              <Services />
-              <Calculators />
-              <About />
-              <Contact />
+              <BentoHub />
+              <div className="pt-8">
+                <About />
+              </div>
             </motion.div>
-          ) : (
+          )}
+
+          {currentPage === 'services' && (
+            <motion.div
+              key="services"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              className="pt-16 pb-8"
+            >
+              <Services />
+            </motion.div>
+          )}
+
+          {currentPage === 'tips' && (
             <motion.div
               key="tips"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.35 }}
-              className="pt-20"
+              transition={{ duration: 0.3 }}
+              className="pt-16 pb-8"
             >
               <Blog />
+            </motion.div>
+          )}
+
+          {currentPage === 'about' && (
+            <motion.div
+              key="about"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              className="pt-16 pb-8"
+            >
+              <About />
+            </motion.div>
+          )}
+
+          {currentPage === 'contact' && (
+            <motion.div
+              key="contact"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              className="pt-16 pb-8"
+            >
+              <Contact />
             </motion.div>
           )}
         </AnimatePresence>
