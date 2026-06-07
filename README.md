@@ -25,6 +25,25 @@
 
 ---
 
+## 📌 Table of Contents
+
+*   [📋 Executive Overview](#-executive-overview)
+*   [🏛️ System Architecture & Data Flow](#️-system-architecture--data-flow)
+*   [🛡️ Regulatory Compliance & Distribution Credentials](#️-regulatory-compliance--distribution-credentials)
+*   [🧮 Mathematical Modeling & Core Calculations](#-mathematical-modeling--core-calculations)
+*   [🔒 Client Data Privacy & Security Protocols](#-client-data-privacy--security-protocols)
+*   [🚀 Key Functional Features](#-key-functional-features)
+*   [🛠️ Technology Stack](#️-technology-stack)
+*   [💻 Core Code Walkthrough](#-core-code-walkthrough)
+*   [📥 Developer Installation & Configuration](#-developer-installation--configuration)
+*   [🗂️ Codebase Structure](#️-codebase-structure)
+*   [⚙️ Configuration Variables (env)](#️-configuration-variables-env)
+*   [🏛️ Credentials & AMFI Code of Conduct](#️-credentials--amfi-code-of-conduct)
+*   [🤝 Professional Inquiries & Social Channels](#-professional-inquiries--social-channels)
+*   [⚠️ Standard Regulatory Disclaimer](#️-standard-regulatory-disclaimer)
+
+---
+
 ## 📋 Executive Overview
 
 **FinAura Capital** is an enterprise-grade financial analytics and wealth management advisory portal designed for modern retail and high-net-worth investors in India. Built and curated by **Shubham Dalvi** — a NISM-certified mutual fund distributor affiliated with NJ Wealth — the suite delivers institutional-quality planning and compound simulators through a premium, interactive user interface.
