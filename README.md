@@ -13,7 +13,7 @@
 
 <br />
 
-[**Live Platform**](#) &nbsp;·&nbsp; [**NJ Wealth Portal**](http://p.njw.bz/103924) &nbsp;·&nbsp; [**WhatsApp Advisory**](https://wa.me/919423669236) &nbsp;·&nbsp; [**Instagram Profile**](https://www.instagram.com/finnauracapital) &nbsp;·&nbsp; [**LinkedIn**](https://www.linkedin.com/in/finaura-capital-813770388/)
+[**Live Platform**](https://finncap-in.vercel.app/) &nbsp;·&nbsp; [**NJ Wealth Portal**](http://p.njw.bz/103924) &nbsp;·&nbsp; [**WhatsApp Advisory**](https://wa.me/919423669236) &nbsp;·&nbsp; [**Instagram Profile**](https://www.instagram.com/finnauracapital) &nbsp;·&nbsp; [**LinkedIn**](https://www.linkedin.com/in/finaura-capital-813770388/)
 
 </div>
 
@@ -191,7 +191,7 @@ To run the application locally or on a production node, establish the following 
 ```env
 # Application Context
 VITE_APP_NAME=FinAura Capital
-VITE_APP_URL=https://finaura.capital
+VITE_APP_URL=https://finncap-in.vercel.app/
 
 # Advisory Channel Parameters
 VITE_WA_NUMBER=919423669236
