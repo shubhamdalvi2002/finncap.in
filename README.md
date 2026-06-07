@@ -41,7 +41,7 @@ FinAura Capital operates as a client-side calculation application to prioritize 
 graph TD
     Client([Client / Investor]) -->|Accesses Portal| UI[Bento Hub Dashboard]
     
-    subgraph Client-Side Application Context
+    subgraph ClientSideContext ["Client-Side Application Context"]
         UI -->|Route to| CalcSuite[Interactive Calculator Engines]
         UI -->|Display| AdvisoryCarousel[Advisory Tips Engine]
         
@@ -61,7 +61,7 @@ graph TD
         LeadEngine -->|Construct Struct Text| WAProtocol[Native wa.me URI Protocol Handler]
     end
     
-    subgraph External Systems
+    subgraph ExtSystems ["External Systems"]
         WAProtocol -->|Secure Redirect| WAApp[Advisor WhatsApp Channel]
         UI -->|Verification Click| NJVerification[NJ Wealth Partner Verification Portal]
     end
@@ -69,7 +69,7 @@ graph TD
     style UI fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#fff
     style CalcSuite fill:#1e293b,stroke:#475569,stroke-width:1px,color:#fff
     style MathEngine fill:#0f172a,stroke:#10b981,stroke-width:1px,color:#34d399
-    style ExternalSystems fill:#1e1b4b,stroke:#6366f1,stroke-width:1px,color:#fff
+    style ExtSystems fill:#1e1b4b,stroke:#6366f1,stroke-width:1px,color:#fff
 ```
 
 ---
