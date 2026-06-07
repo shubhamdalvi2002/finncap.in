@@ -15,6 +15,12 @@
 
 [**Live Platform**](https://finncap-in.vercel.app/) &nbsp;·&nbsp; [**NJ Wealth Portal**](http://p.njw.bz/103924) &nbsp;·&nbsp; [**WhatsApp Advisory**](https://wa.me/919423669236) &nbsp;·&nbsp; [**Instagram Profile**](https://www.instagram.com/finnauracapital) &nbsp;·&nbsp; [**LinkedIn**](https://www.linkedin.com/in/finaura-capital-813770388/)
 
+<br /><br />
+
+[![FinAura Capital Dashboard Mockup](./FinAura%20Capital/finaura_dashboard_mockup.png)](https://finncap-in.vercel.app/)
+
+*Enterprise Wealth Advisory Portal & Interactive Compounding Suite*
+
 </div>
 
 ---
@@ -84,6 +90,48 @@ FinAura Capital operates under a strict compliance framework. Below are the veri
 
 ---
 
+## 🧮 Mathematical Modeling & Core Calculations
+
+The application runs deterministic cash-flow models to project client wealth parameters. Below are the exact equations implemented in the math utilities:
+
+### 1. Systematic Investment Plan (SIP)
+To calculate the future value ($FV$) of systematic monthly payments ($P$) compounding monthly at an annual rate ($r$) for $n$ months, the equation is:
+$$FV = P \times \frac{\left(1 + i\right)^n - 1}{i} \times \left(1 + i\right)$$
+Where $i$ is the monthly interest rate:
+$$i = \frac{r}{12 \times 100}$$
+
+### 2. Systematic Withdrawal Plan (SWP)
+To determine the longevity and remaining corpus ($C_t$) of a starting principal ($PV$) after regular monthly withdrawals ($W$) compounding at interest rate $i$ for $t$ months:
+$$C_t = PV \times (1 + i)^t - W \times \frac{(1 + i)^t - 1}{i}$$
+If inflation-adjustment is enabled, the withdrawal $W_t$ increases annually:
+$$W_t = W_0 \times (1 + f)^{\lfloor t/12 \rfloor}$$
+*(Where $f$ is the annual inflation rate)*
+
+### 3. Goal-Based Backward Induction
+To calculate the required monthly systematic installment ($P$) to hit a target future corpus ($FV$) over $n$ periods:
+$$P = \frac{FV \times i}{\left((1 + i)^n - 1\right) \times (1 + i)}$$
+
+### 4. Retirement Need Estimation
+Determines the required retirement target corpus ($RC$) at age $R_{age}$ to sustain inflation-adjusted monthly expenses ($E$) across a lifespan ending at $L_{exp}$:
+$$RC = \sum_{k=1}^{12 \times (L_{exp} - R_{age})} E \times \frac{(1 + f_m)^k}{(1 + i_m)^k}$$
+*(Where $f_m$ and $i_m$ are monthly adjusted inflation and post-retirement return rates respectively)*
+
+---
+
+## 🔒 Client Data Privacy & Security Protocols
+
+FinAura Capital adopts a **zero-trust, database-free architecture** to maximize client data security and align with regulatory guidelines:
+
+1.  **State Isolation**: Financial parameters inputted into the sliders remain purely in the volatile state of the user's browser. Once the tab is closed, all planning numbers are permanently discarded.
+2.  **No Server-Side Storing (PII)**: Personally Identifiable Information (PII) is not sent to any database.
+3.  **Cryptographically Safe Redirection**: 
+    The enquiry form structures data client-side and translates it into standard URI escape codes. It redirects the client using the browser's native `Window.location.replace` protocol directly to the distributor's secure WhatsApp terminal:
+    ```
+    https://wa.me/919423669236?text=Name%3A%20John%20Doe%0AEmail%3A%20john%40example.com%0AService%3A%20SIP%20Planning
+    ```
+
+---
+
 ## 🚀 Key Functional Features
 
 ### 1. Bento Grid Navigation Control Panel
@@ -97,11 +145,7 @@ All calculators feature real-time update triggers, standard zero-clearing fallba
 *   **Comprehensive Retirement Planner**: Integrates variables such as current age, target retirement age, life expectancy, post-retirement inflation, and desired monthly income.
 *   **Tactical Defensive Shield**: A risk-modeling module that calculates customized emergency fund sizes (3, 6, or 12 months) based on job security risk, fixed expenses, and dependents.
 
-### 3. Privacy-First Lead Routing Engine
-*   Unlike typical forms that store data on unsecured databases, FinAura Capital captures enquiry metrics (name, email, service interest, message) client-side.
-*   The data is programmatically formatted into a structured, easily readable text layout and routed via a secure client-side redirect (`wa.me` deep link) directly to the advisor's WhatsApp.
-
-### 4. Contextual Advisory Banner
+### 3. Contextual Advisory Banner
 A dynamic carousel providing rotating financial education tips, compliance warnings, and market reminders curated directly by the NISM-certified distributor.
 
 ---
@@ -117,6 +161,45 @@ A dynamic carousel providing rotating financial education tips, compliance warni
 | **Asset Icons** | Lucide React | Clean, scalable vector symbols |
 | **Backend Integration** | Node.js / Express | Modular server endpoints for static assets |
 | **Deep-linking Broker** | Native WA Protocol (`wa.me`) | Browser-to-app communication |
+
+---
+
+## 💻 Core Code Walkthrough
+
+Below is the implementation of the core financial utility function handling standard compounding projections. It is exported under `src/utils/financeMath.js`:
+
+```javascript
+/**
+ * Calculates systematic monthly investment compounding parameters.
+ * @param {number} monthlyInvestment - Principal added monthly (P)
+ * @param {number} annualRate - Expected yearly return rate (%)
+ * @param {number} years - Duration in years (t)
+ * @returns {Object} Total invested, interest earned, and final projected value
+ */
+export const calculateSIP = (monthlyInvestment, annualRate, years) => {
+  const P = Number(monthlyInvestment);
+  const r = Number(annualRate);
+  const t = Number(years);
+
+  if (isNaN(P) || isNaN(r) || isNaN(t) || P <= 0 || t <= 0) {
+    return { totalInvested: 0, interestEarned: 0, finalValue: 0 };
+  }
+
+  const i = r / (12 * 100); // Monthly rate
+  const n = t * 12;         // Total months
+
+  // FV = P * [((1 + i)^n - 1) / i] * (1 + i)
+  const finalValue = P * (((Math.pow(1 + i, n) - 1) / i) * (1 + i));
+  const totalInvested = P * n;
+  const interestEarned = Math.max(0, finalValue - totalInvested);
+
+  return {
+    totalInvested: Math.round(totalInvested),
+    interestEarned: Math.round(interestEarned),
+    finalValue: Math.round(finalValue)
+  };
+};
+```
 
 ---
 
