@@ -1182,69 +1182,107 @@ const Tooltip = ({ text }: { text: string }) => (
   </div>
 );
 
-const Slider = ({ label, value, onChange, min, max, step, format, helpText, isLive }: { label: string, value: number, onChange: (v: number) => void, min: number, max: number, step: number, format: (v: number) => string, helpText?: string, isLive?: boolean }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="group"
-  >
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-      <div className="flex items-center gap-2">
-        <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground group-hover:text-gold transition-colors">{label}</label>
-        <AnimatePresence>
-          {isLive && (
-            <motion.span 
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[8px] font-bold text-green-500 uppercase"
-            >
-              <Zap size={8} className="fill-green-500" />
-              Live
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </div>
-      
-      <div className="flex items-center gap-3">
-        <div className="relative group/input">
-          <input
-            type="number"
-            min={min}
-            max={max}
-            step={step}
-            value={value}
-            onChange={e => {
-              const val = parseFloat(e.target.value);
-              if (!isNaN(val)) onChange(val);
-            }}
-            className="w-32 bg-bg-dark-2/50 border border-gold/10 rounded-xl px-3 py-2 text-right text-sm font-mono font-bold text-gold focus:outline-none focus:border-gold/50 focus:bg-bg-dark-2 transition-all outline-none"
-          />
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-mono opacity-40 group-focus-within/input:opacity-100 transition-opacity">EDIT</div>
-        </div>
-        <div className="text-[10px] font-mono font-medium text-muted-foreground opacity-60 w-24 text-right hidden sm:block">
-          {format(value)}
-        </div>
-      </div>
-    </div>
+const Slider = ({ label, value, onChange, min, max, step, format, helpText, isLive }: { label: string, value: number, onChange: (v: number) => void, min: number, max: number, step: number, format: (v: number) => string, helpText?: string, isLive?: boolean }) => {
+  const [inputValue, setInputValue] = useState<string>(value.toString());
 
-    <div className="px-1">
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={e => onChange(parseFloat(e.target.value))}
-        className="w-full h-1.5 bg-gold/10 rounded-full appearance-none cursor-pointer accent-gold hover:accent-gold-light transition-all focus:outline-none"
-      />
-      <div className="flex justify-between text-[9px] font-bold text-muted-foreground/40 mt-3 uppercase tracking-tighter">
-        <span>Min {format(min)}</span>
-        <span>Max {format(max)}</span>
+  // Synchronize local input state with external value changes
+  useEffect(() => {
+    const parsedInput = parseFloat(inputValue);
+    if (inputValue !== '' && inputValue !== '-' && !inputValue.endsWith('.') && parsedInput !== value) {
+      setInputValue(value.toString());
+    }
+  }, [value]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawVal = e.target.value;
+    setInputValue(rawVal);
+
+    if (rawVal === '') {
+      onChange(0);
+    } else {
+      const parsed = parseFloat(rawVal);
+      if (!isNaN(parsed)) {
+        onChange(parsed);
+      }
+    }
+  };
+
+  const handleBlur = () => {
+    let parsed = parseFloat(inputValue);
+    if (isNaN(parsed) || inputValue === '') {
+      parsed = min;
+    }
+    const clamped = Math.max(min, Math.min(max, parsed));
+    setInputValue(clamped.toString());
+    onChange(clamped);
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="group"
+    >
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+        <div className="flex items-center gap-2">
+          <label className="text-[11px] font-extrabold uppercase tracking-widest text-muted-foreground group-hover:text-gold transition-colors">{label}</label>
+          <AnimatePresence>
+            {isLive && (
+              <motion.span 
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
+                className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-500/10 border border-green-500/20 text-[8px] font-bold text-green-500 uppercase"
+              >
+                <Zap size={8} className="fill-green-500" />
+                Live
+              </motion.span>
+            )}
+          </AnimatePresence>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <div className="relative group/input">
+            <input
+              type="number"
+              min={min}
+              max={max}
+              step={step}
+              value={inputValue}
+              onChange={handleInputChange}
+              onBlur={handleBlur}
+              className="w-32 bg-bg-dark-2/50 border border-gold/10 rounded-xl px-3 py-2 text-right text-sm font-mono font-bold text-gold focus:outline-none focus:border-gold/50 focus:bg-bg-dark-2 transition-all outline-none"
+            />
+            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-mono opacity-40 group-focus-within/input:opacity-100 transition-opacity">EDIT</div>
+          </div>
+          <div className="text-[10px] font-mono font-medium text-muted-foreground opacity-60 w-24 text-right hidden sm:block">
+            {format(value)}
+          </div>
+        </div>
       </div>
-    </div>
-  </motion.div>
-);
+
+      <div className="px-1">
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={e => {
+            const val = parseFloat(e.target.value);
+            setInputValue(val.toString());
+            onChange(val);
+          }}
+          className="w-full h-1.5 bg-gold/10 rounded-full appearance-none cursor-pointer accent-gold hover:accent-gold-light transition-all focus:outline-none"
+        />
+        <div className="flex justify-between text-[9px] font-bold text-muted-foreground/40 mt-3 uppercase tracking-tighter">
+          <span>Min {format(min)}</span>
+          <span>Max {format(max)}</span>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const ResultBox = ({ label, value, highlight, helpText }: { label: string, value: string, highlight?: boolean, helpText?: string }) => (
   <motion.div 
