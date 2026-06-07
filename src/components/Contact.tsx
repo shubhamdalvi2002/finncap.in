@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, MessageCircle, Mail, Instagram, ExternalLink } from 'lucide-react';
+import { Phone, MessageCircle, Mail, Instagram, ExternalLink, Facebook, Linkedin } from 'lucide-react';
 
 export const Contact: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -51,12 +51,45 @@ export const Contact: React.FC = () => {
       </div>
 
       <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-16 relative z-10">
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4">
           <ContactItem icon={<Phone size={18} />} label="Call Us" value="+91 72189 18236" href="tel:7218918236" />
-          <ContactItem icon={<MessageCircle size={18} />} label="WhatsApp" value="+91 94236 69236" href="https://wa.me/919423669236" />
-          <ContactItem icon={<Mail size={18} />} label="Email" value="finauracapital@gmail.com" href="mailto:finauracapital@gmail.com" />
-          <ContactItem icon={<Instagram size={18} />} label="Instagram" value="@finnauracapital" href="https://www.instagram.com/finnauracapital" />
+          <ContactItem icon={<MessageCircle size={18} />} label="WhatsApp Support" value="+91 94236 69236" href="https://wa.me/919423669236" />
+          <ContactItem icon={<Mail size={18} />} label="Email Desk" value="finauracapital@gmail.com" href="mailto:finauracapital@gmail.com" />
           <ContactItem icon={<ExternalLink size={18} />} label="Start Investing" value="Open your account now →" href="http://p.njw.bz/103924" />
+          
+          {/* Social Media Channels Panel */}
+          <div className="mt-2 bg-bg-dark-3/40 border border-gold/10 rounded-xl p-5">
+            <div className="text-[10px] uppercase font-mono tracking-widest text-[#9ca3af] block mb-4">Follow Us On Social Media</div>
+            <div className="grid grid-cols-3 gap-3">
+              <a 
+                href="https://www.instagram.com/finnauracapital" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex flex-col items-center justify-center p-3 rounded-lg border border-gold/5 bg-bg-dark-3/60 hover:border-gold/30 hover:bg-gold/5 transition-all text-center gap-2 group"
+              >
+                <Instagram size={20} className="text-gold group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-semibold text-muted-foreground group-hover:text-gold transition-colors">Instagram</span>
+              </a>
+              <a 
+                href="https://www.facebook.com/share/18ehkCsPPh/?mibextid=wwXIfr" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex flex-col items-center justify-center p-3 rounded-lg border border-gold/5 bg-bg-dark-3/60 hover:border-gold/30 hover:bg-gold/5 transition-all text-center gap-2 group"
+              >
+                <Facebook size={20} className="text-gold group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-semibold text-muted-foreground group-hover:text-gold transition-colors">Facebook</span>
+              </a>
+              <a 
+                href="https://www.linkedin.com/in/finaura-capital-813770388/" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="flex flex-col items-center justify-center p-3 rounded-lg border border-gold/5 bg-bg-dark-3/60 hover:border-gold/30 hover:bg-gold/5 transition-all text-center gap-2 group"
+              >
+                <Linkedin size={20} className="text-gold group-hover:scale-110 transition-transform" />
+                <span className="text-[10px] font-semibold text-muted-foreground group-hover:text-gold transition-colors">LinkedIn</span>
+              </a>
+            </div>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
