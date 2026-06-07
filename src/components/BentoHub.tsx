@@ -142,7 +142,7 @@ export const BentoHub: React.FC = () => {
             <div className="text-center sm:text-left">
               <span className="text-[10px] uppercase font-bold tracking-widest text-[#9ca3af] block mb-0.5 leading-none">Mutual Funds Distribution Affiliate</span>
               <p className="text-xs text-muted-foreground leading-normal">
-                Verifiable NJ Wealth distributor franchise code: <strong className="text-white font-semibold">ARN-103924</strong>
+                Verifiable AMFI Registration Number: <strong className="text-white font-semibold">ARN-353581</strong> | NJ Wealth Partner Code: <strong className="text-white font-semibold">103924</strong>
               </p>
             </div>
           </div>
