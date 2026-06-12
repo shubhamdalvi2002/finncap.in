@@ -67,8 +67,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
           })}
         </ul>
 
-        <div className="flex items-center gap-4">
-          <a href="http://p.njw.bz/103924" target="_blank" className="hidden sm:block border border-gold text-gold px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gold hover:text-bg-dark transition-all">
+        <div className="flex items-center gap-3">
+          <a href="https://ewa.njindiaonline.com/ewa/login" target="_blank" rel="noopener noreferrer" className="hidden sm:block border border-gold/40 text-gold hover:border-gold px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all">
+            Client Login
+          </a>
+          <a href="http://p.njw.bz/103924" target="_blank" className="hidden sm:block bg-gold text-bg-dark px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gold-light hover:shadow-lg hover:shadow-gold/10 transition-all">
             Start Investing
           </a>
 
@@ -105,9 +108,25 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
                 </a>
               );
             })}
-            <a href="http://p.njw.bz/103924" target="_blank" className="bg-gold text-bg-dark px-8 py-3 rounded-full font-bold uppercase tracking-wider text-xs mt-4">
-              Start Investing
-            </a>
+            <div className="flex flex-col gap-3 mt-4 w-64">
+              <a 
+                href="https://ewa.njindiaonline.com/ewa/login" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                onClick={() => setMobileOpen(false)}
+                className="border border-gold/40 text-gold py-3 px-8 rounded-full font-bold uppercase tracking-wider text-xs text-center transition-all"
+              >
+                Client Login
+              </a>
+              <a 
+                href="http://p.njw.bz/103924" 
+                target="_blank" 
+                onClick={() => setMobileOpen(false)}
+                className="bg-gold text-bg-dark py-3 px-8 rounded-full font-bold uppercase tracking-wider text-xs text-center hover:bg-gold-light transition-all"
+              >
+                Start Investing
+              </a>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

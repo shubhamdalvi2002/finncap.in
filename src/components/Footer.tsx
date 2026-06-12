@@ -14,6 +14,7 @@ export const Footer: React.FC = () => {
             <a href="#about" className="text-muted-foreground text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">About</a>
             <a href="#contact" className="text-muted-foreground text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">Contact</a>
             <a href="http://p.njw.bz/103924" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">Invest Now</a>
+            <a href="https://ewa.njindiaonline.com/ewa/login" target="_blank" rel="noopener noreferrer" className="text-gold text-xs font-semibold uppercase tracking-wider hover:text-gold-light transition-colors">Client Login</a>
           </div>
           
           {/* Social Links Row */}
@@ -38,7 +39,10 @@ export const Footer: React.FC = () => {
             © {new Date().getFullYear()} FinAura Capital. All rights reserved.
           </div>
           <div className="text-[0.65rem] text-muted-foreground/60 uppercase tracking-widest font-medium">
-            NISM Certified Mutual Fund Distributor
+            AMFI Registered Mutual Fund Distributor | ARN-353581
+          </div>
+          <div className="text-[0.6rem] text-muted-foreground/40 uppercase tracking-widest font-medium">
+            NJ Wealth Partner Code: 103924
           </div>
         </div>
       </div>

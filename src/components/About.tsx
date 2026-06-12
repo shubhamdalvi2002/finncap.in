@@ -219,9 +219,13 @@ export const About: React.FC = () => {
                           <span className="opacity-70 group-hover/link:translate-x-1 transition-transform">→</span>
                         </a>
                       </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed">
+                      <p className="text-xs text-muted-foreground leading-relaxed mb-2">
                         Authorised Mutual Fund Distributor (NISM Series V-A) providing expert advisory on diversified portfolios.
                       </p>
+                      <div className="pt-2 mt-2 border-t border-gold/10 flex flex-col gap-1">
+                        <div className="text-[10px] font-mono font-bold text-gold uppercase tracking-wider">AMFI Registered No: ARN-353581</div>
+                        <div className="text-[10px] font-mono font-bold text-gold uppercase tracking-wider">NJ Wealth Partner Code: 103924</div>
+                      </div>
                     </div>
                   </div>
 

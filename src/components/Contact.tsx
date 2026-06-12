@@ -56,6 +56,7 @@ export const Contact: React.FC = () => {
           <ContactItem icon={<MessageCircle size={18} />} label="WhatsApp Support" value="+91 94236 69236" href="https://wa.me/919423669236" />
           <ContactItem icon={<Mail size={18} />} label="Email Desk" value="finauracapital@gmail.com" href="mailto:finauracapital@gmail.com" />
           <ContactItem icon={<ExternalLink size={18} />} label="Start Investing" value="Open your account now →" href="http://p.njw.bz/103924" />
+          <ContactItem icon={<ExternalLink size={18} />} label="Client Desk" value="Login to existing account →" href="https://ewa.njindiaonline.com/ewa/login" />
           
           {/* Social Media Channels Panel */}
           <div className="mt-2 bg-bg-dark-3/40 border border-gold/10 rounded-xl p-5">

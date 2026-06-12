@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { MarketTicker } from './components/MarketTicker';
 import { Hero } from './components/Hero';
-import { BentoHub } from './components/BentoHub';
 import { Services } from './components/Services';
 import { About } from './components/About';
 import { Blog } from './components/Blog';
@@ -72,7 +71,6 @@ export default function App() {
               transition={{ duration: 0.3 }}
             >
               <Hero />
-              <BentoHub />
               <div className="pt-8">
                 <About />
               </div>

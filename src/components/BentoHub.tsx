@@ -146,14 +146,24 @@ export const BentoHub: React.FC = () => {
               </p>
             </div>
           </div>
-          <a
-            href="http://p.njw.bz/103924"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-6 py-2 rounded-full border border-gold bg-gold/5 text-gold text-xs font-semibold hover:bg-gold hover:text-bg-dark transition-all shrink-0"
-          >
-            Verify ARN Credentials
-          </a>
+          <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+            <a
+              href="https://ewa.njindiaonline.com/ewa/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-5 py-2.5 rounded-full border border-gold/40 text-gold text-xs font-semibold hover:bg-gold/10 transition-all text-center"
+            >
+              Client Login
+            </a>
+            <a
+              href="http://p.njw.bz/103924"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-5 py-2.5 rounded-full bg-gold text-bg-dark text-xs font-semibold hover:bg-gold-light transition-all text-center"
+            >
+              Start Investing
+            </a>
+          </div>
         </div>
       </div>
     </section>
