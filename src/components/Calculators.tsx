@@ -4,6 +4,15 @@ import { formatCurrency, formatCurrencyShort } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { Share2, Copy, Check, Zap } from 'lucide-react';
 import { useMarketData, MarketIndicators } from '../hooks/useMarketData';
+import { CalculatorAIAssistant } from './CalculatorAIAssistant';
+import { 
+  calculateSIP, 
+  calculateSWP, 
+  calculateSTP, 
+  calculateRetirement, 
+  calculateEMI, 
+  calculateGoal 
+} from '../lib/calculatorMath';
 
 type CalcType = 'sip' | 'swp' | 'stp' | 'retirement' | 'emi' | 'goal';
 
@@ -192,55 +201,19 @@ const RetirementCalculator = ({ indicators }: { indicators: MarketIndicators }) 
     setIsLive(true);
   };
 
-  const yearsToRetire = retireAge - currentAge;
-  const monthlyExpAtRetire = expenses * Math.pow(1 + inflation / 100, yearsToRetire);
-  const annualExpAtRetire = monthlyExpAtRetire * 12;
-  
-  const postRetireReturn = 8;
-  const realRate = (1 + postRetireReturn / 100) / (1 + inflation / 100) - 1;
-  const corpusRequired = Math.abs(realRate) < 0.0000001
-    ? annualExpAtRetire * 20
-    : annualExpAtRetire * ((1 - Math.pow(1 + realRate, -20)) / realRate);
-
-  const r = returns / 100 / 12;
-  const n = yearsToRetire * 12;
-  const monthlySavings = r === 0 
-    ? corpusRequired / n 
-    : corpusRequired / (((Math.pow(1 + r, n) - 1) / r) * (1 + r));
-
-  const invested = monthlySavings * 12 * yearsToRetire;
-  const estReturns = Math.max(0, corpusRequired - invested);
+  const {
+    corpusRequired,
+    monthlySavingsRequired: monthlySavings,
+    monthlyExpensesAtRetire: monthlyExpAtRetire,
+    investedCapital: invested,
+    estimatedReturnGrowth: estReturns,
+    chartData: retirementChartData,
+  } = calculateRetirement(currentAge, retireAge, expenses, inflation, returns);
 
   const data = [
     { name: 'Invested', value: invested, color: '#C9A84C' },
     { name: 'Returns', value: estReturns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
-
-  const getRetirementData = () => {
-    const chartData = [];
-    const rRate = returns / 100 / 12;
-    const step = yearsToRetire <= 10 ? 1 : yearsToRetire <= 20 ? 2 : 5;
-    
-    for (let y = step; y < yearsToRetire; y += step) {
-      const m = y * 12;
-      const investedPct = monthlySavings * m;
-      const progressValue = rRate === 0 
-        ? investedPct 
-        : monthlySavings * ((Math.pow(1 + rRate, m) - 1) / rRate) * (1 + rRate);
-      chartData.push({
-        name: `Age ${currentAge + y}`,
-        Invested: Math.round(investedPct),
-        Value: Math.round(progressValue)
-      });
-    }
-    
-    chartData.push({
-      name: `Age ${retireAge}`,
-      Invested: Math.round(invested),
-      Value: Math.round(corpusRequired)
-    });
-    return chartData;
-  };
 
   return (
     <motion.div 
@@ -331,12 +304,18 @@ const RetirementCalculator = ({ indicators }: { indicators: MarketIndicators }) 
       </div>
 
       <GrowthChart 
-        data={getRetirementData()}
+        data={retirementChartData}
         keys={['Invested', 'Value']}
         colors={['rgba(255, 255, 255, 0.2)', '#C9A84C']}
         title="Retirement Corpus Accumulation"
         description="See how your savings compound year-on-year to hit your golden nest egg target."
       />
+      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
+        <CalculatorAIAssistant 
+          calculatorType="retirement" 
+          calculatorData={{ expenses, inflation, returns, corpusRequired, monthlySavingsRequired: monthlySavings, investedCapital: invested, estimatedReturnGrowth: estReturns }} 
+        />
+      </div>
     </motion.div>
   );
 };
@@ -352,58 +331,17 @@ const EMICalculator = ({ indicators }: { indicators: MarketIndicators }) => {
     setIsLive(true);
   };
 
-  const r = interestRate / 12 / 100;
-  const n = tenure * 12;
-  const emi = r === 0 
-    ? loanAmount / n 
-    : (loanAmount * r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-  const totalPayment = emi * n;
-  const totalInterest = totalPayment - loanAmount;
+  const {
+    monthlyEMI: emi,
+    totalPayment,
+    totalInterest,
+    chartData: emiChartData,
+  } = calculateEMI(loanAmount, interestRate, tenure);
 
   const data = [
     { name: 'Principal', value: loanAmount, color: '#C9A84C' },
     { name: 'Interest', value: totalInterest, color: 'rgba(201, 168, 76, 0.2)' },
   ];
-
-  const getEmiData = () => {
-    const chartData = [];
-    const rRate = interestRate / 12 / 100;
-    const totalPayments = tenure * 12;
-    const step = tenure <= 10 ? 1 : tenure <= 20 ? 2 : 5;
-    
-    chartData.push({
-      name: 'Start',
-      'Principal Paid': 0,
-      'Balance': Math.round(loanAmount)
-    });
-
-    for (let y = step; y <= tenure; y += step) {
-      const m = y * 12;
-      let remainingBalance = 0;
-      if (rRate === 0) {
-        remainingBalance = loanAmount - (loanAmount * (m / totalPayments));
-      } else {
-        remainingBalance = loanAmount * (Math.pow(1 + rRate, totalPayments) - Math.pow(1 + rRate, m)) / (Math.pow(1 + rRate, totalPayments) - 1);
-      }
-      remainingBalance = Math.max(0, remainingBalance);
-      const principalPaid = loanAmount - remainingBalance;
-      
-      chartData.push({
-        name: `Yr ${y}`,
-        'Principal Paid': Math.round(principalPaid),
-        'Balance': Math.round(remainingBalance)
-      });
-    }
-
-    if (tenure % step !== 0) {
-      chartData.push({
-        name: `Yr ${tenure}`,
-        'Principal Paid': Math.round(loanAmount),
-        'Balance': 0
-      });
-    }
-    return chartData;
-  };
 
   return (
     <motion.div 
@@ -485,12 +423,18 @@ const EMICalculator = ({ indicators }: { indicators: MarketIndicators }) => {
       </div>
 
       <GrowthChart 
-        data={getEmiData()}
+        data={emiChartData}
         keys={['Principal Paid', 'Balance']}
         colors={['#C9A84C', 'rgba(255, 255, 255, 0.2)']}
         title="Amortization Schedule"
         description="Observe how your home equity increases as the outstanding loan balance decays."
       />
+      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
+        <CalculatorAIAssistant 
+          calculatorType="emi" 
+          calculatorData={{ loanAmount, interestRate, tenure, monthlyEMI: emi, totalInterest, totalPayment }} 
+        />
+      </div>
     </motion.div>
   );
 };
@@ -516,40 +460,19 @@ const GoalCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, 
     setIsLive(true);
   };
 
-  const r = returns / 100 / 12;
-  const n = years * 12;
-  const monthlySavings = r === 0 
-    ? target / n 
-    : target / (((Math.pow(1 + r, n) - 1) / r) * (1 + r));
+  const {
+    monthlySavingsNeeded: monthlySavings,
+    totalSavingsInvested: invested,
+    estimatedGrowthReturns: estReturns,
+    chartData: goalChartData,
+  } = calculateGoal(target, years, returns);
 
-  const invested = monthlySavings * n;
-  const estReturns = Math.max(0, target - invested);
+  const n = years * 12;
 
   const data = [
     { name: 'Invested', value: invested, color: '#C9A84C' },
     { name: 'Returns', value: estReturns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
-
-  const getGoalData = () => {
-    const chartData = [];
-    const rRate = returns / 100 / 12;
-    const isShortHorizon = years <= 2;
-    const limit = isShortHorizon ? years * 12 : years;
-    
-    for (let i = 1; i <= limit; i++) {
-      const m = isShortHorizon ? i : i * 12;
-      const investedPct = monthlySavings * m;
-      const progressValue = rRate === 0 
-        ? investedPct 
-        : monthlySavings * ((Math.pow(1 + rRate, m) - 1) / rRate) * (1 + rRate);
-      chartData.push({
-        name: isShortHorizon ? `Mo ${m}` : `Yr ${i}`,
-        Invested: Math.round(investedPct),
-        Value: Math.round(progressValue)
-      });
-    }
-    return chartData;
-  };
 
   return (
     <motion.div 
@@ -644,12 +567,18 @@ const GoalCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, 
       </div>
 
       <GrowthChart 
-        data={getGoalData()}
+        data={goalChartData}
         keys={['Invested', 'Value']}
         colors={['rgba(255, 255, 255, 0.2)', '#C9A84C']}
         title="Goal Target Milestone Progression"
         description="Visualize the dynamic spacing with compounding interest tracking up to your targeted corpus."
       />
+      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
+        <CalculatorAIAssistant 
+          calculatorType="goal" 
+          calculatorData={{ targetAmount: target, years, expectedReturnRate: returns, monthlySavingsRequired: monthlySavings, totalSavingsInvested: invested, estimatedGrowthReturns: estReturns }} 
+        />
+      </div>
     </motion.div>
   );
 };
@@ -677,39 +606,17 @@ const SIPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
     setIsLive(true);
   };
 
-  const r = rate / 100 / 12;
-  const n = years * 12;
-  const fv = r === 0 
-    ? amount * n 
-    : amount * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
-  const invested = amount * n;
-  const returns = fv - invested;
+  const {
+    futureValue: fv,
+    totalInvested: invested,
+    estimatedReturns: returns,
+    chartData: sipChartData,
+  } = calculateSIP(amount, rate, years);
 
   const data = [
     { name: 'Invested', value: invested, color: '#C9A84C' },
     { name: 'Returns', value: returns, color: 'rgba(201, 168, 76, 0.2)' },
   ];
-
-  const getSipData = () => {
-    const chartData = [];
-    const rRate = rate / 100 / 12;
-    const isShortHorizon = years <= 2;
-    const limit = isShortHorizon ? years * 12 : years;
-    
-    for (let i = 1; i <= limit; i++) {
-      const m = isShortHorizon ? i : i * 12;
-      const investedPct = amount * m;
-      const progressValue = rRate === 0 
-        ? investedPct 
-        : amount * ((Math.pow(1 + rRate, m) - 1) / rRate) * (1 + rRate);
-      chartData.push({
-        name: isShortHorizon ? `Mo ${m}` : `Yr ${i}`,
-        Invested: Math.round(investedPct),
-        Value: Math.round(progressValue)
-      });
-    }
-    return chartData;
-  };
 
   return (
     <motion.div 
@@ -818,12 +725,18 @@ const SIPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
       </div>
 
       <GrowthChart 
-        data={getSipData()}
+        data={sipChartData}
         keys={['Invested', 'Value']}
         colors={['rgba(255, 255, 255, 0.2)', '#C9A84C']}
         title="SIP Compound Growth Curve"
         description="See how your monthly SIP builds massive wealth systematically through continuous compounding over your chosen horizon."
       />
+      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
+        <CalculatorAIAssistant 
+          calculatorType="sip" 
+          calculatorData={{ amount, rate, years, futureValue: fv, totalInvested: invested, estimatedReturns: returns }} 
+        />
+      </div>
     </motion.div>
   );
 };
@@ -849,59 +762,22 @@ const SWPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
     setIsLive(true);
   };
 
-  const monRate = rate / 100 / 12;
-  let balance = corpus, months = 0;
-  while (balance > 0 && months < 600) {
-    balance = balance * (1 + monRate) - withdrawal;
-    months++;
-  }
-  const exhausted = balance <= 0;
-  const totalWithdrawn = months * withdrawal;
-  const remaining = exhausted ? 0 : Math.max(balance, 0);
-  const yrs = Math.floor(months / 12), mos = months % 12;
+  const {
+    remainingBalance: remaining,
+    totalWithdrawn,
+    monthsActive: months,
+    yearsActive: yrs,
+    remainingMonthsActive: mos,
+    isSustainableIndefinitely: isSustainable,
+    chartData: swpChartData,
+  } = calculateSWP(corpus, withdrawal, rate);
+
+  const exhausted = !isSustainable;
 
   const data = [
     { name: 'Remaining', value: remaining, color: '#C9A84C' },
     { name: 'Withdrawn', value: totalWithdrawn, color: 'rgba(201, 168, 76, 0.2)' },
   ];
-
-  const getSwpData = () => {
-    const chartData = [];
-    const limitYears = exhausted ? Math.max(1, yrs) : 30;
-    const step = limitYears <= 10 ? 1 : limitYears <= 20 ? 2 : 5;
-    
-    chartData.push({
-      name: 'Start',
-      Balance: Math.round(corpus),
-      Withdrawn: 0
-    });
-
-    for (let y = step; y <= limitYears; y += step) {
-      const limitMonths = y * 12;
-      let currentBal = corpus;
-      for (let m = 0; m < limitMonths; m++) {
-        currentBal = currentBal * (1 + monRate) - withdrawal;
-        if (currentBal <= 0) {
-          currentBal = 0;
-          break;
-        }
-      }
-      chartData.push({
-        name: `Yr ${y}`,
-        Balance: Math.round(currentBal),
-        Withdrawn: Math.round(y * 12 * withdrawal)
-      });
-    }
-    
-    if (exhausted && yrs > 0 && (yrs % step !== 0)) {
-      chartData.push({
-        name: `Yr ${yrs}`,
-        Balance: 0,
-        Withdrawn: Math.round(totalWithdrawn)
-      });
-    }
-    return chartData;
-  };
 
   return (
     <motion.div 
@@ -983,12 +859,18 @@ const SWPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
       </div>
 
       <GrowthChart 
-        data={getSwpData()}
+        data={swpChartData}
         keys={['Balance', 'Withdrawn']}
         colors={['#C9A84C', 'rgba(255, 255, 255, 0.2)']}
         title="SWP Portfolio Projection"
         description="Track the sustainability timeline of your corpus vs cumulative withdrawal payouts."
       />
+      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
+        <CalculatorAIAssistant 
+          calculatorType="swp" 
+          calculatorData={{ corpus, withdrawal, rate, isSustainableIndefinitely: !exhausted, remainingBalance: remaining, totalWithdrawn }} 
+        />
+      </div>
     </motion.div>
   );
 };
@@ -1016,74 +898,18 @@ const STPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
     setIsLive(true);
   };
 
-  const sRate = srcRate / 100 / 12;
-  const tRate = tgtRate / 100 / 12;
-  let srcBalance = lump, tgtBalance = 0, months = 0;
-  while (srcBalance > transfer && months < 600) {
-    srcBalance = srcBalance * (1 + sRate) - transfer;
-    tgtBalance = (tgtBalance + transfer) * (1 + tRate);
-    months++;
-  }
-  if (srcBalance > 0 && srcBalance <= transfer) {
-    tgtBalance = (tgtBalance + srcBalance) * (1 + tRate);
-    months++;
-    srcBalance = 0;
-  }
-  const yrs = Math.floor(months / 12), mos = months % 12;
+  const {
+    sourceFundRemaining: srcBalance,
+    targetFundFinal: tgtBalance,
+    yearsActive: yrs,
+    remainingMonthsActive: mos,
+    chartData: stpChartData,
+  } = calculateSTP(lump, transfer, srcRate, tgtRate);
 
   const data = [
     { name: 'Target Fund', value: tgtBalance, color: '#C9A84C' },
     { name: 'Source Fund', value: srcBalance, color: 'rgba(201, 168, 76, 0.2)' },
   ];
-
-  const getStpData = () => {
-    const chartData = [];
-    const limitYears = Math.max(1, yrs);
-    const step = limitYears <= 10 ? 1 : limitYears <= 20 ? 2 : 5;
-
-    chartData.push({
-      name: 'Start',
-      'Source Fund': Math.round(lump),
-      'Target Fund': 0,
-      'Total Portfolio': Math.round(lump)
-    });
-
-    for (let y = step; y <= limitYears; y += step) {
-      const limitMonths = y * 12;
-      let tempSrc = lump;
-      let tempTgt = 0;
-      
-      for (let m = 0; m < limitMonths; m++) {
-        if (tempSrc > transfer) {
-          tempSrc = tempSrc * (1 + sRate) - transfer;
-          tempTgt = (tempTgt + transfer) * (1 + tRate);
-        } else if (tempSrc > 0) {
-          tempTgt = (tempTgt + tempSrc) * (1 + tRate);
-          tempSrc = 0;
-        } else {
-          tempTgt = tempTgt * (1 + tRate);
-        }
-      }
-      
-      chartData.push({
-        name: `Yr ${y}`,
-        'Source Fund': Math.round(tempSrc),
-        'Target Fund': Math.round(tempTgt),
-        'Total Portfolio': Math.round(tempSrc + tempTgt)
-      });
-    }
-
-    if (yrs > 0 && (yrs % step !== 0)) {
-      chartData.push({
-        name: `Yr ${yrs}`,
-        'Source Fund': Math.round(srcBalance),
-        'Target Fund': Math.round(tgtBalance),
-        'Total Portfolio': Math.round(srcBalance + tgtBalance)
-      });
-    }
-
-    return chartData;
-  };
 
   return (
     <motion.div 
@@ -1165,12 +991,18 @@ const STPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
       </div>
 
       <GrowthChart 
-        data={getStpData()}
+        data={stpChartData}
         keys={['Source Fund', 'Target Fund', 'Total Portfolio']}
         colors={['rgba(255, 255, 255, 0.2)', '#C9A84C', '#E2D2A2']}
         title="STP Systematic Asset Migration"
         description="Monitor how your low-risk Source Fund systematic decay compounds and appreciates inside the higher return Target Fund."
       />
+      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
+        <CalculatorAIAssistant 
+          calculatorType="stp" 
+          calculatorData={{ sourceCorpus: lump, monthlyTransfer: transfer, sourceRate: srcRate, targetRate: tgtRate, sourceFundRemaining: srcBalance, targetFundFinal: tgtBalance }} 
+        />
+      </div>
     </motion.div>
   );
 };

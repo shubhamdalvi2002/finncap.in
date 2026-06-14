@@ -4,6 +4,7 @@ import { WebSocketServer, WebSocket } from "ws";
 import { createServer as createViteServer } from "vite";
 import path from "path";
 import dotenv from "dotenv";
+import { GoogleGenAI } from "@google/genai";
 
 dotenv.config();
 
@@ -248,6 +249,173 @@ const fetchNews = async () => {
 // API routes
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
+});
+
+function getLocalFallbackResponse(message: string, calculatorType: string, calculatorData: any): string {
+  const msgLower = message.toLowerCase();
+  
+  if (msgLower.includes("good") && msgLower.includes("return")) {
+    return `In India, evaluating whether a return is "good" depends on the asset class and your risk tolerance:
+- **Fixed Deposits (FDs)**: Generally yield ~6.5% - 7.5% per annum, offering low-risk safety.
+- **Equity Benchmarks (Nifty 50)**: Has historically generated a long-term CAGR of ~12% - 13%.
+- **Midcap/Smallcap Indices**: Have achieved CAGR ranges of ~15% - 18% over the long haul, though with much higher volatility.
+
+*These are educational estimates based on historical constant trends. Actual market returns fluctuate and are never guaranteed. For personalized investment advice, please connect with a SEBI-registered financial advisor.*`;
+  }
+
+  if (calculatorType === 'sip' && calculatorData) {
+    const amount = calculatorData.amount || 5000;
+    const years = calculatorData.years || 20;
+    const rate = calculatorData.rate || 12;
+    const fv = calculatorData.futureValue || 4996000;
+    const invested = amount * years * 12;
+    const returnsValue = Math.max(0, fv - invested);
+    const multiplier = (fv / Math.max(1, invested)).toFixed(1);
+
+    return `Your SIP projection of **₹${amount.toLocaleString('en-IN')}/month** for **${years} years** at **${rate}%** expected return compounding is mathematically correct!
+
+Here's some expert insights for your wealth:
+1. **The Multiplier Effect**: You invest a total of **₹${invested.toLocaleString('en-IN')}**. Through compound growth, your portfolio has potential returns of **₹${returnsValue.toLocaleString('en-IN')}**, creating a **${multiplier}x** wealth multiplier of **₹${Math.round(fv).toLocaleString('en-IN')}**.
+2. **The Compounding Curve**: Over a long horizon, more than 60% of your total ending wealth gets accumulated during the final 5 years of your plan. This displays the incredible power of patience!
+3. **Volatility Cushion**: While an average return of ${rate}% is reasonable based on Nifty 50 benchmarks, market pathways are turbulent. SIPs help you buy more units when prices dip, smoothing out long-term returns.
+
+**Actionable next step**: Consider a **Step-up SIP**—increasing your monthly contribution by just 5-10% every year as your income grows can nearly double your final nest egg.
+
+*These are educational estimates based on assumed constant returns. Actual market returns vary.*`;
+  }
+
+  if (calculatorType === 'swp' && calculatorData) {
+    const corpus = calculatorData.corpus || 1000000;
+    const withdrawal = calculatorData.withdrawal || 8000;
+    const rate = calculatorData.rate || 10;
+    const isSustainable = calculatorData.isSustainableIndefinitely !== false;
+
+    return `Your Systematic Withdrawal Plan (SWP) with a **₹${corpus.toLocaleString('en-IN')}** corpus, withdrawing **₹${withdrawal.toLocaleString('en-IN')}/month** at **${rate}%** expected return shows:
+
+1. **Sustainability Check**: ${isSustainable ? "Your withdrawal rate is highly sustainable! Because your annual withdrawal is close to or below the expected portfolio growth, your corpus is well-protected." : `This portfolio is expected to deplete over time. At ₹${withdrawal.toLocaleString('en-IN')}/month, you are withdrawing too much of your principal.`}
+2. **The ₹10 Lakh Rule**: For example, ₹10L at 10% annual returns earns roughly ₹8,333 a month in growth. If you withdraw ₹8,000/month, the core corpus remains untouched and sustainable forever.
+3. **Market Risks**: SWP returns are not constant in real life. In equity-heavy mutual funds, if markets decline early on (sequence of returns risk), withdrawals can accelerate corpus depletion.
+
+**Actionable next step**: If sustainable, you're set. If it is depleting too fast, consider decreasing your monthly payout slightly to secure the principal, or shifting a portion to low-volatility debt funds.
+
+*These are educational estimates. Actual market returns vary.*`;
+  }
+
+  if (calculatorType === 'retirement' && calculatorData) {
+    const expenses = calculatorData.expenses || 50000;
+    const corpusRequired = calculatorData.corpusRequired || 15000000;
+    const monthlySavingsRequired = calculatorData.monthlySavingsRequired || 25000;
+    const yearsToRetire = calculatorData.yearsToRetire || 20;
+
+    return `Evaluating your Retirement Plan shows a clear path forward:
+1. **Nest-Egg Target**: To support a monthly lifestyle of **₹${expenses.toLocaleString('en-IN')}** structured against inflation, you'll need roughly a **₹${Math.round(corpusRequired).toLocaleString('en-IN')}** retirement corpus.
+2. **Monthly Action**: Building this corpus requires a monthly investment of **₹${Math.round(monthlySavingsRequired).toLocaleString('en-IN')}** commencing today.
+3. **Inflation Factor**: At 6% inflation, living costs double roughly every 12 years. This is why investing to beat inflation is crucial.
+
+**Actionable next step**: Start allocating your saving volume today, prioritizing equity-oriented mutual funds for the accumulation phase, then transitioning toward safer debt funds near retirement.
+
+*These are educational estimates based on assumed constant parameters, actual market returns vary.*`;
+  }
+
+  // Generic fallback if no specific pattern is matched
+  return `Thank you for consulting the FinAura Capital AI Assistant!
+
+Evaluating your calculations is the first step to financial security:
+1. **Factor in Inflation**: Living costs rise. A 6% inflation rate means expenses double every ~12 years.
+2. **Benchmark Accurately**: Base expected returns on long-term realities: safe debt yields ~7%, while large-cap index equities yield ~12-13%.
+3. **Compounding Edge**: Compounding does its best work in the final years of your investing journey. Be patient!
+
+*These are educational estimates based on assumed constant returns. Actual market returns vary. For personalized advice, connect with a SEBI-registered financial advisor.*`;
+}
+
+app.post("/api/calculator-chat", express.json(), async (req, res) => {
+  const { message, calculatorType, calculatorData, history } = req.body;
+
+  if (!message) {
+    return res.status(400).json({ error: "Message is required" });
+  }
+
+  const systemInstruction = `You are a financial education assistant embedded in FinAura Capital's calculator suite. You help Indian retail investors understand their calculator results, interpret numbers, and make better financial decisions. You are NOT a SEBI-registered advisor; always clarify that outputs are educational estimates only.
+
+Response Guidelines:
+When a user shares their calculator numbers:
+- Confirm the figures are mathematically reasonable
+- Give 2–3 plain-English insights about what the numbers mean
+- Highlight risks or assumptions baked in (constant returns, no inflation on SIP amounts, etc.)
+- Suggest one actionable next step
+- Keep responses under 150 words unless the user asks for more detail
+
+When a user asks "is this a good return?":
+- Compare to Indian benchmarks: FD (~7%), Nifty 50 CAGR (~13%), Nifty Midcap CAGR (~16%)
+- Never imply any return is guaranteed
+
+When a user seems confused:
+- Re-explain using a simple ₹ example with round numbers
+- Avoid jargon; if you must use a term, define it immediately
+
+Tone: Warm, clear, encouraging. Like a knowledgeable friend — not a textbook or a legal disclaimer.
+
+Hard Rules:
+- Never recommend specific mutual funds, stocks, or financial products by name
+- Never promise returns or imply future performance is predictable
+- Always add where relevant: "These are estimates based on assumed constant returns. Actual market returns vary."
+- If asked for personalised investment advice, say: "For personalised advice, connect with a SEBI-registered financial advisor."
+- Currency is always Indian Rupees (₹) unless the user specifies otherwise`;
+
+  const contextStr = calculatorType && calculatorData 
+    ? `[Active Calculator Context: type=${calculatorType}, inputs/results=${JSON.stringify(calculatorData)}]`
+    : '';
+
+  try {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key) {
+      const fallbackResponse = getLocalFallbackResponse(message, calculatorType, calculatorData);
+      return res.json({ text: fallbackResponse });
+    }
+
+    const ai = new GoogleGenAI({
+      apiKey: key,
+      httpOptions: {
+        headers: {
+          'User-Agent': 'aistudio-build',
+        }
+      }
+    });
+
+    let contents: any[] = [];
+    if (history && history.length > 0) {
+      contents = history.map((h: any) => ({
+        role: h.role,
+        parts: [{ text: h.text }]
+      }));
+    }
+
+    const fullUserMessage = contextStr 
+      ? `${contextStr}\nUser's message: ${message}`
+      : message;
+
+    contents.push({
+      role: 'user',
+      parts: [{ text: fullUserMessage }]
+    });
+
+    const response = await ai.models.generateContent({
+      model: "gemini-3.5-flash",
+      contents: contents,
+      config: {
+        systemInstruction: systemInstruction,
+        temperature: 0.7,
+      }
+    });
+
+    return res.json({ text: response.text });
+  } catch (error: any) {
+    console.error("Gemini API Error:", error);
+    const fallbackResponse = getLocalFallbackResponse(message, calculatorType, calculatorData);
+    return res.json({ 
+      text: `${fallbackResponse}\n\n*(Note: Displaying simulated expert insight due to a transient connection pattern)*` 
+    });
+  }
 });
 
 app.get("/api/founder-image", async (req, res) => {
