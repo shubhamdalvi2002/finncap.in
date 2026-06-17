@@ -156,6 +156,175 @@ $$P_{savings} = \frac{FV_{target}}{\frac{(1 + r)^n - 1}{r} \times (1 + r)}$$
 
 ---
 
+## 🔄 Client State Management & UI Data Flows
+
+The client-side layout is driven by standard React state reactivity, ensuring instant recalculations and fluid animations across charts and components:
+
+```
+[ Slider / Numeric Inputs ] ───► Updates React State Variables (e.g., amount, rate)
+                                                 │
+                                                 ├───► Recalculate Mathematical Engines
+                                                 │     (pure functions inside calculatorMath.ts)
+                                                 │
+                                                 ├───► Sync Output Results to DOM & Metrics
+                                                 │
+                                                 ├───► Rechart Graphics Rendering
+                                                 │     (PieChart allocation & AreaChart curves)
+                                                 │
+                                                 └───► Propagate Updated State Objects
+                                                       to Floating AI Assistant Widget
+```
+
+### Key State Integration Features
+- **Dual-Control Sync**: Dragging sliders or entering numeric keys updates a common `useState` state hook. Input text buffers allow complete backspacing (`""` state) without throwing runtime parser errors, reverting to a temporary UI value of `0`.
+- **Chart Ingestion Structures**: Math returns include a chronological `chartData` array containing computed objects `{ name: string, Invested: number, Value: number }`. These are piped directly into Recharts `<AreaChart />` components, rendering compound interest curves.
+- **AI Chatbot Synchronization**: The active tab index (`sip` | `swp` | `retirement` etc.) is tracked globally in `App.tsx` and combined with parameter state objects to populate `calculatorData` context. This is passed directly into the `<CalculatorAIAssistant />` component, ensuring the chatbot stays context-aware.
+
+---
+
+## 📡 WebSocket Lifecycle & Offline Resiliency Protocol
+
+Real-time price feeds, inflation indexes, and business news streams are pushed to connected browsers using a persistent WebSocket connection.
+
+```
+            [ App Mounts: Attempt WS Connection ]
+                            │
+              ┌─────────────┴─────────────┐
+              ▼                           ▼
+      [ Connection OK ]            [ Connection Fails ]
+              │                           │
+              ├─► STOCK_UPDATE            ├─► Activate Local Simulation
+              ├─► MARKET_INDICATORS       │   (Random Walk stock pricing)
+              └─► NEWS_UPDATE             │
+                                          ▼
+                               [ Retry with Backoff ]
+                             (2s -> 4s -> 8s ... Max 30s)
+```
+
+### Connection Management
+1. **Handshake**: The client triggers a WebSocket handshake using the standard URL scheme:
+   ```typescript
+   const ws = new WebSocket(window.location.origin.replace(/^http/, 'ws'));
+   ```
+2. **Event Dispatching**: Broadcast payloads are parsed and dispatched dynamically to React states based on the package envelope property `type`:
+   - `STOCK_UPDATE`: Synchronizes stock listings in the bento and goals components.
+   - `MARKET_INDICATORS`: Updates macroeconomic thresholds (national inflation, repo rates).
+   - `NEWS_UPDATE`: Pushes the latest business news array to the layout.
+
+### Resiliency Features
+- **Reconnection Loop with Backoff**: If the socket connection drops or is terminated, the client initiates a reconnection loop. It retries connection at increasing intervals (2 seconds, doubling up to a maximum of 30 seconds) to prevent server inundation during restarts.
+- **Local Fallback Mode**: If the client is disconnected or running offline, the UI falls back to simulated pricing models (e.g., Random Walk models for equities) to maintain an active experience.
+
+---
+
+## 🎨 Tailwind CSS Design System & Theme Variables
+
+FinAura Capital implements a highly refined typography and glassmorphic layout system styled via Tailwind CSS custom directives:
+
+### ⚙️ Core Theme Tokens (`src/index.css`)
+Custom configurations are registered directly in the Tailwind `@theme` configuration:
+- **Typography**: 
+  - Sans-Serif: `"DM Sans"` (modern readability for numbers and sliders).
+  - Serif: `"Playfair Display"` (classic premium style for branding headers).
+- **Core Wealth Colors**:
+  - `--color-gold`: `#C9A84C` (wealth management theme gold).
+  - `--color-gold-light`: `#E8C97A` (hover accents).
+  - `--color-gold-dim`: `#8a6f30` (borders and inactive states).
+
+### 🌓 Theme Variable Overrides
+The styling system changes HSL background values based on dark mode class selectors:
+- **Light Theme**: `--background: 245 242 235` (warm ivory), `--foreground: 26 26 24` (coal text).
+- **Dark Theme**: `--background: 10 10 12` (midnight blue), `--foreground: 240 237 230` (off-white).
+
+### ✨ Custom Utility Classes
+- **Glassmorphism (`.glass`)**: Applies `backdrop-blur-lg` filters over a highly transparent white or black background.
+  ```css
+  .glass {
+    backdrop-filter: blur(16px);
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  ```
+- **Live Ticker Animation (`.animate-ticker`)**: A smooth, infinite CSS keyframe animation moving index values translationally over 110 seconds. The animation pauses on hover for readability.
+
+---
+
+## 🧪 QA & Unit Testing Suite Blueprint
+
+Mathematical engines are verified using pure unit tests to prevent regression errors. The following test layout outlines the verification logic (implementable with Vitest or Jest):
+
+### Unit Test Specifications (`calculatorMath.test.ts`)
+```typescript
+import { describe, it, expect } from 'vitest';
+import { calculateSIP, calculateSWP, calculateEMI } from './calculatorMath';
+
+describe('Financial Compounding Engine', () => {
+  
+  it('should calculate SIP returns correctly under positive interest rates', () => {
+    const result = calculateSIP(5000, 12, 10);
+    expect(result.futureValue).toBeGreaterThan(600000); // 10-year compounding threshold
+    expect(result.totalInvested).toBe(600000); // 5000 * 12 * 10
+    expect(result.chartData.length).toBe(10); // Yearly tracking output
+  });
+
+  it('should fall back gracefully to linear accumulation under 0% interest', () => {
+    const result = calculateSIP(1000, 0, 5);
+    expect(result.futureValue).toBe(60000); // Linear projection (1000 * 12 * 5)
+    expect(result.estimatedReturns).toBe(0);
+  });
+
+  it('should flag SWP as sustainable if withdrawal rate matches growth rate', () => {
+    const result = calculateSWP(1000000, 8000, 10); // withdrawing ~8% per year
+    expect(result.isSustainableIndefinitely).toBe(true);
+    expect(result.remainingBalance).toBeGreaterThan(0);
+  });
+
+  it('should trace principal decay to zero for depleting SWP strategies', () => {
+    const result = calculateSWP(1000000, 50000, 6); // high payout of 50k/month
+    expect(result.isSustainableIndefinitely).toBe(false);
+    expect(result.remainingBalance).toBe(0);
+    expect(result.monthsActive).toBeLessThan(600); // depletes before 50-year cap
+  });
+
+  it('should solve exact amortization allocations for EMI calculations', () => {
+    const result = calculateEMI(1200000, 8.5, 15);
+    const expectedEMI = 11812.5; // Theoretical value
+    expect(result.monthlyEMI).toBeCloseTo(expectedEMI, -1);
+    expect(result.totalPayment).toBeCloseTo(expectedEMI * 180, -1);
+  });
+});
+```
+
+---
+
+## 🖥️ Vercel Serverless & Proxy Architecture
+
+When deploying to Vercel, the configuration in `vercel.json` decouples client requests and server API routing.
+
+### 1. Serverless Routing Configuration
+- **Static Assets**: Rewritten to `/dist` directories populated by the Vite client build compiler.
+- **API Delegation**: Any request directed to `/api/(.*)` is dynamically routed to the backend script `server.ts` executed inside Vercel's Node.js serverless execution environment.
+  ```json
+  "routes": [
+    { "src": "/api/(.*)", "dest": "server.ts" },
+    { "src": "/assets/(.*)", "dest": "/assets/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+  ```
+
+### 2. Google Drive Image Proxying (`/api/founder-image`)
+To bypass strict Google Drive CDN hotlinking blocks and protect image assets, the Express server acts as a proxy:
+1. **Multi-Strategy Request**: The server sequentially polls Google Drive APIs (Thumbnail, lh3 endpoints, direct download handles) using Chrome user agent headers.
+2. **Buffer Conversion**: The returned response is converted to an ArrayBuffer, buffered into memory, and returned to the browser with standard cache headers:
+   ```typescript
+   res.setHeader("Content-Type", "image/jpeg");
+   res.setHeader("Cache-Control", "public, max-age=86400"); // 24-hour cache
+   res.send(Buffer.from(arrayBuffer));
+   ```
+3. **Redirect Fallback**: If server-side fetch requests fail (likely due to Vercel IP blocks), the server returns a 302 redirection directly to the browser-level image source.
+
+---
+
 ## 📡 WebSockets & REST API Specifications
 
 The server exposes WebSockets for real-time updates and REST endpoints for UI interactivity.
