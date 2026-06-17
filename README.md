@@ -86,6 +86,237 @@ graph TD
 
 ---
 
+## 🧮 Calculator Mathematical Formulations
+
+All calculations inside `src/lib/calculatorMath.ts` are based on standard actuarial and financial compound formulas.
+
+### 1. Systematic Investment Plan (SIP)
+Calculates the Future Value ($FV$) of periodic monthly payments (Annuity Due):
+$$FV = P \times \frac{(1 + r)^n - 1}{r} \times (1 + r)$$
+
+Where:
+- $P$ = Monthly installment amount.
+- $r$ = Monthly interest rate ($\text{Annual Expected Return} \div 12 \div 100$).
+- $n$ = Total number of compounding periods ($\text{Years} \times 12$).
+
+---
+
+### 2. Systematic Withdrawal Plan (SWP)
+A recurrent monthly decay sequence tracks capital drawdown:
+$$Balance_{m+1} = Balance_m \times (1 + r) - W$$
+
+Where:
+- $Balance_m$ = Remaining portfolio corpus at month $m$ ($Balance_0 = \text{Initial Corpus}$).
+- $r$ = Monthly compounding growth rate ($\text{Annual Expected Return} \div 12 \div 100$).
+- $W$ = Fixed monthly systematic withdrawal payout.
+- *Sustainability Check*: If $Balance_m$ declines to $\le 0$ within 600 months (50 years), the strategy is marked as depleting; otherwise, it is flagged as indefinitely sustainable.
+
+---
+
+### 3. Systematic Transfer Plan (STP)
+Relocates capital monthly from a low-volatility source fund (Debt) to a target asset (Equity):
+$$SourceBalance_{m+1} = SourceBalance_m \times (1 + r_s) - T$$
+$$TargetBalance_{m+1} = (TargetBalance_m + T) \times (1 + r_t)$$
+
+Where:
+- $r_s$ = Monthly interest rate of the Source Fund.
+- $r_t$ = Monthly interest rate of the Target Fund.
+- $T$ = Periodic transfer volume.
+
+---
+
+### 4. Nest-Egg Retirement Planner
+1. **Inflation-Adjusted Monthly Expenses**:
+   $$F_{exp} = C_{exp} \times (1 + I)^y$$
+   Where $C_{exp}$ is current monthly expenditure, $I$ is the annual inflation rate, and $y$ is the years remaining until retirement ($\text{Retire Age} - \text{Current Age}$).
+2. **Target Accumulation Corpus**:
+   Assuming a standard post-retirement capital protection rate of $8\%$ p.a. and a $20$-year structured payout lifespan:
+   $$r_{real} = \frac{1 + 0.08}{1 + I} - 1$$
+   $$Corpus = (F_{exp} \times 12) \times \frac{1 - (1 + r_{real})^{-20}}{r_{real}}$$
+3. **Required Monthly Pre-Retirement SIP Savings**:
+   $$P_{savings} = \frac{Corpus}{\frac{(1 + r_{pre})^n - 1}{r_{pre}} \times (1 + r_{pre})}$$
+   Where $r_{pre}$ is the expected pre-retirement asset compounding return rate.
+
+---
+
+### 5. Equated Monthly Installment (EMI)
+Calculates monthly debt amortization installments:
+$$EMI = P \times \frac{r(1 + r)^n}{(1 + r)^n - 1}$$
+
+Where:
+- $P$ = Loan Principal.
+- $r$ = Monthly interest rate ($\text{Annual Rate} \div 12 \div 100$).
+- $n$ = Loan term in months.
+
+---
+
+### 6. Goal-Based Planner
+Solves for the required monthly systematic inflows ($P_{savings}$) to achieve a target future milestone sum ($FV_{target}$):
+$$P_{savings} = \frac{FV_{target}}{\frac{(1 + r)^n - 1}{r} \times (1 + r)}$$
+
+---
+
+## 📡 WebSockets & REST API Specifications
+
+The server exposes WebSockets for real-time updates and REST endpoints for UI interactivity.
+
+### 1. WebSocket Event Broadcaster
+In standalone/persistent mode, the server opens a WebSocket gateway on port `3000` to broadcast market indicators, stock quotes, and news updates:
+
+#### Event: `STOCK_UPDATE`
+Broadcasts stock updates. Simulated updates push every 2 seconds; live FMP data updates every 10 seconds.
+```json
+{
+  "type": "STOCK_UPDATE",
+  "data": [
+    {
+      "name": "NIFTY 50",
+      "price": 24356.55,
+      "change": 0.43,
+      "high": 24410.2,
+      "low": 24290.15,
+      "volume": 245600000,
+      "marketCap": 185000000000000
+    }
+  ]
+}
+```
+
+#### Event: `MARKET_INDICATORS`
+Broadcasts macroeconomic factors. Pushed on client initialization and updated every 10 minutes.
+```json
+{
+  "type": "MARKET_INDICATORS",
+  "data": {
+    "inflation": 6.0,
+    "interestRate": 8.5,
+    "marketReturn": 12.0,
+    "goldRate": 73245
+  }
+}
+```
+
+#### Event: `NEWS_UPDATE`
+Broadcasts business news updates. Fetched and pushed every 5 minutes.
+```json
+{
+  "type": "NEWS_UPDATE",
+  "data": [
+    {
+      "title": "Market Update: NIFTY 50 hits new high",
+      "description": "The Indian stock market continues its bullish trend...",
+      "url": "https://example.com/news/1",
+      "urlToImage": "https://picsum.photos/seed/market/800/400"
+    }
+  ]
+}
+```
+
+---
+
+### 2. REST API Routes
+
+#### `GET /api/health`
+- **Description**: Verifies service status.
+- **Response**:
+  ```json
+  { "status": "ok" }
+  ```
+
+#### `GET /api/stocks`
+- **Description**: Returns the latest list of simulated or FMP-fetched stocks.
+- **Response**: Array of stock objects matching `STOCK_UPDATE` payload.
+
+#### `GET /api/indicators`
+- **Description**: Returns active inflation, interest rates, and expected benchmarks.
+- **Response**: Matches `MARKET_INDICATORS` payload.
+
+#### `GET /api/news`
+- **Description**: Fetches top business news headlines.
+- **Response**: Array of news articles matching `NEWS_UPDATE` payload.
+
+#### `GET /api/founder-image`
+- **Description**: Node proxy serving AMFI credential photo. Retrieves from Google Drive CDN bypass headers or redirects to thumbnail services.
+- **Response**: `binary/octet-stream` JPEG image.
+
+#### `POST /api/calculator-chat`
+- **Description**: Context-aware assistant query endpoint.
+- **Request Headers**: `Content-Type: application/json`
+- **Request Body**:
+  ```json
+  {
+    "message": "Is this a sustainable SWP withdrawal rate?",
+    "calculatorType": "swp",
+    "calculatorData": {
+      "corpus": 1000000,
+      "withdrawal": 10000,
+      "rate": 10,
+      "remainingBalance": 0,
+      "isSustainableIndefinitely": false
+    },
+    "history": [
+      { "role": "user", "text": "What is my SWP summary?" },
+      { "role": "model", "text": "Your SWP has a ₹10 Lakh corpus, withdrawing ₹10k/month at 10% expected return." }
+    ]
+  }
+  ```
+- **Response**:
+  ```json
+  {
+    "text": "Based on a ₹10,000 monthly withdrawal from a ₹1,000,000 corpus, your fund will eventually deplete because the annual withdrawal (12%) exceeds the expected growth rate (10%)..."
+  }
+  ```
+
+---
+
+## 🤖 AI Safety & Compliance Framework
+
+The conversational engine in `/api/calculator-chat` is structured to adhere to strict SEBI (Securities and Exchange Board of India) and AMFI (Association of Mutual Funds in India) distribution rules:
+
+```
+                  [ User Input Message + Active Calculator Context ]
+                                         │
+                                         ▼
+                     [ Prompt Engineering Compliance Filter ]
+     ┌───────────────────────────────────┼───────────────────────────────────┐
+     │                                   │                                   │
+  [ Rule 1: No Fund Names ]    [ Rule 2: No Guaranteed Return ]    [ Rule 3: Add Risk Warnings ]
+     │                                   │                                   │
+     └───────────────────────────────────┼───────────────────────────────────┘
+                                         ▼
+                       [ Check GEMINI_API_KEY Presence ]
+                                         │
+                   ┌─────────────────────┴─────────────────────┐
+                   ▼                                           ▼
+             [ Key Present ]                            [ Key Missing ]
+                   │                                           │
+         [ Call Google GenAI SDK ]                  [ Fallback Heuristic Engine ]
+    (model: gemini-3.5-flash (medium))         (Deterministic Keyword Regex System)
+                   │                                           │
+                   └─────────────────────┬─────────────────────┘
+                                         ▼
+                             [ Compliance Disclaimer ]
+                 "These are estimates based on assumed constant returns..."
+                                         │
+                                         ▼
+                            [ JSON Response Payload ]
+```
+
+### Prompt Constraints
+The System Instruction guarantees that:
+- **No Specific Product Recommendations**: The assistant does not mention mutual fund names, stock tickers, or specific financial instruments.
+- **Disclaimers Mandatory**: Every growth projection is qualified with: *"These are estimates based on assumed constant returns. Actual market returns vary."*
+- **No Performance Guarantees**: Return rates are treated strictly as variable inputs, not static outcomes.
+- **Redirection**: Personalised financial advice queries trigger a prompt response: *"For personalised advice, connect with a SEBI-registered financial advisor."*
+
+### Heuristic Fallback Engine
+If the `GEMINI_API_KEY` is not set, a local keyword-matching algorithm parses the inputs:
+- Payout queries trigger a structured math audit evaluating if the monthly SWP withdrawal is $\le \text{Corpus} \times \frac{r}{12}$.
+- Compounding queries trigger a breakdown explaining the compounding curve multiplier effect.
+- General index return requests output historic Large-cap (Nifty 50: ~13% CAGR) and Midcap (~16% CAGR) baselines for user context.
+
+---
+
 ## 📂 Codebase Directory Structure
 
 ```
