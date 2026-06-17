@@ -8,6 +8,14 @@
 
 ## 🌟 Core Pillars & Key Features
 
+### ⚖️ Default High-Contrast Light Theme
+- **Eye-Safe Default Theme**: Implemented a elegant, high-contrast light theme as the app's default mode (with smooth toggle options to a premium dark visual mode).
+- **Deep Design Contrast**: Custom CSS mapping system ensures that all text layers, borders, buttons, and input prompts are hyper-readable, styled with spacious negative space, and custom gold accents.
+
+### 📈 Floating Candlestick charts & Micro-Animations
+- **Live Motion Ornaments**: Embedded motion-driven floating candlestick indicators (green/bullish and red/bearish charts) on the Hero section using Framer Motion (`motion/react`).
+- **Interactive Depth**: Staggered floating trajectories simulate live market activity dynamically, providing depth and a tech-forward financial feel without cluttering the primary call-to-actions.
+
 ### 🛡️ Verified Credentials & Distribution Channels
 - **Certified NISM Partner**: Formally aligned with NISM Series V-A Advisory guidelines.
 - **Credential Integrity**: Verifiable AMFI Registration Number **ARN-353581** and NJ Wealth Partner Code **103924** (Link verified at [p.njw.bz/103924](http://p.njw.bz/103924)).
@@ -19,9 +27,9 @@
 
 ### 📊 Interactive Compounding & Analytical Suite
 - **Comprehensive Simulators**: Accessible directly within the Services & Calculators portal.
-  - **SIP & SWP Outposts**: High-fidelity schedules for systematic inflows and structured retirement payouts.
-  - **Goal & Retirement Planners**: Backward-calculate the exact monthly sums required to realize future objectives.
-  - **Tactical Defensive Shield**: A customizable sandbox helping users build 3-6-12 month occupational risk cushions against market volatility.
+- **SIP & SWP Outposts**: High-fidelity schedules for systematic inflows and structured retirement payouts.
+- **Goal & Retirement Planners**: Backward-calculate the exact monthly sums required to realize future objectives.
+- **Tactical Defensive Shield**: A customizable sandbox helping users build 3-6-12 month occupational risk cushions against market volatility.
 - **Enhanced UX Input Engineering**: Completely redesigned fields with dual input configurations (sliders and direct values) that support seamless clearance (`0` fallback) and complete backspacing without input freezing hooks.
 
 ### 📱 Zero-Overhead WhatsApp Enquiry Engine
