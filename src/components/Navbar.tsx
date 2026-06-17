@@ -4,6 +4,7 @@ import { useTheme } from '../hooks/useTheme';
 import { motion, AnimatePresence } from 'motion/react';
 import { FinauraLogo } from './FinauraLogo';
 import { ActivePage } from '../App';
+import { PartnerLoginModal } from './PartnerLoginModal';
 
 interface NavbarProps {
   currentPage: ActivePage;
@@ -13,6 +14,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
   const { theme, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [partnerOpen, setPartnerOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
@@ -68,7 +70,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
         </ul>
 
         <div className="flex items-center gap-3">
-          <a href="https://ewa.njindiaonline.com/ewa/login" target="_blank" rel="noopener noreferrer" className="hidden sm:block border border-gold/40 text-gold hover:border-gold px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all">
+          <button 
+            id="partner-login-desktop-btn"
+            onClick={() => setPartnerOpen(true)} 
+            className="hidden sm:block border border-gold/40 text-gold hover:bg-gold/5 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+          >
+            Partner Login
+          </button>
+          <a href="https://ewa.njindiaonline.com/ewa/login" target="_blank" rel="noopener noreferrer" className="hidden sm:block border border-white/20 text-white/90 hover:border-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all">
             Client Login
           </a>
           <a href="http://p.njw.bz/103924" target="_blank" className="hidden sm:block bg-gold text-bg-dark px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gold-light hover:shadow-lg hover:shadow-gold/10 transition-all">
@@ -109,12 +118,22 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
               );
             })}
             <div className="flex flex-col gap-3 mt-4 w-64">
+              <button
+                id="partner-login-mobile-btn"
+                onClick={() => {
+                  setMobileOpen(false);
+                  setPartnerOpen(true);
+                }}
+                className="border border-gold/40 text-gold hover:bg-gold/5 py-3 px-8 rounded-full font-bold uppercase tracking-wider text-xs text-center transition-all bg-transparent cursor-pointer"
+              >
+                Partner Login
+              </button>
               <a 
                 href="https://ewa.njindiaonline.com/ewa/login" 
                 target="_blank" 
                 rel="noopener noreferrer" 
                 onClick={() => setMobileOpen(false)}
-                className="border border-gold/40 text-gold py-3 px-8 rounded-full font-bold uppercase tracking-wider text-xs text-center transition-all"
+                className="border border-white/25 text-white/90 py-3 px-8 rounded-full font-bold uppercase tracking-wider text-xs text-center transition-all"
               >
                 Client Login
               </a>
@@ -130,6 +149,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
           </motion.div>
         )}
       </AnimatePresence>
+      <PartnerLoginModal 
+        isOpen={partnerOpen} 
+        onClose={() => setPartnerOpen(false)} 
+      />
     </>
   );
 };
