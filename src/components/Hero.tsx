@@ -13,6 +13,76 @@ export const Hero: React.FC = () => {
       <div className="absolute top-[30%] right-[10%] w-[45px] h-[45px] rounded-full bg-gradient-to-br from-gold-dim via-gold to-gold-light opacity-50 blur-[1px] animate-bounce duration-[5.5s] z-10 hidden md:block" style={{ animationDuration: '5.5s' }} />
       <div className="absolute bottom-[22%] left-[14%] w-[90px] h-[90px] rounded-full bg-gradient-to-br from-gold-dim via-gold to-gold-light opacity-40 blur-[1px] animate-bounce duration-[8s] z-10 hidden md:block" style={{ animationDuration: '8s' }} />
 
+      {/* Floating Candlestick Charts (Green and Red motion ornaments) */}
+      <motion.div
+        className="absolute left-[4%] top-[42%] flex flex-col items-center opacity-40 md:opacity-60 z-10 hidden sm:flex pointer-events-none"
+        animate={{
+          y: [0, -20, 0],
+          rotate: [0, 4, 0],
+        }}
+        transition={{
+          duration: 6,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <div className="w-[1.5px] h-8 bg-emerald-500/60" />
+        <div className="w-4 h-12 bg-emerald-500/35 dark:bg-emerald-500/25 rounded border border-emerald-500/50 backdrop-blur-xs shadow-[0_0_15px_rgba(16,185,129,0.15)]" />
+        <div className="w-[1.5px] h-6 bg-emerald-500/60" />
+      </motion.div>
+
+      <motion.div
+        className="absolute right-[5%] bottom-[38%] flex flex-col items-center opacity-30 md:opacity-50 z-10 hidden sm:flex pointer-events-none"
+        animate={{
+          y: [0, 22, 0],
+          rotate: [0, -3, 0],
+        }}
+        transition={{
+          duration: 7.5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <div className="w-[1.5px] h-6 bg-rose-500/60" />
+        <div className="w-4 h-14 bg-rose-500/35 dark:bg-rose-500/25 rounded border border-rose-500/50 backdrop-blur-xs shadow-[0_0_15px_rgba(244,63,94,0.15)]" />
+        <div className="w-[1.5px] h-10 bg-rose-500/60" />
+      </motion.div>
+
+      {/* Smaller auxiliary candles for perspective depth */}
+      <motion.div
+        className="absolute left-[16%] top-[24%] flex flex-col items-center opacity-25 md:opacity-45 z-10 hidden md:flex pointer-events-none"
+        animate={{
+          y: [0, -12, 0],
+          x: [0, 8, 0],
+        }}
+        transition={{
+          duration: 5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <div className="w-[1px] h-5 bg-emerald-500/50" />
+        <div className="w-3.5 h-8 bg-emerald-500/30 dark:bg-emerald-500/20 rounded border border-emerald-500/40" />
+        <div className="w-[1px] h-5 bg-emerald-500/50" />
+      </motion.div>
+
+      <motion.div
+        className="absolute right-[14%] top-[20%] flex flex-col items-center opacity-20 md:opacity-40 z-10 hidden md:flex pointer-events-none"
+        animate={{
+          y: [0, 18, 0],
+          x: [0, -6, 0],
+        }}
+        transition={{
+          duration: 7,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      >
+        <div className="w-[1px] h-8 bg-rose-500/50" />
+        <div className="w-3.5 h-10 bg-rose-500/30 dark:bg-rose-500/20 rounded border border-rose-500/40" />
+        <div className="w-[1px] h-6 bg-rose-500/50" />
+      </motion.div>
+
       <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
