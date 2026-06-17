@@ -2,12 +2,12 @@ import { useEffect, useState } from 'react';
 
 export function useTheme() {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
-    // Look inside localStorage first, default to dark
+    // Look inside localStorage first, default to light
     const stored = localStorage.getItem('finaura-theme');
     if (stored === 'light' || stored === 'dark') {
       return stored;
     }
-    return 'dark'; // Dark is default
+    return 'light'; // Light is default
   });
 
   useEffect(() => {
