@@ -14,7 +14,7 @@ export const BentoHub: React.FC = () => {
       badge: 'Active Allocation',
       badgeColor: 'bg-gold/10 text-gold border-gold/20',
       actionText: 'Explore Strategies',
-      gridClass: 'md:col-span-2 lg:col-span-2',
+      gridClass: 'md:col-span-1 lg:col-span-1',
       accentColor: 'from-gold/5 via-gold/0 to-transparent',
       highlights: ['Direct Stocks', 'Managed Wealth', 'Active SIP Engine']
     },
@@ -33,20 +33,6 @@ export const BentoHub: React.FC = () => {
       highlights: ['SIP & SWP Outlines', 'Retirement Goals']
     },
     {
-      id: 'tips',
-      href: '#tips',
-      category: 'Defensive Reserves',
-      title: 'The Defensive Shield & Tips Sandbox',
-      desc: 'Test your financial security with our interactive 3-6-12 month occupational risk calculator and learn dynamic reallocation principles.',
-      icon: <Shield className="text-rose-400 w-6 h-6" />,
-      badge: 'Tactical Sandbox',
-      badgeColor: 'bg-rose-500/10 text-rose-400 border-rose-500/20',
-      actionText: 'Configure Shield',
-      gridClass: 'md:col-span-1 lg:col-span-1',
-      accentColor: 'from-rose-500/5 via-rose-500/0 to-transparent',
-      highlights: ['Emergency Shield', 'Risk Volatility Advice']
-    },
-    {
       id: 'about',
       href: '#about',
       category: 'Credentials',
@@ -56,7 +42,7 @@ export const BentoHub: React.FC = () => {
       badge: 'Certified Partner',
       badgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
       actionText: 'View Credentials',
-      gridClass: 'md:col-span-2 lg:col-span-2',
+      gridClass: 'md:col-span-2 lg:col-span-1',
       accentColor: 'from-blue-500/5 via-blue-500/0 to-transparent',
       highlights: ['NISM Series V-A Approved', 'NJ Wealth Affiliation']
     }

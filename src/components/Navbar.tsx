@@ -26,7 +26,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
     { name: 'Home', href: '#home', id: 'home' },
     { name: 'Services', href: '#services', id: 'services' },
     { name: 'Calculators', href: '#calculators', id: 'calculators' },
-    { name: 'Tips & Sandbox', href: '#tips', id: 'tips' },
     { name: 'About', href: '#about', id: 'about' },
     { name: 'Contact', href: '#contact', id: 'contact' },
   ];

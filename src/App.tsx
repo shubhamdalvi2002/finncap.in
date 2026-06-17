@@ -4,13 +4,12 @@ import { MarketTicker } from './components/MarketTicker';
 import { Hero } from './components/Hero';
 import { Services } from './components/Services';
 import { About } from './components/About';
-import { Blog } from './components/Blog';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import { motion, AnimatePresence } from 'motion/react';
 
-export type ActivePage = 'home' | 'services' | 'calculators' | 'tips' | 'about' | 'contact';
+export type ActivePage = 'home' | 'services' | 'calculators' | 'about' | 'contact';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<ActivePage>('home');
@@ -31,9 +30,6 @@ export default function App() {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         }, 150);
-      } else if (hash === '#blog' || hash === '#/tips' || hash === '#tips') {
-        setCurrentPage('tips');
-        window.scrollTo({ top: 0, behavior: 'auto' });
       } else if (hash === '#about' || hash === '#/about') {
         setCurrentPage('about');
         window.scrollTo({ top: 0, behavior: 'auto' });
@@ -87,19 +83,6 @@ export default function App() {
               className="pt-16 pb-8"
             >
               <Services />
-            </motion.div>
-          )}
-
-          {currentPage === 'tips' && (
-            <motion.div
-              key="tips"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              transition={{ duration: 0.3 }}
-              className="pt-16 pb-8"
-            >
-              <Blog />
             </motion.div>
           )}
 

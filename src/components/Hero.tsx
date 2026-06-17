@@ -1,18 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { HeroBackground } from './HeroBackground';
 import { motion } from 'motion/react';
 import { FinauraLogo } from './FinauraLogo';
-import { ConceptExplainerModal, ConceptType } from './ConceptExplainerModal';
-import { ArrowUpRight } from 'lucide-react';
 
 export const Hero: React.FC = () => {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedConcept, setSelectedConcept] = useState<ConceptType>('sip');
-
-  const openConcept = (concept: ConceptType) => {
-    setSelectedConcept(concept);
-    setModalOpen(true);
-  };
   return (
     <section id="hero" className="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-36 pb-20 relative overflow-hidden">
       <HeroBackground />
@@ -85,31 +76,23 @@ export const Hero: React.FC = () => {
         transition={{ duration: 0.7, delay: 0.7 }}
         className="mt-20 pt-12 border-t border-gold/10 w-full max-w-4xl relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-12"
       >
-        <Stat num="SIP" label="Systematic Investment Plan" onClick={() => openConcept('sip')} />
-        <Stat num="ETFs" label="Exchange Traded Funds" onClick={() => openConcept('etf')} />
-        <Stat num="MF" label="Mutual Funds" onClick={() => openConcept('mf')} />
-        <Stat num="SWP" label="Systematic Withdrawal Plan" onClick={() => openConcept('swp')} />
+        <Stat num="SIP" label="Systematic Investment Plan" />
+        <Stat num="ETFs" label="Exchange Traded Funds" />
+        <Stat num="MF" label="Mutual Funds" />
+        <Stat num="SWP" label="Systematic Withdrawal Plan" />
       </motion.div>
-
-      <ConceptExplainerModal 
-        isOpen={modalOpen} 
-        onClose={() => setModalOpen(false)} 
-        initialConcept={selectedConcept} 
-      />
     </section>
   );
 };
 
-const Stat = ({ num, label, onClick }: { num: string; label: string; onClick: () => void }) => (
-  <button 
-    onClick={onClick}
-    className="flex flex-col items-center group cursor-pointer focus:outline-none focus-visible:ring-1 focus-visible:ring-gold/50 rounded-xl p-2 md:p-3 transition-all duration-300 hover:bg-gold/5 hover:scale-105"
-    aria-label={`View educational guide on ${num}`}
+const Stat = ({ num, label }: { num: string; label: string }) => (
+  <div 
+    className="flex flex-col items-center p-2 md:p-3 transition-colors duration-300"
+    aria-label={`Educational information about ${num}`}
   >
-    <div className="font-serif text-3xl font-bold text-gold group-hover:text-gold-light transition-colors flex items-start">
+    <div className="font-serif text-3xl font-bold text-gold transition-colors">
       <span>{num}</span>
-      <ArrowUpRight size={12} className="text-gold/40 group-hover:text-gold opacity-0 group-hover:opacity-100 transition-all ml-1 mt-1 shrink-0" />
     </div>
-    <div className="text-[0.68rem] text-muted-foreground uppercase tracking-wider mt-1 group-hover:text-white/80 transition-colors">{label}</div>
-  </button>
+    <div className="text-[0.68rem] text-muted-foreground uppercase tracking-wider mt-1">{label}</div>
+  </div>
 );
