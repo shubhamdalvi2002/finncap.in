@@ -7,9 +7,13 @@
   --color-gold: #C9A84C;
   --color-gold-light: #E8C97A;
   --color-gold-dim: #8a6f30;
-  --color-bg-dark: #0A0A0C;
-  --color-bg-dark-2: #111116;
-  --color-bg-dark-3: #17171E;
+  --color-bg-dark: var(--bg-dark);
+  --color-bg-dark-2: var(--bg-dark-2);
+  --color-bg-dark-3: var(--bg-dark-3);
+  
+  --color-background: rgb(var(--background));
+  --color-foreground: rgb(var(--foreground));
+  --color-muted-foreground: rgb(var(--muted));
   
   --radius-xl: 12px;
   --radius-2xl: 18px;
@@ -21,6 +25,9 @@
     --foreground: 26 26 24;
     --muted: 107 104 96;
     --border: 138 111 48 / 0.22;
+    --bg-dark: #FAF8F5;
+    --bg-dark-2: #F0EDE5;
+    --bg-dark-3: #E5E2D9;
   }
 
   .dark {
@@ -28,10 +35,134 @@
     --foreground: 240 237 230;
     --muted: 136 136 128;
     --border: 201 168 76 / 0.18;
+    --bg-dark: #0A0A0C;
+    --bg-dark-2: #111116;
+    --bg-dark-3: #17171E;
+  }
+
+  /* Support high-contrast light theme */
+  html:not(.dark) {
+    /* Override white text classes with high-contrast text block colors */
+    .text-white {
+      color: #1a1a18 !important;
+    }
+    .text-white\/95, .text-white\/90, .text-white\/85, .text-white\/80 {
+      color: rgba(26, 26, 24, 0.9) !important;
+    }
+    .text-white\/75, .text-white\/70, .text-white\/60, .text-stone-300 {
+      color: rgba(26, 26, 24, 0.7) !important;
+    }
+    .text-white\/50, .text-white\/40, .text-slate-400, .text-stone-400 {
+      color: rgba(26, 26, 24, 0.55) !important;
+    }
+    .text-stone-500 {
+      color: rgba(26, 26, 24, 0.45) !important;
+    }
+
+    /* Input elements should have dark text and readable placeholders */
+    input, textarea {
+      color: #1a1a18 !important;
+    }
+    input::placeholder, textarea::placeholder {
+      color: rgba(26, 26, 24, 0.4) !important;
+    }
+
+    /* Modal / details cards styling updates */
+    .bg-bg-dark-3\/80 {
+      background-color: rgba(229, 226, 217, 0.8) !important;
+    }
+    
+    .bg-bg-dark-2\/40 {
+      background-color: rgba(240, 237, 229, 0.4) !important;
+    }
+
+    .bg-bg-dark-2\/50 {
+      background-color: rgba(240, 237, 229, 0.5) !important;
+    }
+
+    .bg-white\/5 {
+      background-color: rgba(26, 26, 24, 0.05) !important;
+    }
+
+    .border-white\/10 {
+      border-color: rgba(26, 26, 24, 0.1) !important;
+    }
+
+    .border-white\/5 {
+      border-color: rgba(26, 26, 24, 0.05) !important;
+    }
+
+    .border-gold\/10 {
+      border-color: rgba(138, 111, 48, 0.15) !important;
+    }
+
+    .border-gold\/20 {
+      border-color: rgba(138, 111, 48, 0.25) !important;
+    }
+
+    .border-gold\/45 {
+      border-color: rgba(138, 111, 48, 0.45) !important;
+    }
+
+    .border-gold\/15 {
+      border-color: rgba(138, 111, 48, 0.2) !important;
+    }
+
+    .bg-gold\/5 {
+      background-color: rgba(201, 168, 76, 0.08) !important;
+    }
+
+    .bg-gold\/10 {
+      background-color: rgba(201, 168, 76, 0.14) !important;
+    }
+
+    .border-gold\/25 {
+      border-color: rgba(138, 111, 48, 0.3) !important;
+    }
+
+    .border-gold\/5 {
+      border-color: rgba(138, 111, 48, 0.08) !important;
+    }
+
+    /* Ensure specific icon and button text states remain high contrast */
+    .text-stone-200 {
+      color: rgba(26, 26, 24, 0.8) !important;
+    }
+
+    /* Links and custom outlines */
+    .border-foreground\/15 {
+      border-color: rgba(26, 26, 24, 0.15) !important;
+    }
+
+    /* Hex backgrounds overrides for light mode */
+    .bg-\[\#0a0d14\] {
+      background-color: #FAF8F5 !important;
+    }
+    .bg-\[\#07090e\] {
+      background-color: #EDEAE2 !important;
+    }
+    .bg-\[\#0e121c\] {
+      background-color: #FAF8F5 !important;
+    }
+    .bg-\[\#0c1019\] {
+      background-color: #E5E2D9 !important;
+    }
+    .bg-\[\#090b0d\]\/70 {
+      background-color: rgba(250, 248, 245, 0.7) !important;
+    }
+    .bg-\[\#090b0d\]\/40 {
+      background-color: rgba(250, 248, 245, 0.4) !important;
+    }
+    .bg-\[\#000000\]\/10 {
+      background-color: rgba(26, 26, 24, 0.05) !important;
+    }
+    .bg-\[\#0f1115\] {
+      background-color: #FAF8F5 !important;
+    }
   }
 
   body {
-    @apply bg-[rgb(var(--background))] text-[rgb(var(--foreground))] font-sans antialiased overflow-x-hidden;
+    @apply bg-bg-dark text-foreground font-sans antialiased overflow-x-hidden;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 }

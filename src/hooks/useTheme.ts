@@ -1,15 +1,30 @@
 import { useEffect, useState } from 'react';
 
 export function useTheme() {
-  const [theme] = useState<'light' | 'dark'>('dark');
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    // Look inside localStorage first, default to dark
+    const stored = localStorage.getItem('finaura-theme');
+    if (stored === 'light' || stored === 'dark') {
+      return stored;
+    }
+    return 'dark'; // Dark is default
+  });
 
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.add('dark');
-    localStorage.setItem('finaura-theme', 'dark');
-  }, []);
+    if (theme === 'dark') {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    } else {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    }
+    localStorage.setItem('finaura-theme', theme);
+  }, [theme]);
 
-  const toggleTheme = () => {}; // No-op
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
 
   return { theme, toggleTheme };
 }

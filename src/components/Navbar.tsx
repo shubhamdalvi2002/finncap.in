@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../hooks/useTheme';
 import { motion, AnimatePresence } from 'motion/react';
 import { FinauraLogo } from './FinauraLogo';
@@ -70,13 +70,22 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
 
         <div className="flex items-center gap-3">
           <button 
+            id="theme-toggle-btn"
+            onClick={toggleTheme}
+            className="p-2 rounded-full cursor-pointer border border-gold/40 text-gold hover:bg-gold/10 transition-all flex items-center justify-center"
+            aria-label="Toggle theme"
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+          </button>
+          <button 
             id="partner-login-desktop-btn"
             onClick={() => setPartnerOpen(true)} 
             className="hidden sm:block border border-gold/40 text-gold hover:bg-gold/5 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
           >
             Partner Login
           </button>
-          <a href="https://ewa.njindiaonline.com/ewa/login" target="_blank" rel="noopener noreferrer" className="hidden sm:block border border-white/20 text-white/90 hover:border-white px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all">
+          <a href="https://ewa.njindiaonline.com/ewa/login" target="_blank" rel="noopener noreferrer" className="hidden sm:block border border-foreground/15 text-foreground/90 hover:border-foreground px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all">
             Client Login
           </a>
           <a href="http://p.njw.bz/103924" target="_blank" className="hidden sm:block bg-gold text-bg-dark px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-gold-light hover:shadow-lg hover:shadow-gold/10 transition-all">
