@@ -180,20 +180,24 @@ export const useMarketData = () => {
     const pollInterval = setInterval(pollData, 10000);
     pollData();
 
-    // Secondary check for "Offline" status - if no data received for 30 seconds
-    const statusCheckInterval = setInterval(() => {
-      const timeSinceLastUpdate = Date.now() - lastUpdateTimeRef.current;
-      if (timeSinceLastUpdate > 30000) {
-        setConnected(false);
-      }
-    }, 5000);
+    // Resilient online connectivity check using native browser status
+    const handleOnlineStatusChange = () => {
+      setConnected(navigator.onLine);
+    };
+
+    window.addEventListener('online', handleOnlineStatusChange);
+    window.addEventListener('offline', handleOnlineStatusChange);
+    
+    // Initial sync
+    setConnected(navigator.onLine);
 
     return () => {
       if (wsRef.current) {
         wsRef.current.close();
       }
       clearInterval(pollInterval);
-      clearInterval(statusCheckInterval);
+      window.removeEventListener('online', handleOnlineStatusChange);
+      window.removeEventListener('offline', handleOnlineStatusChange);
     };
   }, []);
 

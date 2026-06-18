@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip } from 'recharts';
 import { formatCurrency, formatCurrencyShort } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { Share2, Copy, Check, Zap } from 'lucide-react';
@@ -122,53 +122,113 @@ const GrowthChart = ({
   title: string, 
   description?: string 
 }) => {
+  const [chartType, setChartType] = useState<'line' | 'area'>('line');
+
   return (
     <div className="border-t border-gold/10 p-8 md:p-12 bg-[#090b0d]/40">
-      <div className="mb-8">
-        <h4 className="font-serif text-xl font-bold text-white mb-2">{title}</h4>
-        {description && <p className="text-xs text-muted-foreground">{description}</p>}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
+        <div>
+          <h4 className="font-serif text-xl font-bold text-white mb-2">{title}</h4>
+          {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        </div>
+        <div className="flex bg-gold/5 border border-gold/15 p-1 rounded-xl self-start sm:self-center">
+          <button
+            onClick={() => setChartType('line')}
+            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${
+              chartType === 'line' 
+                ? 'bg-gold text-bg-dark shadow font-extrabold' 
+                : 'text-muted-foreground hover:text-gold'
+            }`}
+          >
+            Line Chart
+          </button>
+          <button
+            onClick={() => setChartType('area')}
+            className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all cursor-pointer ${
+              chartType === 'area' 
+                ? 'bg-gold text-bg-dark shadow font-extrabold' 
+                : 'text-muted-foreground hover:text-gold'
+            }`}
+          >
+            Area Chart
+          </button>
+        </div>
       </div>
       <div className="h-72 w-full select-none">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-            <defs>
-              {keys.map((key, i) => (
-                <linearGradient id={`grad-${key}`} key={key} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={colors[i] || '#C9A84C'} stopOpacity={0.4} />
-                  <stop offset="95%" stopColor={colors[i] || '#C9A84C'} stopOpacity={0} />
-                </linearGradient>
-              ))}
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(201, 168, 76, 0.05)" vertical={false} />
-            <XAxis 
-              dataKey="name" 
-              stroke="rgba(255,255,255,0.4)" 
-              fontSize={10} 
-              tickLine={false} 
-              axisLine={false} 
-              dy={10} 
-            />
-            <YAxis 
-              stroke="rgba(255,255,255,0.4)" 
-              fontSize={10} 
-              tickLine={false} 
-              axisLine={false} 
-              tickFormatter={v => formatCurrencyShort(v)} 
-              dx={-5} 
-            />
-            <RechartsTooltip content={<CustomTooltip />} />
-            {keys.map((key, i) => (
-              <Area 
-                key={key}
-                type="monotone" 
-                dataKey={key} 
-                stroke={colors[i] || '#C9A84C'} 
-                strokeWidth={2}
-                fillOpacity={1} 
-                fill={`url(#grad-${key})`} 
+          {chartType === 'area' ? (
+            <AreaChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <defs>
+                {keys.map((key, i) => (
+                  <linearGradient id={`grad-${key}`} key={key} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={colors[i] || '#C9A84C'} stopOpacity={0.4} />
+                    <stop offset="95%" stopColor={colors[i] || '#C9A84C'} stopOpacity={0} />
+                  </linearGradient>
+                ))}
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(201, 168, 76, 0.05)" vertical={false} />
+              <XAxis 
+                dataKey="name" 
+                stroke="rgba(255,255,255,0.4)" 
+                fontSize={10} 
+                tickLine={false} 
+                axisLine={false} 
+                dy={10} 
               />
-            ))}
-          </AreaChart>
+              <YAxis 
+                stroke="rgba(255,255,255,0.4)" 
+                fontSize={10} 
+                tickLine={false} 
+                axisLine={false} 
+                tickFormatter={v => formatCurrencyShort(v)} 
+                dx={-5} 
+              />
+              <RechartsTooltip content={<CustomTooltip />} />
+              {keys.map((key, i) => (
+                <Area 
+                  key={key}
+                  type="monotone" 
+                  dataKey={key} 
+                  stroke={colors[i] || '#C9A84C'} 
+                  strokeWidth={2}
+                  fillOpacity={1} 
+                  fill={`url(#grad-${key})`} 
+                />
+              ))}
+            </AreaChart>
+          ) : (
+            <LineChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(201, 168, 76, 0.05)" vertical={false} />
+              <XAxis 
+                dataKey="name" 
+                stroke="rgba(255,255,255,0.4)" 
+                fontSize={10} 
+                tickLine={false} 
+                axisLine={false} 
+                dy={10} 
+              />
+              <YAxis 
+                stroke="rgba(255,255,255,0.4)" 
+                fontSize={10} 
+                tickLine={false} 
+                axisLine={false} 
+                tickFormatter={v => formatCurrencyShort(v)} 
+                dx={-5} 
+              />
+              <RechartsTooltip content={<CustomTooltip />} />
+              {keys.map((key, i) => (
+                <Line 
+                  key={key}
+                  type="monotone" 
+                  dataKey={key} 
+                  stroke={colors[i] || '#C9A84C'} 
+                  strokeWidth={3}
+                  dot={{ r: 3, strokeWidth: 1 }}
+                  activeDot={{ r: 6 }}
+                />
+              ))}
+            </LineChart>
+          )}
         </ResponsiveContainer>
       </div>
       <div className="flex flex-wrap gap-6 justify-center mt-6">
