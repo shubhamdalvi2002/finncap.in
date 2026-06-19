@@ -36,13 +36,10 @@ export const Footer: React.FC = () => {
 
         <div className="flex flex-col items-center md:items-end gap-1">
           <div className="text-muted-foreground text-[0.8rem]">
-            © {new Date().getFullYear()} FinAura Capital. All rights reserved.
+            © 2026 FinAura Capital. All rights reserved.
           </div>
           <div className="text-[0.65rem] text-muted-foreground/60 uppercase tracking-widest font-medium">
-            AMFI Registered Mutual Fund Distributor | ARN-353581
-          </div>
-          <div className="text-[0.6rem] text-muted-foreground/40 uppercase tracking-widest font-medium">
-            NJ Wealth Partner Code: 103924
+            AMFI Registered Mutual Fund Distributor | ARN-35358
           </div>
         </div>
       </div>
