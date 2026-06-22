@@ -56,7 +56,7 @@ export const PartnerLoginModal: React.FC<PartnerLoginModalProps> = ({ isOpen, on
       password === targetPass
     ) {
       // SUCCESS
-      sessionStorage.setItem('finaura_admin_auth', 'true');
+      sessionStorage.setItem('finaura_partner_auth', 'true');
       
       // Close modal and redirect to Partner Portal page
       onClose();

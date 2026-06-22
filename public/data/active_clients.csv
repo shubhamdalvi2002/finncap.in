@@ -1,0 +1,14 @@
+srNo,activationMonth,investor,mobile,altMobile,email,altEmail,dob,accountActivated,activationDate,clientCode,hasInvestment,installmentRemainder,lumpsum,sipAmount
+1,February 2026,Dalvi Shubham Vilas,7218918236,9423669236,shubhamdalvi7218@gmai.com,shubhamdalvi256@gmail.com,24-11-2002,Active,23-02-2026,4768466,Yes,24th (1000 /-),0,1000
+2,March 2026,Dalvi Pushpa Vilas,7507098005,,shubhamdalvi256@gmail.com,shubhamdalvi256@gmai.com,01-06-1980,Active,07-03-2026,4786682,Yes,5th (1500 /-),100000,1500
+3,March 2026,Mohite Yash Raju,8308809965,,yashmohite8910@gmail.com,,30-05-2003,Active,09-03-2026,4797669,,,,,0
+4,March 2026,Jagdale Shubham Sachin,7620662582,,jagdaleshubham13@gmail.com,,08-03-2005,Active,14-03-2026,4812945,,,,,0
+5,March 2026,Dalvi Yash Vilas,9067252264,,yashvd2264@gmail.com,,26-08-2001,Active,23-03-2026,4828698,,,,,0
+6,March 2026,Datta Shinde Ajinath,9765371962,,shindedatta2515@gmail.com,,03-09-1998,Active,23-03-2026,4828899,,23rd (1500 /-),0,1500
+7,March 2026,Kedari Sahil Dinesh,9921347325,,sahilkedari302@gmail.com,,17-11-2002,Active,23-03-2026,4796385,,,,,0
+8,April 2026,Dalvi Vilas Ashok,9890975081,8888075081,,,,25-05-1982,Active,30-04-2026,4908066,Yes,15th (1000 /-),0,1000
+9,May 2026,Dr Kaustubh Deshmukh,9595791505,,opto.kaustubhdeshmukh@gmail.com,,23-01-1995,Active,22-05-2026,4951459,,,,,0
+10,May 2026,Ransur Onkar Suresh,7447804639,,onkarransur101@gmail.com,,08-04-2002,Active,22-05-2026,4946462,,8th (1000 /-),0,1000
+11,May 2026,Baheti Anshika,8839699286,,anshikabaheti784@gmail.com,,08-05-2004,Active,22-05-2026,4951055,No,,,,0
+12,May 2026,Dute Shubham Suresh,9067659389,,shubhamdute@gmail.com,,30-10-2001,Active,29-05-2026,4965674,,,,,0
+13,June 2026,Pande Navnath Somnath,8080020379,,sanikabandawane46@gmail.com,navnathsomnathpande@gmail.com,13-05-1999,Active,11-06-2026,4993574,YES,2nd (1000 /-),0,1000

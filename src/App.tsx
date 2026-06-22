@@ -15,6 +15,13 @@ export type ActivePage = 'home' | 'services' | 'calculators' | 'about' | 'contac
 export default function App() {
   const [currentPage, setCurrentPage] = useState<ActivePage>('home');
 
+  // Automatically revoke partner authentication if leaving the partner page/view
+  useEffect(() => {
+    if (currentPage !== 'partner') {
+      sessionStorage.removeItem('finaura_partner_auth');
+    }
+  }, [currentPage]);
+
   // Handle hash or navigation events
   useEffect(() => {
     const handleHashChange = () => {

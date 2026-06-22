@@ -28,7 +28,14 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    
+    const handleOpenModal = () => setPartnerOpen(true);
+    window.addEventListener('open-partner-login', handleOpenModal);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('open-partner-login', handleOpenModal);
+    };
   }, []);
 
   const navLinks = [
@@ -87,13 +94,26 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
           >
             {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
           </button>
-          <button 
-            id="partner-login-desktop-btn"
-            onClick={handlePartnerClick} 
-            className="hidden sm:block border border-gold/40 text-gold hover:bg-gold/5 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
-          >
-            Partner Login
-          </button>
+          {currentPage === 'partner' ? (
+            <button 
+              id="partner-logout-desktop-btn"
+              onClick={() => {
+                sessionStorage.removeItem('finaura_partner_auth');
+                window.location.hash = '#home';
+              }} 
+              className="hidden sm:block border border-red-500/40 text-red-400 hover:bg-red-500/5 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+            >
+              Partner Logout
+            </button>
+          ) : (
+            <button 
+              id="partner-login-desktop-btn"
+              onClick={handlePartnerClick} 
+              className="hidden sm:block border border-gold/40 text-gold hover:bg-gold/5 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
+            >
+              Partner Login
+            </button>
+          )}
           <a href="https://ewa.njindiaonline.com/ewa/login" target="_blank" rel="noopener noreferrer" className="hidden sm:block border border-foreground/15 text-foreground/90 hover:border-foreground px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all">
             Client Login
           </a>
@@ -135,16 +155,30 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
               );
             })}
             <div className="flex flex-col gap-3 mt-4 w-64">
-              <button
-                id="partner-login-mobile-btn"
-                onClick={() => {
-                  setMobileOpen(false);
-                  handlePartnerClick();
-                }}
-                className="border border-gold/40 text-gold hover:bg-gold/5 py-3 px-8 rounded-full font-bold uppercase tracking-wider text-xs text-center transition-all bg-transparent cursor-pointer"
-              >
-                Partner Login
-              </button>
+              {currentPage === 'partner' ? (
+                <button
+                  id="partner-logout-mobile-btn"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    sessionStorage.removeItem('finaura_partner_auth');
+                    window.location.hash = '#home';
+                  }}
+                  className="border border-red-500/40 text-red-400 hover:bg-red-500/5 py-3 px-8 rounded-full font-bold uppercase tracking-wider text-xs text-center transition-all bg-transparent cursor-pointer"
+                >
+                  Partner Logout
+                </button>
+              ) : (
+                <button
+                  id="partner-login-mobile-btn"
+                  onClick={() => {
+                    setMobileOpen(false);
+                    handlePartnerClick();
+                  }}
+                  className="border border-gold/40 text-gold hover:bg-gold/5 py-3 px-8 rounded-full font-bold uppercase tracking-wider text-xs text-center transition-all bg-transparent cursor-pointer"
+                >
+                  Partner Login
+                </button>
+              )}
               <a 
                 href="https://ewa.njindiaonline.com/ewa/login" 
                 target="_blank" 
