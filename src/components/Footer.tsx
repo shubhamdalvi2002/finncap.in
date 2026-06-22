@@ -15,6 +15,7 @@ export const Footer: React.FC = () => {
             <a href="#contact" className="text-muted-foreground text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">Contact</a>
             <a href="http://p.njw.bz/103924" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">Invest Now</a>
             <a href="https://ewa.njindiaonline.com/ewa/login" target="_blank" rel="noopener noreferrer" className="text-gold text-xs font-semibold uppercase tracking-wider hover:text-gold-light transition-colors">Client Login</a>
+            <a href="#admin" className="text-muted-foreground/60 text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">Admin Console</a>
           </div>
           
           {/* Social Links Row */}

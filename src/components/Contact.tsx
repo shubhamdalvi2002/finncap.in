@@ -31,6 +31,25 @@ export const Contact: React.FC = () => {
     const encodedText = encodeURIComponent(text);
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedText}`;
 
+    // Store inquiry in localStorage for the Admin Portal
+    try {
+      const existingEnquiries = JSON.parse(localStorage.getItem('finaura_enquiries') || '[]');
+      const newEnquiry = {
+        id: Date.now().toString(),
+        name: formData.name,
+        phone: formData.phone,
+        email: formData.email || 'Not provided',
+        service: formData.service,
+        message: formData.message || 'No additional message',
+        date: new Date().toISOString(),
+        status: 'Pending'
+      };
+      existingEnquiries.unshift(newEnquiry); // Put newest first
+      localStorage.setItem('finaura_enquiries', JSON.stringify(existingEnquiries));
+    } catch (err) {
+      console.error('Failed to store enquiry in localStorage:', err);
+    }
+
     // Show success status
     setStatus({ type: 'success', msg: '✅ Redirecting to WhatsApp to send your enquiry...' });
     
