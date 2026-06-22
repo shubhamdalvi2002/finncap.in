@@ -16,6 +16,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [partnerOpen, setPartnerOpen] = useState(false);
 
+  const handlePartnerClick = () => {
+    const isAuth = sessionStorage.getItem('finaura_partner_auth') === 'true';
+    if (isAuth) {
+      window.location.hash = '#partner';
+    } else {
+      setPartnerOpen(true);
+    }
+  };
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener('scroll', handleScroll);
@@ -80,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
           </button>
           <button 
             id="partner-login-desktop-btn"
-            onClick={() => setPartnerOpen(true)} 
+            onClick={handlePartnerClick} 
             className="hidden sm:block border border-gold/40 text-gold hover:bg-gold/5 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
           >
             Partner Login
@@ -130,7 +139,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
                 id="partner-login-mobile-btn"
                 onClick={() => {
                   setMobileOpen(false);
-                  setPartnerOpen(true);
+                  handlePartnerClick();
                 }}
                 className="border border-gold/40 text-gold hover:bg-gold/5 py-3 px-8 rounded-full font-bold uppercase tracking-wider text-xs text-center transition-all bg-transparent cursor-pointer"
               >

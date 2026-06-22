@@ -8,7 +8,7 @@ import {
 import { formatCurrency } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 
-// Default Admin Credentials info
+// Default Partner Credentials info
 const DEFAULT_EMAIL = 'finnauracapital@gmail.com';
 const DEFAULT_PASS = 'India@11'; // Owner security code, customizable from code as needed
 
@@ -31,7 +31,7 @@ interface Enquiry {
   status: 'Pending' | 'In Discussion' | 'Onboarded' | 'Closed';
 }
 
-export const AdminPortal: React.FC = () => {
+export const PartnerPortal: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -58,17 +58,31 @@ export const AdminPortal: React.FC = () => {
   // Load state and data on mount
   useEffect(() => {
     // Check if authenticated in existing session
-    const authSession = sessionStorage.getItem('finaura_admin_auth');
+    const authSession = sessionStorage.getItem('finaura_partner_auth');
     if (authSession === 'true') {
       setIsAuthenticated(true);
     }
 
     // Load custom links from localStorage or set defaults
-    const storedLinks = localStorage.getItem('finaura_admin_links');
+    const storedLinks = localStorage.getItem('finaura_partner_links');
     if (storedLinks) {
       setLinks(JSON.parse(storedLinks));
     } else {
       const defaultLinks: WorkspaceLink[] = [
+        {
+          id: 'pdesk-v2',
+          title: 'NJ Partner Desk 2.0',
+          url: 'https://pdesk.njwealth.in/pdesk/login',
+          category: 'other',
+          description: 'The modernized distributor suite featuring trackings, onboarding tools, and real-time portfolio insights.'
+        },
+        {
+          id: 'pdesk-classic',
+          title: 'NJ Partner Desk Classic',
+          url: 'https://www.njindiaonline.in/pdesk/login.fin?cmdAction=login',
+          category: 'other',
+          description: 'The classic legacy dashboard supporting daily mutual fund operations, historical report extraction, and transaction feeds.'
+        },
         {
           id: '1',
           title: 'Client Investment Master Ledger',
@@ -92,7 +106,7 @@ export const AdminPortal: React.FC = () => {
         }
       ];
       setLinks(defaultLinks);
-      localStorage.setItem('finaura_admin_links', JSON.stringify(defaultLinks));
+      localStorage.setItem('finaura_partner_links', JSON.stringify(defaultLinks));
     }
 
     // Load inquiries
@@ -140,15 +154,15 @@ export const AdminPortal: React.FC = () => {
     ) {
       setIsAuthenticated(true);
       setLoginError('');
-      sessionStorage.setItem('finaura_admin_auth', 'true');
+      sessionStorage.setItem('finaura_partner_auth', 'true');
     } else {
-      setLoginError('Invalid Administrator credentials. Please verify and retry.');
+      setLoginError('Invalid Partner credentials. Please verify and retry.');
     }
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
-    sessionStorage.removeItem('finaura_admin_auth');
+    sessionStorage.removeItem('finaura_partner_auth');
     setEmail('');
     setPassword('');
   };
@@ -170,12 +184,12 @@ export const AdminPortal: React.FC = () => {
       title: newLink.title,
       url: urlFormatted,
       category: newLink.category,
-      description: newLink.description || 'Custom administrator configured shortcut link.'
+      description: newLink.description || 'Custom partner shortcut link.'
     };
 
     const newLinksList = [...links, updated];
     setLinks(newLinksList);
-    localStorage.setItem('finaura_admin_links', JSON.stringify(newLinksList));
+    localStorage.setItem('finaura_partner_links', JSON.stringify(newLinksList));
     
     // Reset form
     setNewLink({ title: '', url: '', category: 'sheet', description: '' });
@@ -188,7 +202,7 @@ export const AdminPortal: React.FC = () => {
     if (confirm('Are you sure you want to remove this project/sheet link?')) {
       const filtered = links.filter(l => l.id !== id);
       setLinks(filtered);
-      localStorage.setItem('finaura_admin_links', JSON.stringify(filtered));
+      localStorage.setItem('finaura_partner_links', JSON.stringify(filtered));
     }
   };
 
@@ -293,9 +307,9 @@ export const AdminPortal: React.FC = () => {
             </form>
           </motion.div>
         ) : (
-          /* SECTION - ADMIN DASHBOARD CONTROL PANEL */
+          /* SECTION - PARTNER DASHBOARD CONTROL PANEL */
           <motion.div
-            key="admin-dashboard"
+            key="partner-dashboard"
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}

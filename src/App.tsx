@@ -7,10 +7,10 @@ import { About } from './components/About';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
-import { AdminPortal } from './components/AdminPortal';
+import { PartnerPortal } from './components/PartnerPortal';
 import { motion, AnimatePresence } from 'motion/react';
 
-export type ActivePage = 'home' | 'services' | 'calculators' | 'about' | 'contact' | 'admin';
+export type ActivePage = 'home' | 'services' | 'calculators' | 'about' | 'contact' | 'partner';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<ActivePage>('home');
@@ -37,8 +37,8 @@ export default function App() {
       } else if (hash === '#contact' || hash === '#/contact') {
         setCurrentPage('contact');
         window.scrollTo({ top: 0, behavior: 'auto' });
-      } else if (hash === '#admin' || hash === '#/admin') {
-        setCurrentPage('admin');
+      } else if (hash === '#partner' || hash === '#/partner' || hash === '#admin' || hash === '#/admin') {
+        setCurrentPage('partner');
         window.scrollTo({ top: 0, behavior: 'auto' });
       } else {
         setCurrentPage('home');
@@ -116,16 +116,16 @@ export default function App() {
             </motion.div>
           )}
 
-          {currentPage === 'admin' && (
+          {currentPage === 'partner' && (
             <motion.div
-              key="admin"
+              key="partner"
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.3 }}
               className="pt-16 pb-8"
             >
-              <AdminPortal />
+              <PartnerPortal />
             </motion.div>
           )}
         </AnimatePresence>
