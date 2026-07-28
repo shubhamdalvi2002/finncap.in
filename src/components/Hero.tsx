@@ -106,9 +106,10 @@ export const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.25 }}
-          className="font-serif text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black leading-[1.08] mb-6 text-balance"
+          className="font-serif text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black leading-[1.12] mb-6"
         >
-          Grow With <span className="text-gold">Clarity,</span><br />Invest With Confidence
+          <span className="block">Grow With <span className="text-gold">Clarity,</span></span>
+          <span className="block whitespace-nowrap">Invest With Confidence</span>
         </motion.h1>
 
         <motion.p

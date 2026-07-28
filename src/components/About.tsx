@@ -213,10 +213,9 @@ export const About: React.FC = () => {
                           href="https://drive.google.com/file/d/16VAKCq27GVd9-KcBID1b8h7cPZJPV8r3/view?usp=sharing" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-[0.6rem] bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded border border-emerald-500/20 hover:bg-emerald-500/20 transition-all flex items-center gap-1 group/link shrink-0"
+                          className="text-[0.6rem] bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded border border-emerald-500/20 hover:bg-emerald-500/20 transition-all flex items-center shrink-0"
                         >
                           View Certificate
-                          <span className="opacity-70 group-hover/link:translate-x-1 transition-transform">→</span>
                         </a>
                       </div>
                       <p className="text-xs text-muted-foreground leading-relaxed mb-2">
