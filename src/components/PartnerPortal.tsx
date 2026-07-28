@@ -10,7 +10,6 @@ import {
 } from 'lucide-react';
 import { formatCurrency } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
-import { PowerBIDashboard } from './PowerBIDashboard';
 import {
   ResponsiveContainer,
   AreaChart,
@@ -73,172 +72,7 @@ interface ClientAccount {
   sipAmount?: number;
 }
 
-const clientAccountsData: ClientAccount[] = [
-  {
-    srNo: 1,
-    activationMonth: 'February 2026',
-    investor: 'Dalvi Shubham Vilas',
-    mobile: '7218918236',
-    altMobile: '9423669236',
-    email: 'shubhamdalvi7218@gmai.com',
-    altEmail: 'shubhamdalvi256@gmail.com',
-    dob: '24-11-2002',
-    accountActivated: 'Active',
-    activationDate: '23-02-2026',
-    clientCode: '4768466',
-    installmentRemainder: '24th (1000 /-)',
-    sipAmount: 1000
-  },
-  {
-    srNo: 2,
-    activationMonth: 'March 2026',
-    investor: 'Dalvi Pushpa Vilas',
-    mobile: '7507098005',
-    email: 'shubhamdalvi256@gmail.com',
-    altEmail: 'shubhamdalvi256@gmai.com',
-    dob: '01-06-1980',
-    accountActivated: 'Active',
-    activationDate: '07-03-2026',
-    clientCode: '4786682',
-    hasInvestment: 'Yes',
-    installmentRemainder: '5th (1500 /-)',
-    lumpsum: 100000,
-    sipAmount: 1500
-  },
-  {
-    srNo: 3,
-    activationMonth: 'March 2026',
-    investor: 'Mohite Yash Raju',
-    mobile: '8308809965',
-    email: 'yashmohite8910@gmail.com',
-    dob: '30-05-2003',
-    accountActivated: 'Active',
-    activationDate: '09-03-2026',
-    clientCode: '4797669'
-  },
-  {
-    srNo: 4,
-    activationMonth: 'March 2026',
-    investor: 'Jagdale Shubham Sachin',
-    mobile: '7620662582',
-    email: 'jagdaleshubham13@gmail.com',
-    dob: '08-03-2005',
-    accountActivated: 'Active',
-    activationDate: '14-03-2026',
-    clientCode: '4812945'
-  },
-  {
-    srNo: 5,
-    activationMonth: 'March 2026',
-    investor: 'Dalvi Yash Vilas',
-    mobile: '9067252264',
-    email: 'yashvd2264@gmail.com',
-    dob: '26-08-2001',
-    accountActivated: 'Active',
-    activationDate: '23-03-2026',
-    clientCode: '4828698'
-  },
-  {
-    srNo: 6,
-    activationMonth: 'March 2026',
-    investor: 'Datta Shinde Ajinath',
-    mobile: '9765371962',
-    email: 'shindedatta2515@gmail.com',
-    dob: '03-09-1998',
-    accountActivated: 'Active',
-    activationDate: '23-03-2026',
-    clientCode: '4828899',
-    installmentRemainder: '23rd (1500 /-)',
-    sipAmount: 1500
-  },
-  {
-    srNo: 7,
-    activationMonth: 'March 2026',
-    investor: 'Kedari Sahil Dinesh',
-    mobile: '9921347325',
-    email: 'sahilkedari302@gmail.com',
-    dob: '17-11-2002',
-    accountActivated: 'Active',
-    activationDate: '23-03-2026',
-    clientCode: '4796385'
-  },
-  {
-    srNo: 8,
-    activationMonth: 'April 2026',
-    investor: 'Dalvi Vilas Ashok',
-    mobile: '9890975081',
-    altMobile: '8888075081',
-    dob: '25-05-1982',
-    accountActivated: 'Active',
-    activationDate: '30-04-2026',
-    clientCode: '4908066',
-    hasInvestment: 'Yes',
-    installmentRemainder: '15th (1000 /-)',
-    sipAmount: 1000
-  },
-  {
-    srNo: 9,
-    activationMonth: 'May 2026',
-    investor: 'Dr Kaustubh Deshmukh',
-    mobile: '9595791505',
-    email: 'opto.kaustubhdeshmukh@gmail.com',
-    dob: '23-01-1995',
-    accountActivated: 'Active',
-    activationDate: '22-05-2026',
-    clientCode: '4951459'
-  },
-  {
-    srNo: 10,
-    activationMonth: 'May 2026',
-    investor: 'Ransur Onkar Suresh',
-    mobile: '7447804639',
-    email: 'onkarransur101@gmail.com',
-    dob: '08-04-2002',
-    accountActivated: 'Active',
-    activationDate: '22-05-2026',
-    clientCode: '4946462',
-    installmentRemainder: '8th (1000 /-)',
-    sipAmount: 1000
-  },
-  {
-    srNo: 11,
-    activationMonth: 'May 2026',
-    investor: 'Baheti Anshika',
-    mobile: '8839699286',
-    email: 'anshikabaheti784@gmail.com',
-    dob: '08-05-2004',
-    accountActivated: 'Active',
-    activationDate: '22-05-2026',
-    clientCode: '4951055',
-    hasInvestment: 'No'
-  },
-  {
-    srNo: 12,
-    activationMonth: 'May 2026',
-    investor: 'Dute Shubham Suresh',
-    mobile: '9067659389',
-    email: 'shubhamdute@gmail.com',
-    dob: '30-10-2001',
-    accountActivated: 'Active',
-    activationDate: '29-05-2026',
-    clientCode: '4965674'
-  },
-  {
-    srNo: 13,
-    activationMonth: 'June 2026',
-    investor: 'Pande Navnath Somnath',
-    mobile: '8080020379',
-    email: 'sanikabandawane46@gmail.com',
-    altEmail: 'navnathsomnathpande@gmail.com',
-    dob: '13-05-1999',
-    accountActivated: 'Active',
-    activationDate: '11-06-2026',
-    clientCode: '4993574',
-    hasInvestment: 'YES',
-    installmentRemainder: '2nd (1000 /-)',
-    sipAmount: 1000
-  }
-];
+const clientAccountsData: ClientAccount[] = [];
 
 // Helper to generate CSV string from active clients list
 const convertToCSV = (accounts: ClientAccount[]): string => {
@@ -512,7 +346,7 @@ export const PartnerPortal: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab ] = useState<'overview' | 'workspace' | 'clients' | 'analytics'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'clients'>('overview');
   const [clientSearch, setClientSearch] = useState('');
   const [clientInvestmentFilter, setClientInvestmentFilter] = useState<'All' | 'Active' | 'Lumpsum' | 'SIP' | 'None'>('All');
   const [showSipDueModal, setShowSipDueModal] = useState(false);
@@ -586,12 +420,10 @@ export const PartnerPortal: React.FC = () => {
         const text = await response.text();
         if (text && text.trim().startsWith('srNo')) {
           const parsed = parseCSV(text);
-          if (parsed && parsed.length > 0) {
-            setClientAccounts(parsed);
-            setRawCSVText(text);
-            localStorage.setItem('finaura_client_accounts', JSON.stringify(parsed));
-            return;
-          }
+          setClientAccounts(parsed);
+          setRawCSVText(text);
+          localStorage.setItem('finaura_client_accounts', JSON.stringify(parsed));
+          return;
         }
       }
     } catch (e) {
@@ -605,10 +437,6 @@ export const PartnerPortal: React.FC = () => {
   const handleApplyCSVText = (textToApply: string) => {
     try {
       const parsed = parseCSV(textToApply);
-      if (parsed.length === 0) {
-        setCsvStatusMsg({ type: 'error', text: 'Error: Parsed 0 records. Please ensure format starts with matching headers: srNo,activationMonth,investor,...' });
-        return;
-      }
       setClientAccounts(parsed);
       setRawCSVText(textToApply);
       localStorage.setItem('finaura_client_accounts', JSON.stringify(parsed));
@@ -874,7 +702,7 @@ export const PartnerPortal: React.FC = () => {
     if (storedClients) {
       try {
         const parsed = JSON.parse(storedClients);
-        if (Array.isArray(parsed) && parsed.length > 0) {
+        if (Array.isArray(parsed)) {
           setClientAccounts(parsed);
           setRawCSVText(convertToCSV(parsed));
         } else {
@@ -1161,40 +989,6 @@ export const PartnerPortal: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-3">
-                {dueSipClients.length > 0 ? (
-                  <button
-                    onClick={() => setShowSipDueModal(true)}
-                    className="relative border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 hover:text-amber-200 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-md shadow-amber-500/5 group"
-                    title="View approaching SIP payments in next 48 hours"
-                    id="partner-sip-alerts-bell-btn"
-                  >
-                    <Bell size={13} className="text-amber-400 group-hover:rotate-12 transition-transform animate-bounce" />
-                    <span>SIP Alerts</span>
-                    <span className="bg-[#cc2d42] text-white font-mono text-[9px] font-extrabold px-1.5 py-0.5 rounded-full leading-none shrink-0 border border-amber-950">
-                      {dueSipClients.length}
-                    </span>
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => setShowSipDueModal(true)}
-                    className="relative border border-stone-800 bg-stone-900/50 text-stone-400 hover:text-stone-300 px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer shadow-md group"
-                    title="View approaching SIP payments in next 48 hours"
-                    id="partner-sip-alerts-bell-btn"
-                  >
-                    <Bell size={13} className="text-stone-500" />
-                    <span>SIP Alerts</span>
-                  </button>
-                )}
-                <button
-                  onClick={handleRefreshData}
-                  className="border border-gold/15 bg-gold/5 hover:bg-gold/10 text-gold hover:text-white px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer"
-                  title="Synchronize calculations and reload inquiries"
-                  id="partner-sync-metrics-btn"
-                >
-                  <RefreshCw size={13} />
-                  Sync Metrics
-                </button>
-                <div className="h-6 w-px bg-gold/10" />
                 <button
                   onClick={handleLogout}
                   className="bg-red-500/5 hover:bg-red-500/15 border border-red-500/30 text-red-400 hover:text-red-300 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer"
@@ -1209,9 +1003,7 @@ export const PartnerPortal: React.FC = () => {
             <div className="flex border-b border-gold/5 overflow-x-auto gap-1 mb-8 pb-px">
               {[
                 { id: 'overview', label: 'Overview Metrics', icon: <TrendingUp size={14} /> },
-                { id: 'clients', label: 'Active Client Portfolios (13)', icon: <Users size={14} /> },
-                { id: 'workspace', label: 'Google Sheets & Links', icon: <FileSpreadsheet size={14} /> },
-                { id: 'analytics', label: 'PowerBI BI Dashboard', icon: <BarChart3 size={14} /> },
+                { id: 'clients', label: 'Active Client Portfolios', icon: <Users size={14} /> },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -1408,159 +1200,6 @@ export const PartnerPortal: React.FC = () => {
                 </motion.div>
               )}
 
-              {activeTab === 'workspace' && (
-                <motion.div
-                  key="tab-workspace"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex flex-col gap-6"
-                >
-                  <div className="flex justify-between items-center bg-[#0a0c10]/30 p-4 rounded-2xl border border-gold/10">
-                    <div>
-                      <h4 className="font-serif text-lg font-bold text-white">Google Sheets & Calendar Pipeline</h4>
-                      <p className="text-xs text-muted-foreground mt-0.5">Configure and launch target financial trackers directly for fast client administration.</p>
-                    </div>
-                    <button
-                      onClick={() => setIsAddingLink(!isAddingLink)}
-                      className="bg-gold text-bg-dark hover:bg-gold-light py-2 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      {isAddingLink ? 'Cancel' : <><Plus size={14} /> Add Spreadsheet / Link</>}
-                    </button>
-                  </div>
-
-                  {linkSuccess && (
-                    <div className="p-4 rounded-xl border border-emerald-500/15 bg-emerald-500/5 text-emerald-400 text-xs font-semibold">
-                      {linkSuccess}
-                    </div>
-                  )}
-
-                  {/* ADD SHORTCUT LINK FORM */}
-                  {isAddingLink && (
-                    <motion.form
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-6 rounded-2xl border border-gold/15 bg-bg-dark-3/80 flex flex-col gap-4 max-w-xl self-start w-full shadow-xl"
-                      onSubmit={handleAddWorkspaceLink}
-                    >
-                      <h5 className="font-serif text-sm font-bold text-white border-b border-white/5 pb-2">New Configuration Blueprint</h5>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Asset / Link Group</label>
-                          <select
-                            value={newLink.category}
-                            onChange={e => setNewLink({ ...newLink, category: e.target.value as any })}
-                            className="bg-bg-dark-2 border border-gold/20 rounded-lg p-2.5 text-xs text-foreground outline-none focus:border-gold"
-                          >
-                            <option value="sheet">Google Sheet Guide</option>
-                            <option value="calendar">Google Calendar / Meeting Schedule</option>
-                            <option value="other">Other Administrator Portal</option>
-                          </select>
-                        </div>
-
-                        <div className="flex flex-col gap-1.5">
-                          <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Link Title *</label>
-                          <input
-                            type="text"
-                            value={newLink.title}
-                            onChange={e => setNewLink({ ...newLink, title: e.target.value })}
-                            placeholder="e.g. Lead Pipeline Ledger"
-                            className="bg-bg-dark-2 border border-gold/20 rounded-lg p-2.5 text-xs text-foreground outline-none focus:border-gold"
-                            required
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Destination URL *</label>
-                        <input
-                          type="text"
-                          value={newLink.url}
-                          onChange={e => setNewLink({ ...newLink, url: e.target.value })}
-                          placeholder="e.g. docs.google.com/spreadsheets/d/..."
-                          className="bg-bg-dark-2 border border-gold/20 rounded-lg p-2.5 text-xs text-foreground outline-none focus:border-gold"
-                          required
-                        />
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Description (Optional)</label>
-                        <textarea
-                          value={newLink.description}
-                          onChange={e => setNewLink({ ...newLink, description: e.target.value })}
-                          placeholder="What is this ledger used for..."
-                          className="bg-bg-dark-2 border border-gold/20 rounded-lg p-2.5 text-xs text-foreground outline-none focus:border-gold min-h-[60px]"
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        className="bg-gold text-bg-dark hover:bg-gold-light py-2.5 rounded-lg text-xs font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center gap-1.5 mt-2"
-                      >
-                        <Save size={13} />
-                        Persist Shortcut
-                      </button>
-                    </motion.form>
-                  )}
-
-                  {/* SHORTCUTS LIST */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {links.map(link => (
-                      <div 
-                        key={link.id}
-                        className="border border-gold/10 rounded-2xl p-5 bg-[#090b0d]/20 relative overflow-hidden flex flex-col justify-between hover:border-gold/30 transition-all group"
-                      >
-                        <div>
-                          <div className="flex justify-between items-start mb-3">
-                            <span className={`px-2.5 py-1 rounded-md text-[9px] font-bold uppercase tracking-widest ${
-                              link.category === 'sheet' 
-                                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/20' 
-                                : link.category === 'calendar' 
-                                  ? 'bg-blue-500/15 text-blue-400 border border-blue-500/20' 
-                                  : 'bg-gold/15 text-gold border border-gold/20'
-                            }`}>
-                              {link.category === 'sheet' ? 'Google Sheet' : link.category === 'calendar' ? 'Calendar' : 'Tool Shortcut'}
-                            </span>
-
-                            {/* Detach option */}
-                            <button
-                              onClick={() => handleDeleteLink(link.id)}
-                              className="text-muted-foreground hover:text-red-400 transition-colors p-1 rounded-lg hover:bg-red-500/5 cursor-pointer"
-                              title="Delete Link Shortcut"
-                            >
-                              <Trash2 size={13} />
-                            </button>
-                          </div>
-
-                          <h5 className="text-white font-bold text-sm mb-2 group-hover:text-gold transition-colors">{link.title}</h5>
-                          <p className="text-xs text-muted-foreground leading-relaxed mb-6">{link.description}</p>
-                        </div>
-
-                        <a
-                          href={link.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="bg-gold/5 hover:bg-gold border border-gold/20 text-gold hover:text-bg-dark w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all text-center"
-                        >
-                          Launch Operational URL
-                          <ArrowUpRight size={13} />
-                        </a>
-                      </div>
-                    ))}
-                    
-                    {links.length === 0 && (
-                      <div className="col-span-full border border-dashed border-gold/15 rounded-3xl p-12 text-center text-muted-foreground flex flex-col items-center justify-center">
-                        <FileSpreadsheet size={32} className="text-gold/30 mb-3" />
-                        <span className="text-sm font-semibold mb-1">No custom links stored.</span>
-                        <span className="text-xs">Click "Add Spreadsheet / Link" above to customize your shortcuts.</span>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
-
               {activeTab === 'clients' && (
                 <motion.div
                   key="tab-clients"
@@ -1570,369 +1209,12 @@ export const PartnerPortal: React.FC = () => {
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  {/* CLIENT METRICS REPORT HEADER CARD */}
-                  <div className="border border-gold/15 glass rounded-2xl p-6 bg-[#0a0c10]/40 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-48 h-48 bg-gold/5 rounded-full filter blur-3xl pointer-events-none" />
-                    
-                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-                      <div>
-                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-gold bg-gold/10 px-2.5 py-1 rounded border border-gold/15 mb-2.5 inline-block">
-                          Active Group Directory
-                        </span>
-                        <h4 className="font-serif text-xl font-bold text-white">Group: SHUBHAM VILAS DALVI</h4>
-                        <p className="text-xs text-muted-foreground mt-0.5">Verified distributors ledger tracking {activeClientsCount} active Non-PMS client trading desk accounts.</p>
-                      </div>
-
-                      <div className="bg-[#0b0e14] border border-gold/10 p-4 rounded-xl flex flex-wrap lg:flex-nowrap items-center justify-between gap-8 shrink-0">
-                        <div>
-                          <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Group Lumpsum Assets</div>
-                          <div className="text-xl font-black text-white font-mono mt-0.5">₹{totalLumpsum.toLocaleString('en-IN')}</div>
-                          <div className="text-[10px] text-stone-500 font-medium font-mono">Lumpsum Investments Pool</div>
-                        </div>
-                        <div className="h-8 w-px bg-gold/10 hidden sm:block" />
-                        <div>
-                          <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Monthly SIP Book</div>
-                          <div className="text-xl font-black text-white font-mono mt-0.5">₹{totalSip.toLocaleString('en-IN')} / mo</div>
-                          <div className="text-[10px] text-stone-500 font-medium font-mono">{activeSipClientsCount} Regular Installments</div>
-                        </div>
-                        <div className="h-8 w-px bg-gold/10 hidden sm:block" />
-                        <div>
-                          <div className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Activated Accounts</div>
-                          <div className="text-xl font-black text-gold font-mono mt-0.5">{activeClientsCount} Clients</div>
-                          <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/10">100% Verified</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* DYNAMIC RATIOS BAR */}
-                    <div className="border-t border-gold/5 mt-6 pt-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <div className="flex justify-between items-center mb-1.5 text-xs">
-                          <span className="text-stone-300 font-bold">Lumpsum ({lumpsumPercentage}%)</span>
-                          <span className="text-white font-mono font-semibold">₹{totalLumpsum.toLocaleString('en-IN')} <span className="text-stone-500 text-[10px]">Activated</span></span>
-                        </div>
-                        <div className="w-full bg-stone-900 h-2.5 rounded-full overflow-hidden border border-white/5 p-px">
-                          <div className="bg-gold h-full rounded-full transition-all duration-300" style={{ width: `${lumpsumPercentage}%` }} />
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="flex justify-between items-center mb-1.5 text-xs">
-                          <span className="text-stone-300 font-bold">Monthly Systematic SIP ({sipPercentage}%)</span>
-                          <span className="text-white font-mono font-semibold">₹{totalSip.toLocaleString('en-IN')} <span className="text-stone-500 text-[10px]">Book Value</span></span>
-                        </div>
-                        <div className="w-full bg-stone-900 h-2.5 rounded-full overflow-hidden border border-white/5 p-px">
-                          <div className="bg-stone-400 h-full rounded-full transition-all duration-300" style={{ width: `${sipPercentage}%` }} />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* CSV FILE INTEGRATION & SYNC CONTROLLER */}
-                  <div className="border border-gold/15 rounded-2xl bg-[#0b0e14]/60 p-5 space-y-4">
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gold/10 pb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl relative">
-                          <FileSpreadsheet size={18} />
-                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse border border-[#0b0e14]" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h5 className="font-serif text-sm font-bold text-white">active_clients.csv Directory</h5>
-                            <span className="bg-emerald-400/10 text-emerald-400 text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider">Synced Live</span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-0.5">Physical workspace data located at <code className="text-gold font-mono font-bold">/public/data/active_clients.csv</code></p>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        <button
-                          onClick={() => setIsCSVEditorOpen(!isCSVEditorOpen)}
-                          className="bg-gold/5 hover:bg-gold/15 border border-gold/20 hover:border-gold/30 text-gold px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
-                        >
-                          <Edit size={12} />
-                          {isCSVEditorOpen ? 'Collapse Editor' : 'Edit CSV Content'}
-                        </button>
-                        
-                        <button
-                          onClick={handleDownloadPDFReport}
-                          className="bg-gold hover:bg-gold-light text-bg-dark border border-gold hover:border-gold-light px-3.5 py-2 rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer shadow-lg shadow-gold/5"
-                          title="Generate and download official PDF advisory ledger report"
-                          id="partner-download-pdf-report-btn"
-                        >
-                          <FileText size={12} />
-                          Download Report
-                        </button>
-
-                        <button
-                          onClick={handleDownloadCSV}
-                          className="bg-stone-900 hover:bg-stone-850 border border-stone-800 text-stone-300 hover:text-white px-3.5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer"
-                          title="Download spreadsheet formatted as standard CSV file"
-                        >
-                          <Download size={12} />
-                          Export CSV
-                        </button>
-
-                        <button
-                          onClick={handleResetCSV}
-                          className="text-stone-500 hover:text-red-400 px-2 py-2 rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer hover:bg-red-500/5"
-                          title="Restore original 13 client data records"
-                        >
-                          Reset to Defaults
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* STATUS MESSAGE FOR CSV EDITS */}
-                    {csvStatusMsg && (
-                      <div className={`p-3.5 rounded-xl text-xs flex items-center gap-3 border ${
-                        csvStatusMsg.type === 'success' 
-                          ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
-                          : csvStatusMsg.type === 'error'
-                            ? 'bg-red-500/10 border-red-500/20 text-red-400'
-                            : 'bg-blue-500/10 border-blue-500/20 text-blue-400'
-                      }`}>
-                        <AlertCircle size={15} className="shrink-0" />
-                        <p className="font-medium">{csvStatusMsg.text}</p>
-                      </div>
-                    )}
-
-                    {/* INTERACTIVE CSV RAW EDITOR */}
-                    {isCSVEditorOpen && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        className="space-y-3.5 pt-2"
-                      >
-                        <div className="flex justify-between items-center">
-                          <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#d6ad60]/75">Spreadsheet Raw Source (Plaintext CSV)</span>
-                          <span className="text-[10px] text-stone-500 font-bold uppercase">Format: srNo, activationMonth, investor, mobile, altMobile, email, altEmail, dob, accountActivated, activationDate, clientCode, hasInvestment, installmentRemainder, lumpsum, sipAmount</span>
-                        </div>
-                        <textarea
-                          value={rawCSVText}
-                          onChange={e => setRawCSVText(e.target.value)}
-                          className="w-full h-72 bg-[#06080b] border border-gold/15 rounded-xl p-4 text-[11px] text-white font-mono outline-none focus:border-gold focus:ring-1 focus:ring-gold leading-relaxed resize-y selection:bg-gold/25"
-                          placeholder="srNo,activationMonth,investor..."
-                        />
-                        <div className="flex justify-end gap-3">
-                          <button
-                            onClick={() => setIsCSVEditorOpen(false)}
-                            className="px-4 py-2 bg-stone-900 border border-stone-850 hover:bg-stone-800 text-stone-400 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer"
-                          >
-                            Cancel
-                          </button>
-                          <button
-                            onClick={() => handleApplyCSVText(rawCSVText)}
-                            className="px-5 py-2 bg-gold text-bg-dark hover:bg-gold-light rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 cursor-pointer shadow-lg shadow-gold/5"
-                          >
-                            <CheckCheck size={13} />
-                            Save & Sync Changes
-                          </button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </div>
-
-                  {/* SEARCH BLOCK & DIRECTORY PIPELINE */}
-                  <div className="bg-[#0a0c10]/30 border border-gold/10 rounded-2xl p-4 md:p-6">
-                    <div className="flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-4 mb-6">
-                      <div className="shrink-0">
-                        <h5 className="font-serif text-sm font-bold text-white flex items-center gap-1.5">
-                          <Users size={15} className="text-gold" />
-                          Active Customer Directory
-                        </h5>
-                        <p className="text-xs text-stone-400">Filter account numbers, cell phone, email, or client legal name.</p>
-                      </div>
-
-                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:max-w-2xl justify-end">
-                        {/* Search Input */}
-                        <div className="relative flex-1 max-w-md w-full">
-                          <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gold pointer-events-none" />
-                          <input
-                            type="text"
-                            value={clientSearch}
-                            onChange={e => setClientSearch(e.target.value)}
-                            placeholder="Search investor, UCC code or email..."
-                            className="w-full bg-[#0a0c10]/95 border border-gold/20 rounded-xl py-2.5 pl-10 pr-12 text-xs text-stone-200 outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all"
-                          />
-                          {clientSearch && (
-                            <button 
-                              type="button"
-                              onClick={() => setClientSearch('')} 
-                              className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[10px] uppercase font-bold text-stone-500 hover:text-gold transition-colors"
-                            >
-                              Clear
-                            </button>
-                          )}
-                        </div>
-
-                        {/* Status Filter Dropdown */}
-                        <div className="relative min-w-[210px]">
-                          <select
-                            value={clientInvestmentFilter}
-                            onChange={(e) => setClientInvestmentFilter(e.target.value as any)}
-                            className="w-full appearance-none bg-[#0a0c10]/95 border border-gold/20 rounded-xl py-2.5 pl-3.5 pr-8 text-xs text-stone-200 outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all cursor-pointer font-medium"
-                          >
-                            <option value="All" className="bg-[#0b0e14] text-stone-300">🔍 All Portfolios ({clientAccounts.length})</option>
-                            <option value="Active" className="bg-[#0b0e14] text-stone-300">📈 Active Investments ({clientAccounts.filter(a => (a.sipAmount || 0) > 0 || (a.lumpsum || 0) > 0 || a.hasInvestment === 'Yes' || a.hasInvestment === 'YES').length})</option>
-                            <option value="Lumpsum" className="bg-[#0b0e14] text-stone-300">💰 Lumpsum Assets Only ({clientAccounts.filter(a => (a.lumpsum || 0) > 0).length})</option>
-                            <option value="SIP" className="bg-[#0b0e14] text-stone-300">🔄 Systematic SIP Only ({clientAccounts.filter(a => (a.sipAmount || 0) > 0).length})</option>
-                            <option value="None" className="bg-[#0b0e14] text-stone-300">❌ No Investment Yet ({clientAccounts.filter(a => !(a.sipAmount && a.sipAmount > 0) && !(a.lumpsum && a.lumpsum > 0) && a.hasInvestment !== 'Yes' && a.hasInvestment !== 'YES').length})</option>
-                          </select>
-                          <div className="pointer-events-none absolute inset-y-0 right-3.5 flex items-center text-gold">
-                            <svg className="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-                            </svg>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* TABLE PORTRAIT VIEW */}
-                    <div className="overflow-x-auto rounded-xl border border-gold/10 bg-[#0a0c10]/20">
-                      <table className="w-full text-left border-collapse text-xs table-auto">
-                        <thead>
-                          <tr className="bg-[#0b0e14] border-b border-gold/10 text-[10px] font-extrabold uppercase tracking-widest text-stone-400">
-                            <th className="py-3.5 px-4 text-center whitespace-nowrap w-12">Sr. No.</th>
-                            <th className="py-3.5 px-4 whitespace-nowrap min-w-[120px]">Client Code (UCC)</th>
-                            <th className="py-3.5 px-4 whitespace-nowrap min-w-[220px]">Investor Name & Month</th>
-                            <th className="py-3.5 px-4 whitespace-nowrap min-w-[240px]">Primary & Alternate Contact</th>
-                            <th className="py-3.5 px-4 text-center whitespace-nowrap min-w-[110px]">Date of Birth</th>
-                            <th className="py-3.5 px-4 text-center whitespace-nowrap min-w-[120px]">Activation Date</th>
-                            <th className="py-3.5 px-4 text-right whitespace-nowrap min-w-[110px]">SIP Amount</th>
-                            <th className="py-3.5 px-4 text-right whitespace-nowrap min-w-[140px]">Special Assets</th>
-                            <th className="py-3.5 px-4 text-right whitespace-nowrap min-w-[90px]">Status</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gold/5">
-                          {filteredClients.map(acc => (
-                            <tr key={acc.srNo} className="hover:bg-gold/5 transition-colors group">
-                              <td className="py-3.5 px-4 text-center font-mono text-stone-500 font-bold whitespace-nowrap">{acc.srNo}</td>
-                              <td className="py-3.5 px-4 font-mono whitespace-nowrap">
-                                <span className="font-bold text-gold px-2 py-1 rounded bg-gold/10 border border-gold/10">
-                                  {acc.clientCode}
-                                </span>
-                              </td>
-                              <td className="py-3.5 px-4 leading-relaxed min-w-[220px]">
-                                <div className="font-serif font-bold text-white group-hover:text-gold transition-colors text-sm">
-                                  {acc.investor}
-                                </div>
-                                <span className="text-[9px] font-extrabold tracking-widest uppercase text-stone-400 bg-stone-900 px-1.5 py-0.5 rounded border border-white/5">
-                                  {acc.activationMonth}
-                                </span>
-                              </td>
-                              <td className="py-3.5 px-4 leading-relaxed min-w-[240px]">
-                                <div className="text-white font-semibold whitespace-nowrap">📞 {acc.mobile}</div>
-                                {acc.altMobile && (
-                                  <div className="text-[10px] text-stone-400 whitespace-nowrap">Alt Mo: {acc.altMobile}</div>
-                                )}
-                                {acc.email && (
-                                  <div className="text-[10px] text-stone-300 selection:bg-gold/30 break-all">{acc.email}</div>
-                                )}
-                                {acc.altEmail && (
-                                  <div className="text-[10px] text-stone-500 break-all">Alt Email: {acc.altEmail}</div>
-                                )}
-                              </td>
-                              <td className="py-3.5 px-4 text-center font-mono text-stone-300 font-semibold whitespace-nowrap">{acc.dob}</td>
-                              <td className="py-3.5 px-4 text-center font-mono text-stone-400 whitespace-nowrap">{acc.activationDate}</td>
-                              <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                                {acc.sipAmount ? (
-                                  (() => {
-                                    const alert = getSipScheduleAlert(acc.installmentRemainder);
-                                    return (
-                                      <div className="flex flex-col items-end gap-1">
-                                        <span className="font-mono font-bold text-white bg-gold/10 px-2.5 py-1 rounded border border-gold/10">
-                                          ₹{acc.sipAmount.toLocaleString('en-IN')}
-                                        </span>
-                                        {alert ? (
-                                          <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
-                                            alert.type === 'today' 
-                                              ? 'bg-red-500/10 border-red-500/25 text-red-400' 
-                                              : alert.type === 'tomorrow'
-                                                ? 'bg-amber-400/10 border-amber-400/25 text-amber-300'
-                                                : alert.type === 'past_due'
-                                                  ? 'bg-stone-500/10 border-stone-800 text-stone-400'
-                                                  : 'bg-gold/15 border-gold/30 text-gold shadow-lg shadow-gold/5'
-                                          }`} title={`Systematic Investment Plan Scheduled state: ${acc.installmentRemainder}`}>
-                                            <span className={`w-1.5 h-1.5 rounded-full ${
-                                              alert.type === 'today' 
-                                                ? 'bg-red-400 animate-pulse' 
-                                                : alert.type === 'tomorrow'
-                                                  ? 'bg-amber-300 animate-pulse'
-                                                  : alert.type === 'past_due'
-                                                    ? 'bg-stone-500'
-                                                    : 'bg-gold animate-pulse'
-                                            }`} />
-                                            {alert.type === 'today' && "Due Today"}
-                                            {alert.type === 'tomorrow' && "Due Tomorrow"}
-                                            {alert.type === 'upcoming' && `Due ${alert.relativeLabel}`}
-                                            {alert.type === 'past_due' && `Due Week (${alert.relativeLabel})`}
-                                          </span>
-                                        ) : (
-                                          acc.installmentRemainder && (
-                                            <span className="text-[9px] text-stone-500 font-medium font-mono">
-                                              📅 {acc.installmentRemainder.split(' ')[0]} of Month
-                                            </span>
-                                          )
-                                        )}
-                                      </div>
-                                    );
-                                  })()
-                                ) : (
-                                  <span className="text-stone-600 font-medium">—</span>
-                                )}
-                              </td>
-                              <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                                {acc.lumpsum ? (
-                                  <div className="inline-block">
-                                    <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-1 rounded text-[10px] font-mono font-bold">
-                                      ₹{acc.lumpsum.toLocaleString('en-IN')} Lumpsum
-                                    </span>
-                                  </div>
-                                ) : acc.hasInvestment === 'Yes' || acc.hasInvestment === 'YES' ? (
-                                  <span className="text-emerald-400 font-medium bg-emerald-500/5 px-2 py-1 rounded text-[10px] border border-emerald-500/10 uppercase">Active Inv</span>
-                                ) : acc.hasInvestment === 'No' ? (
-                                  <span className="text-stone-500 font-medium bg-stone-900 px-2 py-1 rounded text-[10px] border border-white/5 uppercase">No Inv</span>
-                                ) : (
-                                  <span className="text-stone-600 font-medium">—</span>
-                                )}
-                              </td>
-                              <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                                <span className="bg-emerald-400/10 border border-emerald-400/20 text-emerald-400 px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-widest">
-                                  {acc.accountActivated}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-
-                          {filteredClients.length === 0 && (
-                            <tr>
-                              <td colSpan={9} className="py-12 text-center text-stone-500 font-medium">
-                                <Users size={28} className="mx-auto text-gold/30 mb-2" />
-                                No client accounts matched your criteria.
-                              </td>
-                            </tr>
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
+                  <div className="border border-gold/10 rounded-2xl p-12 text-center text-muted-foreground flex flex-col items-center justify-center bg-[#0a0c10]/30">
+                    <Users size={32} className="text-gold/30 mb-3" />
+                    <span className="text-sm font-semibold mb-1">No active client portfolios</span>
                   </div>
                 </motion.div>
               )}
-
-              {activeTab === 'analytics' && (
-                <motion.div
-                  key="tab-analytics"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-6"
-                >
-                  <PowerBIDashboard clientAccounts={clientAccounts} />
-                </motion.div>
-              )}
-
 
             </AnimatePresence>
           </motion.div>
