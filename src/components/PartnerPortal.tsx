@@ -347,6 +347,7 @@ export const PartnerPortal: React.FC = () => {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState<'overview' | 'clients'>('overview');
+  const [activeCrmSheet, setActiveCrmSheet] = useState<'crm' | 'nj'>('crm');
   const [clientSearch, setClientSearch] = useState('');
   const [clientInvestmentFilter, setClientInvestmentFilter] = useState<'All' | 'Active' | 'Lumpsum' | 'SIP' | 'None'>('All');
   const [showSipDueModal, setShowSipDueModal] = useState(false);
@@ -1003,7 +1004,7 @@ export const PartnerPortal: React.FC = () => {
             <div className="flex border-b border-gold/5 overflow-x-auto gap-1 mb-8 pb-px">
               {[
                 { id: 'overview', label: 'Overview Metrics', icon: <TrendingUp size={14} /> },
-                { id: 'clients', label: 'Active Client Portfolios', icon: <Users size={14} /> },
+                { id: 'clients', label: 'Client Data', icon: <Users size={14} /> },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -1209,9 +1210,194 @@ export const PartnerPortal: React.FC = () => {
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  <div className="border border-gold/10 rounded-2xl p-12 text-center text-muted-foreground flex flex-col items-center justify-center bg-[#0a0c10]/30">
-                    <Users size={32} className="text-gold/30 mb-3" />
-                    <span className="text-sm font-semibold mb-1">No active client portfolios</span>
+                  {/* TOP BANNER */}
+                  <div className="border border-gold/20 glass rounded-3xl p-6 bg-gradient-to-r from-bg-dark-3/20 to-gold/5 shadow-xl">
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                      <div className="max-w-2xl">
+                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-gold bg-gold/10 px-2.5 py-1 rounded border border-gold/15 mb-2.5 inline-block">
+                          Connected Google Sheets Hub
+                        </span>
+                        <h4 className="font-serif text-xl font-bold text-white">Customer Relationship Manager (CRM) & Client Data</h4>
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          Directly manage leads, track customer relationships, and access official NJ Wealth client portfolios via synchronized live Google Sheets pipelines.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3 shrink-0">
+                        <a
+                          href="https://docs.google.com/spreadsheets/d/1fjN_jGxTV-kh1CWjsKYUCeQoR5HrdtQB7FaXidVc5x4/edit?usp=sharing"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gold text-bg-dark hover:bg-gold-light px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-gold/5 transition-all cursor-pointer"
+                        >
+                          <ExternalLink size={14} />
+                          Open CRM Sheet
+                        </a>
+                        <a
+                          href="https://docs.google.com/spreadsheets/d/1Jdz00vZWoN_-lLilUw7uHxJzkq-q-mxCof0TuWEBUnw/edit?usp=sharing"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-[#0b0e14] hover:bg-white/5 border border-gold/20 text-gold hover:text-gold-light px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer"
+                        >
+                          <ExternalLink size={14} />
+                          Open NJ Client Data Sheet
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CARDS GRID */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* CRM CARD */}
+                    <div className={`border rounded-2xl p-6 transition-all flex flex-col justify-between ${
+                      activeCrmSheet === 'crm' 
+                        ? 'border-gold/40 bg-gold/5 shadow-xl shadow-gold/5' 
+                        : 'border-gold/10 bg-bg-dark-3/40 hover:border-gold/25'
+                    }`}>
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-[9px] font-extrabold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                            Active CRM Pipeline
+                          </span>
+                          <FileSpreadsheet size={18} className="text-gold" />
+                        </div>
+                        <h5 className="font-serif text-lg font-bold text-white mb-2">Customer Relationship Manager (CRM)</h5>
+                        <p className="text-xs text-muted-foreground leading-relaxed mb-6">
+                          Track customer leads, sales pipelines, client follow-up reminders, interaction histories, and onboard status in real-time.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gold/10">
+                        <button
+                          onClick={() => setActiveCrmSheet('crm')}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
+                            activeCrmSheet === 'crm'
+                              ? 'bg-gold text-bg-dark font-extrabold shadow-md'
+                              : 'bg-gold/10 text-gold hover:bg-gold/20'
+                          }`}
+                        >
+                          <FileSpreadsheet size={13} />
+                          {activeCrmSheet === 'crm' ? 'Viewing Preview Below' : 'Preview CRM Sheet'}
+                        </button>
+
+                        <a
+                          href="https://docs.google.com/spreadsheets/d/1fjN_jGxTV-kh1CWjsKYUCeQoR5HrdtQB7FaXidVc5x4/edit?usp=sharing"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold text-stone-300 hover:text-white flex items-center gap-1 ml-auto transition-colors"
+                        >
+                          Open External <ExternalLink size={12} />
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* NJ CLIENT DATA CARD */}
+                    <div className={`border rounded-2xl p-6 transition-all flex flex-col justify-between ${
+                      activeCrmSheet === 'nj' 
+                        ? 'border-gold/40 bg-gold/5 shadow-xl shadow-gold/5' 
+                        : 'border-gold/10 bg-bg-dark-3/40 hover:border-gold/25'
+                    }`}>
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-[9px] font-extrabold uppercase tracking-widest text-blue-400 bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded">
+                            NJ Wealth Ledger
+                          </span>
+                          <Users size={18} className="text-gold" />
+                        </div>
+                        <h5 className="font-serif text-lg font-bold text-white mb-2">NJ Client Data</h5>
+                        <p className="text-xs text-muted-foreground leading-relaxed mb-6">
+                          Official NJ Wealth distributor database of client accounts, UCC codes, portfolio assets, SIP mandates, and contact records.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-gold/10">
+                        <button
+                          onClick={() => setActiveCrmSheet('nj')}
+                          className={`px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all cursor-pointer ${
+                            activeCrmSheet === 'nj'
+                              ? 'bg-gold text-bg-dark font-extrabold shadow-md'
+                              : 'bg-gold/10 text-gold hover:bg-gold/20'
+                          }`}
+                        >
+                          <FileSpreadsheet size={13} />
+                          {activeCrmSheet === 'nj' ? 'Viewing Preview Below' : 'Preview NJ Sheet'}
+                        </button>
+
+                        <a
+                          href="https://docs.google.com/spreadsheets/d/1Jdz00vZWoN_-lLilUw7uHxJzkq-q-mxCof0TuWEBUnw/edit?usp=sharing"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs font-bold text-stone-300 hover:text-white flex items-center gap-1 ml-auto transition-colors"
+                        >
+                          Open External <ExternalLink size={12} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* LIVE SPREADSHEET EMBEDDED WORKSPACE */}
+                  <div className="border border-gold/15 rounded-3xl bg-[#080a0f] overflow-hidden shadow-2xl space-y-0">
+                    {/* WORKSPACE HEADER BAR */}
+                    <div className="bg-[#0b0e14] p-4 border-b border-gold/10 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                      {/* TAB SWITCHER */}
+                      <div className="flex items-center gap-2 bg-[#040609] p-1.5 rounded-2xl border border-gold/10">
+                        <button
+                          onClick={() => setActiveCrmSheet('crm')}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                            activeCrmSheet === 'crm'
+                              ? 'bg-gold text-bg-dark font-extrabold shadow-md'
+                              : 'text-stone-400 hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          <FileSpreadsheet size={14} />
+                          CRM Sheet
+                        </button>
+
+                        <button
+                          onClick={() => setActiveCrmSheet('nj')}
+                          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold tracking-wider uppercase transition-all cursor-pointer ${
+                            activeCrmSheet === 'nj'
+                              ? 'bg-gold text-bg-dark font-extrabold shadow-md'
+                              : 'text-stone-400 hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          <Users size={14} />
+                          NJ Client Data Sheet
+                        </button>
+                      </div>
+
+                      {/* ACTIONS */}
+                      <div className="flex items-center gap-3 justify-end">
+                        <a
+                          href={
+                            activeCrmSheet === 'crm'
+                              ? 'https://docs.google.com/spreadsheets/d/1fjN_jGxTV-kh1CWjsKYUCeQoR5HrdtQB7FaXidVc5x4/edit?usp=sharing'
+                              : 'https://docs.google.com/spreadsheets/d/1Jdz00vZWoN_-lLilUw7uHxJzkq-q-mxCof0TuWEBUnw/edit?usp=sharing'
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-gold/10 hover:bg-gold/20 border border-gold/20 text-gold px-3.5 py-1.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                        >
+                          <ExternalLink size={13} />
+                          Open Full Google Sheet
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* IFRAME CONTAINER */}
+                    <div className="w-full bg-[#0a0c10] relative min-h-[620px]">
+                      <iframe
+                        key={activeCrmSheet}
+                        src={
+                          activeCrmSheet === 'crm'
+                            ? 'https://docs.google.com/spreadsheets/d/1fjN_jGxTV-kh1CWjsKYUCeQoR5HrdtQB7FaXidVc5x4/htmlview?widget=true&headers=false'
+                            : 'https://docs.google.com/spreadsheets/d/1Jdz00vZWoN_-lLilUw7uHxJzkq-q-mxCof0TuWEBUnw/htmlview?widget=true&headers=false'
+                        }
+                        className="w-full h-[650px] border-none"
+                        title={activeCrmSheet === 'crm' ? 'CRM Google Sheet' : 'NJ Client Data Google Sheet'}
+                        allowFullScreen
+                      />
+                    </div>
                   </div>
                 </motion.div>
               )}
