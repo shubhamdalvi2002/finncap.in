@@ -72,6 +72,84 @@ interface ClientAccount {
   sipAmount?: number;
 }
 
+export interface InsurancePolicy {
+  id: string;
+  policyNo: string;
+  clientName: string;
+  insurer: string;
+  type: 'Life & Term' | 'Health & Mediclaim' | 'Motor & Vehicle' | 'General Insurance';
+  sumAssured: number;
+  premiumAmount: number;
+  dueDate: string;
+  status: 'Active' | 'Renewal Due' | 'In Process' | 'Claim Pending';
+  mobile?: string;
+  email?: string;
+}
+
+const defaultInsurancePolicies: InsurancePolicy[] = [
+  {
+    id: 'pol-1',
+    policyNo: 'POL-HDFC-99281',
+    clientName: 'Dalvi Shubham Vilas',
+    insurer: 'HDFC ERGO General Insurance',
+    type: 'Health & Mediclaim',
+    sumAssured: 1000000,
+    premiumAmount: 18500,
+    dueDate: '2026-09-15',
+    status: 'Active',
+    mobile: '7218918236',
+    email: 'shubhamdalvi7218@gmail.com'
+  },
+  {
+    id: 'pol-2',
+    policyNo: 'POL-LIC-44812',
+    clientName: 'Dalvi Pushpa Vilas',
+    insurer: 'LIC of India',
+    type: 'Life & Term',
+    sumAssured: 5000000,
+    premiumAmount: 42000,
+    dueDate: '2026-08-20',
+    status: 'Renewal Due',
+    mobile: '7507098005'
+  },
+  {
+    id: 'pol-3',
+    policyNo: 'POL-STAR-31209',
+    clientName: 'Mohite Yash Raju',
+    insurer: 'Star Health & Allied Insurance',
+    type: 'Health & Mediclaim',
+    sumAssured: 500000,
+    premiumAmount: 12400,
+    dueDate: '2026-11-05',
+    status: 'Active',
+    mobile: '8308809965'
+  },
+  {
+    id: 'pol-4',
+    policyNo: 'POL-TATA-77381',
+    clientName: 'Jagdale Shubham Sachin',
+    insurer: 'Tata AIG General Insurance',
+    type: 'Motor & Vehicle',
+    sumAssured: 850000,
+    premiumAmount: 14200,
+    dueDate: '2026-08-12',
+    status: 'Renewal Due',
+    mobile: '7620662582'
+  },
+  {
+    id: 'pol-5',
+    policyNo: 'POL-MAX-10293',
+    clientName: 'Dalvi Vilas Ashok',
+    insurer: 'Max Life Insurance',
+    type: 'Life & Term',
+    sumAssured: 10000000,
+    premiumAmount: 68000,
+    dueDate: '2026-12-01',
+    status: 'Active',
+    mobile: '9890975081'
+  }
+];
+
 const clientAccountsData: ClientAccount[] = [];
 
 // Helper to generate CSV string from active clients list
@@ -346,12 +424,50 @@ export const PartnerPortal: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [activeTab, setActiveTab] = useState<'overview' | 'clients'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'clients' | 'insurance'>('overview');
   const [activeCrmSheet, setActiveCrmSheet] = useState<'crm' | 'nj'>('crm');
   const [clientSearch, setClientSearch] = useState('');
   const [clientInvestmentFilter, setClientInvestmentFilter] = useState<'All' | 'Active' | 'Lumpsum' | 'SIP' | 'None'>('All');
   const [showSipDueModal, setShowSipDueModal] = useState(false);
   const [dueSipClients, setDueSipClients] = useState<ClientAccount[]>([]);
+
+  // Insurance State & Persistence
+  const [insurancePolicies, setInsurancePolicies] = useState<InsurancePolicy[]>(() => {
+    const saved = localStorage.getItem('finaura_insurance_policies');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return defaultInsurancePolicies;
+      }
+    }
+    return defaultInsurancePolicies;
+  });
+
+  useEffect(() => {
+    localStorage.setItem('finaura_insurance_policies', JSON.stringify(insurancePolicies));
+  }, [insurancePolicies]);
+
+  const [insuranceCategoryFilter, setInsuranceCategoryFilter] = useState<'All' | 'Life & Term' | 'Health & Mediclaim' | 'Motor & Vehicle' | 'General Insurance'>('All');
+  const [insuranceSearch, setInsuranceSearch] = useState('');
+  const [isAddPolicyModalOpen, setIsAddPolicyModalOpen] = useState(false);
+  const [newPolicyData, setNewPolicyData] = useState({
+    clientName: '',
+    policyNo: '',
+    insurer: 'HDFC ERGO General Insurance',
+    type: 'Health & Mediclaim' as InsurancePolicy['type'],
+    sumAssured: 1000000,
+    premiumAmount: 18000,
+    dueDate: '',
+    mobile: '',
+    email: ''
+  });
+
+  // Human Life Value (HLV) Need Calculator state
+  const [hlvAge, setHlvAge] = useState<number>(32);
+  const [hlvIncome, setHlvIncome] = useState<number>(1200000);
+  const [hlvLiabilities, setHlvLiabilities] = useState<number>(1500000);
+  const [hlvExistingCover, setHlvExistingCover] = useState<number>(5000000);
   
   // Workspace Custom Links
   const [links, setLinks] = useState<WorkspaceLink[]>([]);
@@ -1005,6 +1121,7 @@ export const PartnerPortal: React.FC = () => {
               {[
                 { id: 'overview', label: 'Overview Metrics', icon: <TrendingUp size={14} /> },
                 { id: 'clients', label: 'Client Data', icon: <Users size={14} /> },
+                { id: 'insurance', label: 'Insurance Advisory & Policies', icon: <Shield size={14} /> },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -1402,8 +1519,550 @@ export const PartnerPortal: React.FC = () => {
                 </motion.div>
               )}
 
+              {/* TAB 3: INSURANCE ADVISORY & POLICIES */}
+              {activeTab === 'insurance' && (
+                <motion.div
+                  key="tab-insurance"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-8"
+                >
+                  {/* TOP BANNER */}
+                  <div className="border border-gold/20 glass rounded-3xl p-6 md:p-8 bg-gradient-to-r from-bg-dark-3/30 via-[#0a0d14] to-gold/5 shadow-xl relative overflow-hidden">
+                    <div className="absolute -top-12 -right-12 w-64 h-64 bg-gold/5 rounded-full filter blur-3xl pointer-events-none" />
+                    
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
+                      <div className="max-w-2xl">
+                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-gold bg-gold/10 px-2.5 py-1 rounded border border-gold/15 mb-3 inline-flex items-center gap-1.5">
+                          <Shield size={12} className="text-gold" /> Risk & Insurance Management
+                        </span>
+                        <h4 className="font-serif text-2xl font-bold text-white">Insurance Advisory & Policy Management</h4>
+                        <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed">
+                          Centralized tracking for client insurance coverage across Term Life, Health & Mediclaim, Motor & Vehicle, and Commercial Risk policies.
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-3 shrink-0">
+                        <button
+                          onClick={() => setIsAddPolicyModalOpen(true)}
+                          className="bg-gold text-bg-dark hover:bg-gold-light px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-gold/5 transition-all cursor-pointer"
+                        >
+                          <Plus size={15} />
+                          Add Policy Record
+                        </button>
+                        <a
+                          href="https://pdesk.njwealth.in/pdesk/login"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="bg-[#0b0e14] hover:bg-white/5 border border-gold/20 text-gold hover:text-gold-light px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 transition-all cursor-pointer"
+                        >
+                          <ExternalLink size={14} />
+                          NJ Insurance Desk
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* KEY METRICS OVERVIEW */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="bg-[#0a0c10]/60 border border-gold/15 rounded-2xl p-5 relative overflow-hidden">
+                      <div className="flex items-center justify-between text-stone-400 text-xs font-bold uppercase tracking-wider mb-2">
+                        <span>Total Sum Assured</span>
+                        <Shield className="text-gold" size={16} />
+                      </div>
+                      <div className="text-xl font-black text-white font-mono">
+                        ₹{insurancePolicies.reduce((acc, p) => acc + p.sumAssured, 0).toLocaleString('en-IN')}
+                      </div>
+                      <div className="text-[10px] text-stone-500 mt-1 font-medium">Total Insurance Risk Protection</div>
+                    </div>
+
+                    <div className="bg-[#0a0c10]/60 border border-gold/15 rounded-2xl p-5 relative overflow-hidden">
+                      <div className="flex items-center justify-between text-stone-400 text-xs font-bold uppercase tracking-wider mb-2">
+                        <span>Annual Premiums</span>
+                        <Award className="text-emerald-400" size={16} />
+                      </div>
+                      <div className="text-xl font-black text-emerald-400 font-mono">
+                        ₹{insurancePolicies.reduce((acc, p) => acc + p.premiumAmount, 0).toLocaleString('en-IN')}
+                      </div>
+                      <div className="text-[10px] text-stone-500 mt-1 font-medium">Total Annual Premium Collection</div>
+                    </div>
+
+                    <div className="bg-[#0a0c10]/60 border border-gold/15 rounded-2xl p-5 relative overflow-hidden">
+                      <div className="flex items-center justify-between text-stone-400 text-xs font-bold uppercase tracking-wider mb-2">
+                        <span>Active Policies</span>
+                        <CheckCircle className="text-blue-400" size={16} />
+                      </div>
+                      <div className="text-xl font-black text-white font-mono">
+                        {insurancePolicies.filter(p => p.status === 'Active').length} <span className="text-xs font-normal text-stone-400">/ {insurancePolicies.length} Total</span>
+                      </div>
+                      <div className="text-[10px] text-stone-500 mt-1 font-medium">In-force Policy Records</div>
+                    </div>
+
+                    <div className="bg-[#0a0c10]/60 border border-gold/15 rounded-2xl p-5 relative overflow-hidden">
+                      <div className="flex items-center justify-between text-stone-400 text-xs font-bold uppercase tracking-wider mb-2">
+                        <span>Renewals Due</span>
+                        <Clock className="text-amber-400" size={16} />
+                      </div>
+                      <div className="text-xl font-black text-amber-400 font-mono">
+                        {insurancePolicies.filter(p => p.status === 'Renewal Due').length}
+                      </div>
+                      <div className="text-[10px] text-stone-500 mt-1 font-medium">Upcoming Renewal Reminders</div>
+                    </div>
+                  </div>
+
+                  {/* INSURANCE CATEGORY OVERVIEW CARDS */}
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    {[
+                      {
+                        type: 'Life & Term',
+                        title: 'Life & Term Insurance',
+                        desc: 'Financial protection u/s 80C & 10(10D) for family breadwinners.',
+                        icon: <Shield size={18} className="text-gold" />,
+                        count: insurancePolicies.filter(p => p.type === 'Life & Term').length
+                      },
+                      {
+                        type: 'Health & Mediclaim',
+                        title: 'Health & Mediclaim',
+                        desc: 'Cashless medical hospitalization, floater & critical illness plans u/s 80D.',
+                        icon: <Award size={18} className="text-emerald-400" />,
+                        count: insurancePolicies.filter(p => p.type === 'Health & Mediclaim').length
+                      },
+                      {
+                        type: 'Motor & Vehicle',
+                        title: 'Motor & Vehicle',
+                        desc: 'Comprehensive & zero depreciation cover for private & commercial vehicles.',
+                        icon: <Briefcase size={18} className="text-blue-400" />,
+                        count: insurancePolicies.filter(p => p.type === 'Motor & Vehicle').length
+                      },
+                      {
+                        type: 'General Insurance',
+                        title: 'General & Property',
+                        desc: 'Fire, marine, transit, and business liability risk coverage.',
+                        icon: <Briefcase size={18} className="text-purple-400" />,
+                        count: insurancePolicies.filter(p => p.type === 'General Insurance').length
+                      }
+                    ].map(cat => (
+                      <div
+                        key={cat.type}
+                        onClick={() => setInsuranceCategoryFilter(cat.type as any)}
+                        className={`p-4 rounded-2xl border transition-all cursor-pointer ${
+                          insuranceCategoryFilter === cat.type
+                            ? 'border-gold bg-gold/10 shadow-lg shadow-gold/5'
+                            : 'border-gold/10 bg-[#0a0c10]/40 hover:border-gold/20'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="p-2 rounded-xl bg-black/40">{cat.icon}</div>
+                          <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-white/5 text-stone-300">
+                            {cat.count} Policies
+                          </span>
+                        </div>
+                        <h5 className="font-serif text-sm font-bold text-white">{cat.title}</h5>
+                        <p className="text-[11px] text-stone-400 mt-1 leading-snug">{cat.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* INSURANCE POLICY SEARCH & LEDGER */}
+                  <div className="bg-[#0a0c10]/40 border border-gold/15 rounded-3xl p-6 space-y-5">
+                    <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4">
+                      <div>
+                        <h4 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                          <Shield size={18} className="text-gold" />
+                          Client Policy Register
+                        </h4>
+                        <p className="text-xs text-stone-400">Filter policies by category, status, or investor name.</p>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-center gap-3">
+                        <div className="relative w-full sm:w-64">
+                          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gold" />
+                          <input
+                            type="text"
+                            value={insuranceSearch}
+                            onChange={e => setInsuranceSearch(e.target.value)}
+                            placeholder="Search client, policy no, insurer..."
+                            className="w-full bg-[#06080b] border border-gold/20 rounded-xl py-2 pl-9 pr-3 text-xs text-stone-200 outline-none focus:border-gold"
+                          />
+                        </div>
+
+                        <select
+                          value={insuranceCategoryFilter}
+                          onChange={e => setInsuranceCategoryFilter(e.target.value as any)}
+                          className="bg-[#06080b] border border-gold/20 rounded-xl py-2 px-3 text-xs text-stone-200 outline-none focus:border-gold cursor-pointer"
+                        >
+                          <option value="All">All Categories ({insurancePolicies.length})</option>
+                          <option value="Life & Term">Life & Term ({insurancePolicies.filter(p => p.type === 'Life & Term').length})</option>
+                          <option value="Health & Mediclaim">Health & Mediclaim ({insurancePolicies.filter(p => p.type === 'Health & Mediclaim').length})</option>
+                          <option value="Motor & Vehicle">Motor & Vehicle ({insurancePolicies.filter(p => p.type === 'Motor & Vehicle').length})</option>
+                          <option value="General Insurance">General Insurance ({insurancePolicies.filter(p => p.type === 'General Insurance').length})</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* POLICY LEDGER TABLE */}
+                    <div className="overflow-x-auto rounded-2xl border border-gold/10 bg-[#06080b]">
+                      <table className="w-full text-left border-collapse text-xs">
+                        <thead>
+                          <tr className="bg-[#0b0e14] border-b border-gold/10 text-[10px] font-extrabold uppercase tracking-widest text-stone-400">
+                            <th className="py-3 px-4">Policy No</th>
+                            <th className="py-3 px-4">Client Name</th>
+                            <th className="py-3 px-4">Insurer & Type</th>
+                            <th className="py-3 px-4 text-right">Sum Assured</th>
+                            <th className="py-3 px-4 text-right">Annual Premium</th>
+                            <th className="py-3 px-4 text-center">Due Date</th>
+                            <th className="py-3 px-4 text-center">Status</th>
+                            <th className="py-3 px-4 text-center">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gold/5">
+                          {insurancePolicies
+                            .filter(p => {
+                              const matchesCat = insuranceCategoryFilter === 'All' || p.type === insuranceCategoryFilter;
+                              const query = insuranceSearch.toLowerCase();
+                              const matchesQuery = !query || 
+                                p.clientName.toLowerCase().includes(query) ||
+                                p.policyNo.toLowerCase().includes(query) ||
+                                p.insurer.toLowerCase().includes(query);
+                              return matchesCat && matchesQuery;
+                            })
+                            .map(policy => (
+                              <tr key={policy.id} className="hover:bg-gold/5 transition-colors">
+                                <td className="py-3.5 px-4 font-mono font-bold text-gold">{policy.policyNo}</td>
+                                <td className="py-3.5 px-4">
+                                  <div className="font-serif font-bold text-white">{policy.clientName}</div>
+                                  {policy.mobile && <div className="text-[10px] text-stone-400">📞 {policy.mobile}</div>}
+                                </td>
+                                <td className="py-3.5 px-4">
+                                  <div className="text-stone-200 font-semibold">{policy.insurer}</div>
+                                  <span className="text-[9px] font-bold text-stone-400 uppercase tracking-wider">{policy.type}</span>
+                                </td>
+                                <td className="py-3.5 px-4 text-right font-mono font-bold text-white">
+                                  ₹{policy.sumAssured.toLocaleString('en-IN')}
+                                </td>
+                                <td className="py-3.5 px-4 text-right font-mono font-bold text-emerald-400">
+                                  ₹{policy.premiumAmount.toLocaleString('en-IN')}
+                                </td>
+                                <td className="py-3.5 px-4 text-center font-mono text-stone-300">
+                                  {policy.dueDate || '—'}
+                                </td>
+                                <td className="py-3.5 px-4 text-center">
+                                  <span className={`px-2.5 py-1 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
+                                    policy.status === 'Active' 
+                                      ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                                      : policy.status === 'Renewal Due'
+                                        ? 'bg-amber-400/10 border-amber-400/20 text-amber-300'
+                                        : 'bg-blue-500/10 border-blue-500/20 text-blue-400'
+                                  }`}>
+                                    {policy.status}
+                                  </span>
+                                </td>
+                                <td className="py-3.5 px-4 text-center">
+                                  <button
+                                    onClick={() => {
+                                      setInsurancePolicies(prev => prev.filter(p => p.id !== policy.id));
+                                    }}
+                                    className="p-1.5 hover:bg-red-500/10 text-stone-500 hover:text-red-400 rounded-lg transition-colors cursor-pointer"
+                                    title="Delete policy record"
+                                  >
+                                    <Trash2 size={14} />
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+
+                          {insurancePolicies.length === 0 && (
+                            <tr>
+                              <td colSpan={8} className="py-8 text-center text-stone-500 text-xs">
+                                No policy records found. Click "Add Policy Record" to log a client insurance policy.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* HUMAN LIFE VALUE (HLV) & NEED CALCULATOR WIDGET */}
+                  <div className="border border-gold/15 rounded-3xl bg-gradient-to-br from-[#0a0c10] to-[#0d1017] p-6 md:p-8 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-[9px] font-extrabold uppercase tracking-widest text-gold bg-gold/10 px-2 py-0.5 rounded border border-gold/15">
+                          Insurance Advisory Tool
+                        </span>
+                        <h4 className="font-serif text-xl font-bold text-white mt-1">Human Life Value (HLV) & Term Need Estimator</h4>
+                        <p className="text-xs text-stone-400">Calculate recommended term life insurance coverage based on client income, age, and liabilities.</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                      {/* INPUT CONTROLS */}
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs text-stone-300 font-semibold mb-1 block">Current Age ({hlvAge} years)</label>
+                          <input
+                            type="range"
+                            min={18}
+                            max={65}
+                            value={hlvAge}
+                            onChange={e => setHlvAge(Number(e.target.value))}
+                            className="w-full accent-gold bg-stone-800 h-2 rounded-lg cursor-pointer"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-stone-300 font-semibold mb-1 block">Annual Gross Income (₹)</label>
+                          <input
+                            type="number"
+                            step={100000}
+                            value={hlvIncome}
+                            onChange={e => setHlvIncome(Number(e.target.value))}
+                            className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-xs text-white outline-none focus:border-gold font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-stone-300 font-semibold mb-1 block">Existing Liabilities & Outstanding Loans (₹)</label>
+                          <input
+                            type="number"
+                            step={100000}
+                            value={hlvLiabilities}
+                            onChange={e => setHlvLiabilities(Number(e.target.value))}
+                            className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-xs text-white outline-none focus:border-gold font-mono"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-stone-300 font-semibold mb-1 block">Current Term Life Insurance Cover (₹)</label>
+                          <input
+                            type="number"
+                            step={500000}
+                            value={hlvExistingCover}
+                            onChange={e => setHlvExistingCover(Number(e.target.value))}
+                            className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-xs text-white outline-none focus:border-gold font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      {/* CALCULATED OUTPUT CARD */}
+                      <div className="bg-[#040609] border border-gold/20 rounded-2xl p-6 text-center space-y-5">
+                        <span className="text-[10px] uppercase font-bold text-stone-400 tracking-wider">Recommended Term Life Protection</span>
+                        
+                        {(() => {
+                          const recommended = hlvIncome * 12 + hlvLiabilities;
+                          const gap = Math.max(0, recommended - hlvExistingCover);
+                          return (
+                            <>
+                              <div className="text-3xl md:text-4xl font-black text-gold font-mono">
+                                ₹{recommended.toLocaleString('en-IN')}
+                              </div>
+
+                              <div className="p-4 bg-gold/5 border border-gold/10 rounded-xl text-xs space-y-2">
+                                <div className="flex justify-between text-stone-300">
+                                  <span>Existing Term Cover:</span>
+                                  <span className="font-mono font-bold text-white">₹{hlvExistingCover.toLocaleString('en-IN')}</span>
+                                </div>
+                                <div className="flex justify-between text-stone-300">
+                                  <span>Insurance Protection Gap:</span>
+                                  <span className="font-mono font-bold text-red-400">₹{gap.toLocaleString('en-IN')}</span>
+                                </div>
+                              </div>
+
+                              <div className="text-xs text-stone-400">
+                                {gap > 0 ? (
+                                  <span className="text-amber-300 font-semibold">⚠️ Additional term life insurance cover of ₹{gap.toLocaleString('en-IN')} is recommended to secure family liabilities.</span>
+                                ) : (
+                                  <span className="text-emerald-400 font-semibold">✅ Existing term coverage adequately meets calculated Human Life Value!</span>
+                                )}
+                              </div>
+                            </>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
             </AnimatePresence>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ADD INSURANCE POLICY MODAL */}
+      <AnimatePresence>
+        {isAddPolicyModalOpen && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 0.7 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsAddPolicyModalOpen(false)}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm cursor-pointer"
+            />
+
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-lg bg-[#0a0d14] border border-gold/20 rounded-2xl p-6 md:p-8 z-10 text-white space-y-5"
+            >
+              <div className="flex justify-between items-center border-b border-gold/10 pb-4">
+                <h3 className="font-serif text-lg font-bold flex items-center gap-2">
+                  <Shield size={18} className="text-gold" /> Add New Insurance Policy
+                </h3>
+                <button
+                  onClick={() => setIsAddPolicyModalOpen(false)}
+                  className="text-stone-500 hover:text-white transition-colors"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="space-y-4 text-xs">
+                <div>
+                  <label className="text-stone-300 font-semibold mb-1 block">Client Full Name *</label>
+                  <input
+                    type="text"
+                    value={newPolicyData.clientName}
+                    onChange={e => setNewPolicyData({ ...newPolicyData, clientName: e.target.value })}
+                    placeholder="e.g. Rahul Sharma"
+                    className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-white outline-none focus:border-gold"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-stone-300 font-semibold mb-1 block">Policy Number *</label>
+                    <input
+                      type="text"
+                      value={newPolicyData.policyNo}
+                      onChange={e => setNewPolicyData({ ...newPolicyData, policyNo: e.target.value })}
+                      placeholder="e.g. POL-HDFC-10293"
+                      className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-white outline-none focus:border-gold font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-stone-300 font-semibold mb-1 block">Category *</label>
+                    <select
+                      value={newPolicyData.type}
+                      onChange={e => setNewPolicyData({ ...newPolicyData, type: e.target.value as any })}
+                      className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-white outline-none focus:border-gold cursor-pointer"
+                    >
+                      <option value="Health & Mediclaim">Health & Mediclaim</option>
+                      <option value="Life & Term">Life & Term</option>
+                      <option value="Motor & Vehicle">Motor & Vehicle</option>
+                      <option value="General Insurance">General Insurance</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-stone-300 font-semibold mb-1 block">Insurance Company / Insurer *</label>
+                  <input
+                    type="text"
+                    value={newPolicyData.insurer}
+                    onChange={e => setNewPolicyData({ ...newPolicyData, insurer: e.target.value })}
+                    placeholder="e.g. Star Health / HDFC ERGO / LIC"
+                    className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-white outline-none focus:border-gold"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-stone-300 font-semibold mb-1 block">Sum Assured (₹) *</label>
+                    <input
+                      type="number"
+                      value={newPolicyData.sumAssured}
+                      onChange={e => setNewPolicyData({ ...newPolicyData, sumAssured: Number(e.target.value) })}
+                      className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-white outline-none focus:border-gold font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-stone-300 font-semibold mb-1 block">Annual Premium (₹) *</label>
+                    <input
+                      type="number"
+                      value={newPolicyData.premiumAmount}
+                      onChange={e => setNewPolicyData({ ...newPolicyData, premiumAmount: Number(e.target.value) })}
+                      className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-white outline-none focus:border-gold font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-stone-300 font-semibold mb-1 block">Renewal Due Date</label>
+                    <input
+                      type="date"
+                      value={newPolicyData.dueDate}
+                      onChange={e => setNewPolicyData({ ...newPolicyData, dueDate: e.target.value })}
+                      className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-white outline-none focus:border-gold font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-stone-300 font-semibold mb-1 block">Client Mobile</label>
+                    <input
+                      type="text"
+                      value={newPolicyData.mobile}
+                      onChange={e => setNewPolicyData({ ...newPolicyData, mobile: e.target.value })}
+                      placeholder="+91 9XXXX XXXXX"
+                      className="w-full bg-[#06080b] border border-gold/20 rounded-xl p-3 text-white outline-none focus:border-gold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setIsAddPolicyModalOpen(false)}
+                  className="flex-1 bg-stone-900 border border-stone-800 hover:bg-stone-800 text-stone-300 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!newPolicyData.clientName || !newPolicyData.policyNo) return;
+                    const newRecord: InsurancePolicy = {
+                      id: `pol-${Date.now()}`,
+                      policyNo: newPolicyData.policyNo,
+                      clientName: newPolicyData.clientName,
+                      insurer: newPolicyData.insurer,
+                      type: newPolicyData.type,
+                      sumAssured: newPolicyData.sumAssured,
+                      premiumAmount: newPolicyData.premiumAmount,
+                      dueDate: newPolicyData.dueDate || new Date().toISOString().split('T')[0],
+                      status: 'Active',
+                      mobile: newPolicyData.mobile,
+                      email: newPolicyData.email
+                    };
+                    setInsurancePolicies(prev => [newRecord, ...prev]);
+                    setIsAddPolicyModalOpen(false);
+                    setNewPolicyData({
+                      clientName: '',
+                      policyNo: '',
+                      insurer: 'HDFC ERGO General Insurance',
+                      type: 'Health & Mediclaim',
+                      sumAssured: 1000000,
+                      premiumAmount: 18000,
+                      dueDate: '',
+                      mobile: '',
+                      email: ''
+                    });
+                  }}
+                  className="flex-1 bg-gold text-bg-dark font-extrabold py-2.5 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-gold/5 hover:bg-gold-light"
+                >
+                  Save Policy
+                </button>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 

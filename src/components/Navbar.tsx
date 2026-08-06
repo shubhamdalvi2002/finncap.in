@@ -43,6 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
     { name: 'Services', href: '#services', id: 'services' },
     { name: 'Calculators', href: '#calculators', id: 'calculators' },
     { name: 'About', href: '#about', id: 'about' },
+    { name: 'Insurance', href: '#insurance', id: 'insurance' },
     { name: 'Contact', href: '#contact', id: 'contact' },
   ];
 
@@ -60,6 +61,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
               : link.id === 'services'
                 ? currentPage === 'services' && !window.location.hash.startsWith('#calculators')
                 : currentPage === link.id;
+            
+            if (link.id === 'insurance') {
+              return (
+                <li key={link.name} className="relative py-1">
+                  <a 
+                    href={link.href} 
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider shadow-md shadow-blue-500/20 hover:scale-105 transition-all flex items-center gap-1.5"
+                  >
+                    <span>{link.name}</span>
+                  </a>
+                </li>
+              );
+            }
+
             return (
               <li key={link.name} className="relative py-1">
                 <a 
@@ -143,6 +158,20 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
                 : link.id === 'services'
                   ? currentPage === 'services' && !window.location.hash.startsWith('#calculators')
                   : currentPage === link.id;
+
+              if (link.id === 'insurance') {
+                return (
+                  <a
+                    key={link.name}
+                    href={link.href}
+                    onClick={() => setMobileOpen(false)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-base text-center shadow-lg shadow-blue-500/20 transition-all uppercase tracking-wider"
+                  >
+                    {link.name}
+                  </a>
+                );
+              }
+
               return (
                 <a
                   key={link.name}

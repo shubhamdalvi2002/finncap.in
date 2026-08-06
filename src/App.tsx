@@ -8,9 +8,14 @@ import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import { PartnerPortal } from './components/PartnerPortal';
+import { AeroFinInsurance } from './components/AeroFinInsurance';
+import { HealthInsurancePage } from './components/HealthInsurancePage';
+import { TermInsurancePage } from './components/TermInsurancePage';
+import { CarInsurancePage } from './components/CarInsurancePage';
+import { HomeInsuranceSection } from './components/HomeInsuranceSection';
 import { motion, AnimatePresence } from 'motion/react';
 
-export type ActivePage = 'home' | 'services' | 'calculators' | 'about' | 'contact' | 'partner';
+export type ActivePage = 'home' | 'services' | 'insurance' | 'insurance-health' | 'insurance-term' | 'insurance-car' | 'calculators' | 'about' | 'contact' | 'partner';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<ActivePage>('home');
@@ -29,6 +34,18 @@ export default function App() {
       
       if (hash === '#services' || hash === '#/services') {
         setCurrentPage('services');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#insurance-health' || hash === '#/insurance-health' || hash === '#health-insurance') {
+        setCurrentPage('insurance-health');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#insurance-term' || hash === '#/insurance-term' || hash === '#term-insurance') {
+        setCurrentPage('insurance-term');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#insurance-car' || hash === '#/insurance-car' || hash === '#car-insurance') {
+        setCurrentPage('insurance-car');
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else if (hash === '#insurance' || hash === '#/insurance' || hash === '#aerofin-insurance' || hash === '#/aerofin-insurance') {
+        setCurrentPage('insurance');
         window.scrollTo({ top: 0, behavior: 'auto' });
       } else if (hash === '#calculators' || hash === '#/calculators') {
         setCurrentPage('services');
@@ -94,6 +111,58 @@ export default function App() {
               className="pt-16 pb-8"
             >
               <Services />
+            </motion.div>
+          )}
+
+          {currentPage === 'insurance' && (
+            <motion.div
+              key="insurance"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              className="pt-16 pb-8"
+            >
+              <AeroFinInsurance />
+            </motion.div>
+          )}
+
+          {currentPage === 'insurance-health' && (
+            <motion.div
+              key="insurance-health"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              className="pt-16 pb-8"
+            >
+              <HealthInsurancePage />
+            </motion.div>
+          )}
+
+          {currentPage === 'insurance-term' && (
+            <motion.div
+              key="insurance-term"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              className="pt-16 pb-8"
+            >
+              <TermInsurancePage />
+            </motion.div>
+          )}
+
+          {currentPage === 'insurance-car' && (
+            <motion.div
+              key="insurance-car"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3 }}
+              className="pt-16 pb-8"
+            >
+              <CarInsurancePage />
             </motion.div>
           )}
 

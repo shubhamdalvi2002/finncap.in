@@ -33,6 +33,20 @@ export const BentoHub: React.FC = () => {
       highlights: ['SIP & SWP Outlines', 'Retirement Goals']
     },
     {
+      id: 'insurance',
+      href: '#insurance',
+      category: 'Risk Management',
+      title: 'AeroFin Insurance Advisory',
+      desc: 'Protect family health, life, car, and business assets with unbiased comparisons across India\'s premier insurance providers.',
+      icon: <Shield className="text-gold w-6 h-6" />,
+      badge: 'AeroFin Cover',
+      badgeColor: 'bg-gold/10 text-gold border-gold/20',
+      actionText: 'Explore AeroFin Insurance',
+      gridClass: 'md:col-span-1 lg:col-span-1',
+      accentColor: 'from-gold/5 via-gold/0 to-transparent',
+      highlights: ['Health & Mediclaim', 'Term Life Cover', 'Car & Motor Policy']
+    },
+    {
       id: 'about',
       href: '#about',
       category: 'Credentials',
@@ -42,7 +56,7 @@ export const BentoHub: React.FC = () => {
       badge: 'Certified Partner',
       badgeColor: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
       actionText: 'View Credentials',
-      gridClass: 'md:col-span-2 lg:col-span-1',
+      gridClass: 'md:col-span-1 lg:col-span-1',
       accentColor: 'from-blue-500/5 via-blue-500/0 to-transparent',
       highlights: ['NISM Series V-A Approved', 'NJ Wealth Affiliation']
     }
@@ -66,7 +80,7 @@ export const BentoHub: React.FC = () => {
         </div>
 
         {/* Bento Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {cards.map((card, idx) => (
             <motion.div
               key={card.id}

@@ -11,6 +11,7 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col items-center gap-4">
           <div className="flex flex-wrap justify-center gap-6">
             <a href="#services" className="text-muted-foreground text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">Services</a>
+            <a href="#insurance" className="text-muted-foreground text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">AeroFin Insurance</a>
             <a href="#about" className="text-muted-foreground text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">About</a>
             <a href="#contact" className="text-muted-foreground text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">Contact</a>
             <a href="http://p.njw.bz/103924" target="_blank" rel="noopener noreferrer" className="text-muted-foreground text-xs font-semibold uppercase tracking-wider hover:text-gold transition-colors">Invest Now</a>

@@ -131,6 +131,9 @@ export const Contact: React.FC = () => {
               <option>SIP – Systematic Investment Plan</option>
               <option>SWP – Systematic Withdrawal Plan</option>
               <option>STP – Systematic Transfer Plan</option>
+              <option>Insurance – Life & Term Cover</option>
+              <option>Insurance – Health & Mediclaim</option>
+              <option>Insurance – Motor & General Risk</option>
               <option>General Advisory</option>
             </select>
           </div>
