@@ -4,7 +4,6 @@ import { formatCurrency, formatCurrencyShort } from '../lib/utils';
 import { motion, AnimatePresence } from 'motion/react';
 import { Share2, Copy, Check, Zap } from 'lucide-react';
 import { useMarketData, MarketIndicators } from '../hooks/useMarketData';
-import { CalculatorAIAssistant } from './CalculatorAIAssistant';
 import { 
   calculateSIP, 
   calculateSWP, 
@@ -370,12 +369,6 @@ const RetirementCalculator = ({ indicators }: { indicators: MarketIndicators }) 
         title="Retirement Corpus Accumulation"
         description="See how your savings compound year-on-year to hit your golden nest egg target."
       />
-      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
-        <CalculatorAIAssistant 
-          calculatorType="retirement" 
-          calculatorData={{ expenses, inflation, returns, corpusRequired, monthlySavingsRequired: monthlySavings, investedCapital: invested, estimatedReturnGrowth: estReturns }} 
-        />
-      </div>
     </motion.div>
   );
 };
@@ -489,12 +482,6 @@ const EMICalculator = ({ indicators }: { indicators: MarketIndicators }) => {
         title="Amortization Schedule"
         description="Observe how your home equity increases as the outstanding loan balance decays."
       />
-      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
-        <CalculatorAIAssistant 
-          calculatorType="emi" 
-          calculatorData={{ loanAmount, interestRate, tenure, monthlyEMI: emi, totalInterest, totalPayment }} 
-        />
-      </div>
     </motion.div>
   );
 };
@@ -633,12 +620,6 @@ const GoalCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, 
         title="Goal Target Milestone Progression"
         description="Visualize the dynamic spacing with compounding interest tracking up to your targeted corpus."
       />
-      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
-        <CalculatorAIAssistant 
-          calculatorType="goal" 
-          calculatorData={{ targetAmount: target, years, expectedReturnRate: returns, monthlySavingsRequired: monthlySavings, totalSavingsInvested: invested, estimatedGrowthReturns: estReturns }} 
-        />
-      </div>
     </motion.div>
   );
 };
@@ -791,12 +772,6 @@ const SIPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
         title="SIP Compound Growth Curve"
         description="See how your monthly SIP builds massive wealth systematically through continuous compounding over your chosen horizon."
       />
-      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
-        <CalculatorAIAssistant 
-          calculatorType="sip" 
-          calculatorData={{ amount, rate, years, futureValue: fv, totalInvested: invested, estimatedReturns: returns }} 
-        />
-      </div>
     </motion.div>
   );
 };
@@ -925,12 +900,6 @@ const SWPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
         title="SWP Portfolio Projection"
         description="Track the sustainability timeline of your corpus vs cumulative withdrawal payouts."
       />
-      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
-        <CalculatorAIAssistant 
-          calculatorType="swp" 
-          calculatorData={{ corpus, withdrawal, rate, isSustainableIndefinitely: !exhausted, remainingBalance: remaining, totalWithdrawn }} 
-        />
-      </div>
     </motion.div>
   );
 };
@@ -1057,12 +1026,6 @@ const STPCalculator = ({ indicators, stocks }: { indicators: MarketIndicators, s
         title="STP Systematic Asset Migration"
         description="Monitor how your low-risk Source Fund systematic decay compounds and appreciates inside the higher return Target Fund."
       />
-      <div className="p-8 border-t border-gold/10 bg-[#000000]/10">
-        <CalculatorAIAssistant 
-          calculatorType="stp" 
-          calculatorData={{ sourceCorpus: lump, monthlyTransfer: transfer, sourceRate: srcRate, targetRate: tgtRate, sourceFundRemaining: srcBalance, targetFundFinal: tgtBalance }} 
-        />
-      </div>
     </motion.div>
   );
 };
