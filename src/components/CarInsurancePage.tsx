@@ -18,23 +18,10 @@ interface CarInsurancePageProps {
 }
 
 export const CarInsurancePage: React.FC<CarInsurancePageProps> = ({
-  googleFormUrl = 'https://docs.google.com/forms'
+  googleFormUrl = 'https://forms.gle/mnC4LFNZMtRZ1MPd9'
 }) => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [customFormUrl, setCustomFormUrl] = useState(googleFormUrl);
-  const [isSubmittedNotice, setIsSubmittedNotice] = useState(false);
-
   const handleOpenForm = () => {
-    setIsSubmittedNotice(false);
-    setIsModalOpen(true);
-  };
-
-  const handleRedirectToGoogleForm = () => {
-    if (customFormUrl && customFormUrl.startsWith('http')) {
-      window.open(customFormUrl, '_blank', 'noopener,noreferrer');
-    } else {
-      setIsSubmittedNotice(true);
-    }
+    window.open(googleFormUrl, '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -154,91 +141,16 @@ export const CarInsurancePage: React.FC<CarInsurancePageProps> = ({
               <strong className="text-slate-800">Top Insurers We Compare:</strong> Tata AIG, HDFC ERGO, ICICI Lombard, Bajaj Allianz, Go Digit, Reliance General
             </div>
 
-            <button
-              onClick={handleOpenForm}
-              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-blue-500/20"
+            <a
+              href="tel:+917218918236"
+              className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md shadow-blue-500/20 inline-block text-center"
             >
               Contact Now
-            </button>
+            </a>
           </div>
         </div>
 
       </div>
-
-      {/* GOOGLE FORM MODAL */}
-      <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative space-y-6"
-            >
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="absolute top-5 right-5 p-2 rounded-full hover:bg-slate-100 text-slate-500 hover:text-slate-800 transition-all cursor-pointer"
-              >
-                <X size={20} />
-              </button>
-
-              <div className="space-y-2 text-center">
-                <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center mx-auto">
-                  <Car size={24} />
-                </div>
-                <h3 className="font-serif text-2xl font-bold text-slate-900">
-                  Car Insurance
-                </h3>
-                <p className="text-xs text-slate-600">
-                  Submit your request or connect your custom Google Form link below to receive instant car insurance quotes.
-                </p>
-              </div>
-
-              {isSubmittedNotice ? (
-                <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl p-4 text-center space-y-2 text-xs">
-                  <p className="font-bold">Inquiry Registered for Car Insurance!</p>
-                  <p className="text-[11px] text-emerald-700">
-                    Your request has been captured in-app. Paste your Google Form link below if you wish to connect external responses.
-                  </p>
-                </div>
-              ) : null}
-
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3 text-xs text-slate-700">
-                <div className="flex justify-between items-center">
-                  <span className="font-bold text-slate-900">Connected Form URL:</span>
-                  <span className="text-[10px] font-mono bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-200">
-                    Google Form
-                  </span>
-                </div>
-                <input
-                  type="text"
-                  value={customFormUrl}
-                  onChange={e => setCustomFormUrl(e.target.value)}
-                  placeholder="Paste your Google Form URL here..."
-                  className="w-full bg-white border border-slate-300 rounded-xl p-2.5 text-slate-900 font-mono text-xs outline-none focus:border-blue-600"
-                />
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <button
-                  onClick={handleRedirectToGoogleForm}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl text-xs uppercase tracking-wider shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2 transition-all cursor-pointer"
-                >
-                  <span>Open Google Form</span>
-                  <ExternalLink size={16} />
-                </button>
-
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-6 py-3.5 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs uppercase tracking-wider hover:bg-slate-100 transition-all cursor-pointer"
-                >
-                  Close
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
