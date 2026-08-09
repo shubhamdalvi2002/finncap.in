@@ -6,9 +6,9 @@
   <img src="https://img.shields.io/badge/NISM-Certified%20Distributor-gold?style=for-the-badge&logo=credentials" alt="NISM Certified" />
 </p>
 
-> **Premium Wealth Management & Mutual Funds Advisory Suite**
+> **Premium Wealth Management, Insurance & Mutual Funds Advisory Suite**
 >
-> A high-fidelity, interactive financial advisory portal designed to empower retail investors with mathematical calculators, real-time market data tickers, dynamic news feeds, and an AI-driven financial education assistant. Led by NISM-Certified distributor Shubham Dalvi, the platform blends robust client tools with a direct WhatsApp-integrated advisory channel.
+> A high-fidelity, interactive financial advisory portal designed to empower retail investors with mathematical compounding calculators, real-time market data tickers, dynamic news feeds, and AeroFin Insurance coverage (Health, Term Life, Car & Motor, Commercial Risk). Led by NISM-Certified distributor Shubham Dalvi, the platform blends robust client tools with a direct WhatsApp-integrated advisory channel.
 
 ---
 
@@ -31,7 +31,7 @@ graph TD
     subgraph Client ["Client Browser (React 19 SPA)"]
         UI["Interactive Dashboard (Bento Hub)"]
         Calc["Services & Financial Calculators (SIP/SWP/Retirement)"]
-        Chat["Gemini AI Calculator Assistant UI"]
+        Ins["AeroFin Insurance Suite (Health / Term / Car / Commercial)"]
         WS_Client["WebSocket Ticker Client"]
     end
 
@@ -42,20 +42,17 @@ graph TD
     end
 
     subgraph External ["External Services & APIs"]
-        FMP["Financial Modeling Prep economic/economic & quote/ APIs"]
+        FMP["Financial Modeling Prep economic/ & quote/ APIs"]
         News["Saurav.tech Business News API"]
-        Gemini["Google Gemini AI API (gemini-3.5-flash)"]
         GDrive["Google Drive Asset Host (Founder Credentials Image)"]
     end
 
     %% Client to Server interactions
-    Calc -->|POST /api/calculator-chat| ExpressApp
     UI -->|GET /api/founder-image| DriveProxy
     WS_Client <-->|Bi-directional WebSockets| WS_Server
 
     %% Server to External interactions
-    ExpressApp -->|SDK: GoogleGenAI| Gemini
-    WS_Server -->|economic/inflation & economic/interest-rate & quote/| FMP
+    WS_Server -->|economic/inflation & interest-rate & quote/| FMP
     WS_Server -->|top-headlines/category/business| News
     DriveProxy -->|Binary Stream Buffering| GDrive
 ```
@@ -64,9 +61,17 @@ graph TD
 
 ## 🌟 Core Pillars & Functional Highlights
 
-### 🧭 Navigation & Bento Hub Control Panel
+### 🧭 Navigation & Navbar
+- **Navigation Links**: Clean, responsive navigation ordering (`Home` ➔ `Services` ➔ `Calculators` ➔ `About` ➔ `Insurance` ➔ `Contact`).
 - **Bento Grid Layout**: A sleek navigation grid routing users seamlessly between equity allocations, compounding calculators, defensive cushions, and advisory credentials.
 - **Contextual Advisory Banner**: Features rotating advisory guidelines authored by Shubham Dalvi, updating dynamically based on selected services and active filters.
+
+### 🛡️ AeroFin Insurance Suite
+- **Health & Mediclaim Insurance**: Access plans covering 10,000+ cashless hospitals, family floaters, and tax benefits under Section 80D.
+- **Term Life Insurance**: High sum-assured protection (₹1 Cr – ₹5 Cr) for family breadwinners with critical illness riders and tax savings under Section 80C.
+- **Car & Motor Insurance**: Comprehensive auto insurance with zero-depreciation coverage, instant digital renewal, and roadside assistance.
+- **Business & Commercial Risk**: Protect corporate assets, employee health (Group Mediclaim), shop premises, and transit risks.
+- **Dedicated Policy Views**: Seamless routing to specialized pages (`#insurance-health`, `#insurance-term`, `#insurance-car`) with instant quote requests.
 
 ### 📊 Interactive Compounding & Analytical Suite
 - **Systematic Investment Plan (SIP) Outpost**: High-fidelity compounding simulation projecting principal capital vs. accrued returns, highlighting the final wealth multiplier.
@@ -75,14 +80,9 @@ graph TD
 - **Tactical Defensive Shield**: A customizable sandbox helping users budget a 3, 6, or 12-month occupational and emergency reserve against market volatility.
 - **Enhanced UX Input Controls**: Advanced slider-input dual controls. Allows easy text clearing and backspacing without component freezes, falling back smoothly to `0`.
 
-### 🤖 Gemini-Powered Calculator Assistant
-- **Calculator Context Awareness**: An embedded educational chat widget that detects which calculator is active and reads its input parameters (e.g., principal, time, expected return) automatically.
-- **Financial Literacy Agent**: Translates mathematical figures into plain-English summaries, explains the compounding curve, highlights assumptions (such as constant returns), and suggests actionable steps.
-- **Zero-Key Deterministic Fallback**: In the absence of a configured Gemini API key, the system transitions to a local keyword-matching regex system to answer general questions on SIP, SWP, and market index returns.
-
 ### 📱 Zero-Overhead Lead Routing
 - **WhatsApp Inquiry Generator**: A structured intake form allowing prospective clients to state their target services and details.
-- **Parser Engine**: Converts the input fields into a clean, markdown-style textual summary, automatically redirecting the user to WhatsApp support (+91 94236 69236) for direct consultation.
+- **Parser Engine**: Converts input fields into a clean, markdown-style textual summary, automatically redirecting the user to WhatsApp support (+91 94236 69236) for direct consultation.
 
 ---
 
@@ -168,17 +168,14 @@ The client-side layout is driven by standard React state reactivity, ensuring in
                                                  │
                                                  ├───► Sync Output Results to DOM & Metrics
                                                  │
-                                                 ├───► Rechart Graphics Rendering
-                                                 │     (PieChart allocation & AreaChart curves)
-                                                 │
-                                                 └───► Propagate Updated State Objects
-                                                       to Floating AI Assistant Widget
+                                                 └───► Rechart Graphics Rendering
+                                                       (PieChart allocation & AreaChart curves)
 ```
 
 ### Key State Integration Features
 - **Dual-Control Sync**: Dragging sliders or entering numeric keys updates a common `useState` state hook. Input text buffers allow complete backspacing (`""` state) without throwing runtime parser errors, reverting to a temporary UI value of `0`.
 - **Chart Ingestion Structures**: Math returns include a chronological `chartData` array containing computed objects `{ name: string, Invested: number, Value: number }`. These are piped directly into Recharts `<AreaChart />` components, rendering compound interest curves.
-- **AI Chatbot Synchronization**: The active tab index (`sip` | `swp` | `retirement` etc.) is tracked globally in `App.tsx` and combined with parameter state objects to populate `calculatorData` context. This is passed directly into the `<CalculatorAIAssistant />` component, ensuring the chatbot stays context-aware.
+- **Routing & Hash State**: Hash-based URL routing (`#home`, `#services`, `#calculators`, `#about`, `#insurance`, `#insurance-health`, `#insurance-term`, `#insurance-car`, `#partner`, `#contact`) synchronizes page state across devices seamlessly.
 
 ---
 
@@ -408,82 +405,6 @@ Broadcasts business news updates. Fetched and pushed every 5 minutes.
 - **Description**: Node proxy serving AMFI credential photo. Retrieves from Google Drive CDN bypass headers or redirects to thumbnail services.
 - **Response**: `binary/octet-stream` JPEG image.
 
-#### `POST /api/calculator-chat`
-- **Description**: Context-aware assistant query endpoint.
-- **Request Headers**: `Content-Type: application/json`
-- **Request Body**:
-  ```json
-  {
-    "message": "Is this a sustainable SWP withdrawal rate?",
-    "calculatorType": "swp",
-    "calculatorData": {
-      "corpus": 1000000,
-      "withdrawal": 10000,
-      "rate": 10,
-      "remainingBalance": 0,
-      "isSustainableIndefinitely": false
-    },
-    "history": [
-      { "role": "user", "text": "What is my SWP summary?" },
-      { "role": "model", "text": "Your SWP has a ₹10 Lakh corpus, withdrawing ₹10k/month at 10% expected return." }
-    ]
-  }
-  ```
-- **Response**:
-  ```json
-  {
-    "text": "Based on a ₹10,000 monthly withdrawal from a ₹1,000,000 corpus, your fund will eventually deplete because the annual withdrawal (12%) exceeds the expected growth rate (10%)..."
-  }
-  ```
-
----
-
-## 🤖 AI Safety & Compliance Framework
-
-The conversational engine in `/api/calculator-chat` is structured to adhere to strict SEBI (Securities and Exchange Board of India) and AMFI (Association of Mutual Funds in India) distribution rules:
-
-```
-                  [ User Input Message + Active Calculator Context ]
-                                         │
-                                         ▼
-                     [ Prompt Engineering Compliance Filter ]
-     ┌───────────────────────────────────┼───────────────────────────────────┐
-     │                                   │                                   │
-  [ Rule 1: No Fund Names ]    [ Rule 2: No Guaranteed Return ]    [ Rule 3: Add Risk Warnings ]
-     │                                   │                                   │
-     └───────────────────────────────────┼───────────────────────────────────┘
-                                         ▼
-                       [ Check GEMINI_API_KEY Presence ]
-                                         │
-                   ┌─────────────────────┴─────────────────────┐
-                   ▼                                           ▼
-             [ Key Present ]                            [ Key Missing ]
-                   │                                           │
-         [ Call Google GenAI SDK ]                  [ Fallback Heuristic Engine ]
-    (model: gemini-3.5-flash (medium))         (Deterministic Keyword Regex System)
-                   │                                           │
-                   └─────────────────────┬─────────────────────┘
-                                         ▼
-                             [ Compliance Disclaimer ]
-                 "These are estimates based on assumed constant returns..."
-                                         │
-                                         ▼
-                            [ JSON Response Payload ]
-```
-
-### Prompt Constraints
-The System Instruction guarantees that:
-- **No Specific Product Recommendations**: The assistant does not mention mutual fund names, stock tickers, or specific financial instruments.
-- **Disclaimers Mandatory**: Every growth projection is qualified with: *"These are estimates based on assumed constant returns. Actual market returns vary."*
-- **No Performance Guarantees**: Return rates are treated strictly as variable inputs, not static outcomes.
-- **Redirection**: Personalised financial advice queries trigger a prompt response: *"For personalised advice, connect with a SEBI-registered financial advisor."*
-
-### Heuristic Fallback Engine
-If the `GEMINI_API_KEY` is not set, a local keyword-matching algorithm parses the inputs:
-- Payout queries trigger a structured math audit evaluating if the monthly SWP withdrawal is $\le \text{Corpus} \times \frac{r}{12}$.
-- Compounding queries trigger a breakdown explaining the compounding curve multiplier effect.
-- General index return requests output historic Large-cap (Nifty 50: ~13% CAGR) and Midcap (~16% CAGR) baselines for user context.
-
 ---
 
 ## 📂 Codebase Directory Structure
@@ -503,19 +424,25 @@ If the `GEMINI_API_KEY` is not set, a local keyword-matching algorithm parses th
     ├── index.css             # Tailwind global style directives and UI variables
     ├── components
     │   ├── About.tsx         # Founder credential cards, bio, and AMFI certifications
+    │   ├── AeroFinInsurance.tsx # Complete AeroFin Insurance suite hub
     │   ├── BentoHub.tsx      # Responsive Bento Grid navigation dashboard
-    │   ├── CalculatorAIAssistant.tsx # Embedded Gemini Chat sidebar widget
     │   ├── Calculators.tsx   # Sliders, calculations, and tables for SIP/SWP/Goal
+    │   ├── CarInsurancePage.tsx # Dedicated Car & Motor Insurance page
     │   ├── Contact.tsx       # WhatsApp form layout and parsing logic
     │   ├── FinauraLogo.tsx   # Custom vector branding emblem
     │   ├── Footer.tsx        # Dynamic footer with disclaimers and navigation links
+    │   ├── HealthInsurancePage.tsx # Dedicated Health & Mediclaim Insurance page
     │   ├── Hero.tsx          # Marketing splash header and value proposition
     │   ├── HeroBackground.tsx# Visual background canvas / decorative components
+    │   ├── HomeInsuranceSection.tsx # Insurance quick summary component
     │   ├── MarketTicker.tsx  # WebSocket live market price ticker bar
     │   ├── Navbar.tsx        # Responsive client navbar header
     │   ├── NewsFeed.tsx      # WebSocket business news feed container
     │   ├── PartnerLoginModal.tsx # Login overlay shortcut for the EWA Desk Portal
+    │   ├── PartnerPortal.tsx # Partner portal and login portal integration
+    │   ├── PowerBIDashboard.tsx # Analytics dashboard view
     │   ├── Services.tsx      # Services component managing state between Calculators and Bento
+    │   ├── TermInsurancePage.tsx # Dedicated Term Life Insurance page
     │   └── WhatsAppButton.tsx# Persistent floating button for quick WhatsApp access
     ├── hooks                 # Custom React utility hooks
     └── lib                   # Constants, helper functions, and shared configs
@@ -531,7 +458,6 @@ The application's runtime behavior changes dynamically depending on the configur
 | Variable | Source | Required For | Fallback Behavior |
 | :--- | :--- | :--- | :--- |
 | `FINANCIAL_API_KEY` | [Financial Modeling Prep](https://financialmodelingprep.com/) | Real-time stock prices & economic indicators | Simulated stock random walk & economic parameters |
-| `GEMINI_API_KEY` | [Google AI Studio](https://aistudio.google.com/) | Interactive Calculator Chat Assistant | Deterministic local rule engine (SIP, SWP, FD advice) |
 
 ### 🚀 Running the App Locally
 
@@ -546,7 +472,7 @@ The application's runtime behavior changes dynamically depending on the configur
    ```bash
    cp .env.example .env
    ```
-   Add your respective `FINANCIAL_API_KEY` and `GEMINI_API_KEY` keys.
+   Add your `FINANCIAL_API_KEY` key if available.
 
 3. **Install Dependencies**:
    ```bash

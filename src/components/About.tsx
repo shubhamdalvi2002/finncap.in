@@ -107,7 +107,7 @@ export const About: React.FC = () => {
                       <span>Portfolio</span>
                     </a>
                     <a 
-                      href="mailto:shubhamdalvi7218@gmail.com" 
+                      href="mailto:finnauracapital@gmail.com" 
                       className="p-2.5 px-4 rounded-xl bg-gold/5 border border-gold/10 text-gold hover:bg-gold hover:text-bg-dark transition-all text-xs flex items-center gap-1.5 font-medium group"
                     >
                       <Mail size={13} className="text-gold group-hover:text-inherit" />

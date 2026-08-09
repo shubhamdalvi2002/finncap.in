@@ -73,7 +73,7 @@ export const Contact: React.FC = () => {
         <div className="flex flex-col gap-4">
           <ContactItem icon={<Phone size={18} />} label="Call Us" value="+91 72189 18236" href="tel:7218918236" />
           <ContactItem icon={<MessageCircle size={18} />} label="WhatsApp Support" value="+91 94236 69236" href="https://wa.me/919423669236" />
-          <ContactItem icon={<Mail size={18} />} label="Email Desk" value="finauracapital@gmail.com" href="mailto:finauracapital@gmail.com" />
+          <ContactItem icon={<Mail size={18} />} label="Email Desk" value="finnauracapital@gmail.com" href="mailto:finnauracapital@gmail.com" />
           <ContactItem icon={<ExternalLink size={18} />} label="Start Investing" value="Open your account now →" href="http://p.njw.bz/103924" />
           <ContactItem icon={<ExternalLink size={18} />} label="Client Desk" value="Login to existing account →" href="https://ewa.njindiaonline.com/ewa/login" />
           

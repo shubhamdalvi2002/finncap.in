@@ -98,7 +98,7 @@ const defaultInsurancePolicies: InsurancePolicy[] = [
     dueDate: '2026-09-15',
     status: 'Active',
     mobile: '7218918236',
-    email: 'shubhamdalvi7218@gmail.com'
+    email: 'finnauracapital@gmail.com'
   },
   {
     id: 'pol-2',
@@ -628,7 +628,7 @@ export const PartnerPortal: React.FC = () => {
         minute: '2-digit'
       });
       doc.text(`Generated: ${todayStr}`, 282, 18, { align: 'right' });
-      doc.text(`Lead Partner Email: shubhamdalvi7218@gmail.com`, 282, 23, { align: 'right' });
+      doc.text(`Lead Partner Email: finnauracapital@gmail.com`, 282, 23, { align: 'right' });
 
       // Divider line
       doc.setDrawColor(226, 232, 240); // Slate 200
