@@ -31,10 +31,6 @@ import {
   ZAxis
 } from 'recharts';
 
-// Default Partner Credentials info
-const DEFAULT_EMAIL = 'finnauracapital@gmail.com';
-const DEFAULT_PASS = 'India@11'; // Owner security code, customizable from code as needed
-
 interface WorkspaceLink {
   id: string;
   title: string;
@@ -808,11 +804,37 @@ export const PartnerPortal: React.FC = () => {
 
   // Load state and data on mount
   useEffect(() => {
-    // Check if authenticated in existing session
-    const authSession = sessionStorage.getItem('finaura_partner_auth');
-    if (authSession === 'true') {
-      setIsAuthenticated(true);
-    }
+    // Verify partner session on mount via server-verified token
+    const verifyPartnerSession = async () => {
+      const token = sessionStorage.getItem('finaura_partner_token');
+      if (!token) {
+        setIsAuthenticated(false);
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/partner-verify', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await response.json();
+        if (response.ok && data.valid) {
+          setIsAuthenticated(true);
+        } else {
+          sessionStorage.removeItem('finaura_partner_token');
+          sessionStorage.removeItem('finaura_partner_auth');
+          setIsAuthenticated(false);
+        }
+      } catch (err) {
+        console.error('Failed to verify partner session with server:', err);
+        setIsAuthenticated(false);
+      }
+    };
+
+    verifyPartnerSession();
 
     // Load client accounts from LocalStorage or fetch public CSV
     const storedClients = localStorage.getItem('finaura_client_accounts');
@@ -960,22 +982,9 @@ export const PartnerPortal: React.FC = () => {
     }
   }, [isAuthenticated, dueSipClients]);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      (email.trim().toLowerCase() === DEFAULT_EMAIL || email.trim().toLowerCase() === 'finnauracapital' || email.trim().toLowerCase() === 'admin') &&
-      password === DEFAULT_PASS
-    ) {
-      setIsAuthenticated(true);
-      setLoginError('');
-      sessionStorage.setItem('finaura_partner_auth', 'true');
-    } else {
-      setLoginError('Invalid Partner credentials. Please verify and retry.');
-    }
-  };
-
   const handleLogout = () => {
     setIsAuthenticated(false);
+    sessionStorage.removeItem('finaura_partner_token');
     sessionStorage.removeItem('finaura_partner_auth');
     sessionStorage.removeItem('finaura_sip_due_alert_shown');
     setEmail('');

@@ -5,6 +5,7 @@ import { createServer as createViteServer } from "vite";
 import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+import crypto from "crypto";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ const INITIAL_STOCKS = [
 ];
 
 const app = express();
+app.use(express.json());
 const httpServer = createServer(app);
 const wss = new WebSocketServer({ server: httpServer });
 const PORT = 3000;
@@ -249,6 +251,117 @@ const fetchNews = async () => {
 // API routes
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
+});
+
+// Partner Portal Authentication Endpoints
+app.post("/api/partner-login", (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: "Email and password are required." });
+    }
+
+    const partnerEmail = process.env.PARTNER_EMAIL;
+    const partnerPasswordHash = process.env.PARTNER_PASSWORD_HASH;
+    const sessionSecret = process.env.SESSION_SECRET;
+
+    if (!partnerEmail || !partnerPasswordHash || !sessionSecret) {
+      console.error("Partner authentication is not fully configured (missing PARTNER_EMAIL, PARTNER_PASSWORD_HASH, or SESSION_SECRET).");
+      return res.status(500).json({ success: false, message: "Authentication service is not configured on the server." });
+    }
+
+    const normalizedEmail = String(email).trim().toLowerCase();
+    const expectedEmail = partnerEmail.trim().toLowerCase();
+
+    // Hash the input password using SHA-256
+    const inputHash = crypto.createHash("sha256").update(String(password)).digest("hex");
+
+    const isEmailValid = normalizedEmail === expectedEmail;
+    let isPasswordValid = false;
+
+    if (inputHash.length === partnerPasswordHash.length) {
+      isPasswordValid = crypto.timingSafeEqual(
+        Buffer.from(inputHash, "utf-8"),
+        Buffer.from(partnerPasswordHash, "utf-8")
+      );
+    }
+
+    if (!isEmailValid || !isPasswordValid) {
+      return res.status(401).json({ success: false, message: "Invalid credentials. Please verify your Partner Identity/Password and try again." });
+    }
+
+    // Generate signed, expiring session token (valid for 24 hours)
+    const expiresAt = Date.now() + 24 * 60 * 60 * 1000;
+    const payload = Buffer.from(
+      JSON.stringify({
+        email: normalizedEmail,
+        exp: expiresAt,
+        iat: Date.now()
+      })
+    ).toString("base64url");
+
+    const signature = crypto.createHmac("sha256", sessionSecret).update(payload).digest("base64url");
+    const token = `${payload}.${signature}`;
+
+    return res.json({
+      success: true,
+      token,
+      expiresAt
+    });
+  } catch (err) {
+    console.error("Error handling /api/partner-login:", err);
+    return res.status(500).json({ success: false, message: "An unexpected error occurred during authentication." });
+  }
+});
+
+app.all("/api/partner-verify", (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    const token = (authHeader && authHeader.startsWith("Bearer "))
+      ? authHeader.substring(7)
+      : (req.headers["x-partner-token"] as string) || (req.query.token as string) || (req.body && req.body.token);
+
+    if (!token || typeof token !== "string" || !token.includes(".")) {
+      return res.status(401).json({ valid: false, message: "Missing or malformed session token." });
+    }
+
+    const sessionSecret = process.env.SESSION_SECRET;
+    if (!sessionSecret) {
+      console.error("SESSION_SECRET is not configured on the server.");
+      return res.status(500).json({ valid: false, message: "Authentication service is not configured on the server." });
+    }
+
+    const [payloadBase64, signature] = token.split(".");
+    if (!payloadBase64 || !signature) {
+      return res.status(401).json({ valid: false, message: "Invalid session token format." });
+    }
+
+    const expectedSignature = crypto.createHmac("sha256", sessionSecret).update(payloadBase64).digest("base64url");
+
+    if (
+      signature.length !== expectedSignature.length ||
+      !crypto.timingSafeEqual(Buffer.from(signature, "utf-8"), Buffer.from(expectedSignature, "utf-8"))
+    ) {
+      return res.status(401).json({ valid: false, message: "Invalid session token signature." });
+    }
+
+    const decodedStr = Buffer.from(payloadBase64, "base64url").toString("utf-8");
+    const payload = JSON.parse(decodedStr);
+
+    if (!payload.exp || payload.exp < Date.now()) {
+      return res.status(401).json({ valid: false, message: "Partner session token has expired." });
+    }
+
+    return res.json({
+      valid: true,
+      email: payload.email,
+      expiresAt: payload.exp
+    });
+  } catch (err) {
+    console.error("Error handling /api/partner-verify:", err);
+    return res.status(401).json({ valid: false, message: "Invalid or corrupted session token." });
+  }
 });
 
 app.get("/api/founder-image", async (req, res) => {
