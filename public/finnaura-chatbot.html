@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinAura Capital Assistant</title>
+
+  <!-- Font Awesome for clean, professional icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Google Fonts: Inter, Outfit, and Cinzel -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* Scoped strictly under #finAuraChatbot to prevent style bleed */
+    #finAuraChatbot {
+      --fa-navy-dark: #0a1128;
+      --fa-navy-primary: #1e3a8a;
+      --fa-navy-hover: #172554;
+      --fa-blue-accent: #2563eb;
+      --fa-blue-accent-hover: #1d4ed8;
+      --fa-blue-light: #eff6ff;
+      --fa-blue-border: #bfdbfe;
+      --fa-bg-white: #ffffff;
+      --fa-bg-slate: #f8fafc;
+      --fa-border-slate: #e2e8f0;
+      --fa-text-navy: #0f172a;
+      --fa-text-muted: #475569;
+      --fa-text-light: #64748b;
+      --fa-green-accent: #16a34a;
+      --fa-green-hover: #15803d;
+      --fa-radius-card: 16px;
+      --fa-radius-bubble: 10px;
+      --fa-radius-btn: 8px;
+      --fa-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --fa-font-title: 'Outfit', 'Inter', system-ui, sans-serif;
+
+      font-family: var(--fa-font);
+      font-size: 14px;
+      color: var(--fa-text-navy);
+      box-sizing: border-box;
+    }
+
+    #finAuraChatbot *,
+    #finAuraChatbot *::before,
+    #finAuraChatbot *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Floating Trigger Button (Pure White Headset Icon) */
+    #finAuraChatbot .finaura-trigger-btn {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9998;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0a1128 0%, #1e3a8a 60%, #172554 100%);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 10px 20px -3px rgba(15, 23, 42, 0.25), 0 4px 6px -2px rgba(15, 23, 42, 0.15);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      outline: none;
+    }
+
+    #finAuraChatbot .finaura-trigger-btn:hover {
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 14px 24px -4px rgba(15, 23, 42, 0.35);
+    }
+
+    #finAuraChatbot .finaura-trigger-btn:active {
+      transform: translateY(0) scale(0.96);
+    }
+
+    #finAuraChatbot .finaura-trigger-btn:focus-visible {
+      outline: 3px solid var(--fa-blue-accent);
+      outline-offset: 3px;
+    }
+
+    #finAuraChatbot .finaura-trigger-btn i {
+      color: #ffffff !important;
+      font-size: 22px;
+    }
+
+    #finAuraChatbot .finaura-trigger-tooltip {
+      position: absolute;
+      right: 72px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: var(--fa-navy-dark);
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: var(--fa-radius-btn);
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    #finAuraChatbot .finaura-trigger-btn:hover .finaura-trigger-tooltip {
+      opacity: 1;
+    }
+
+    /* Main Chat Window */
+    #finAuraChatbot .finaura-chat-window {
+      position: fixed;
+      bottom: 94px;
+      right: 24px;
+      width: 390px;
+      max-width: calc(100vw - 32px);
+      height: 620px;
+      max-height: calc(100vh - 110px);
+      background-color: var(--fa-bg-white);
+      border-radius: var(--fa-radius-card);
+      box-shadow: 0 20px 30px -8px rgba(15, 23, 42, 0.25), 0 8px 12px -4px rgba(15, 23, 42, 0.12);
+      border: 1px solid var(--fa-border-slate);
+      display: none;
+      flex-direction: column;
+      z-index: 9999;
+      overflow: hidden;
+    }
+
+    #finAuraChatbot .finaura-chat-window.is-open {
+      display: flex;
+      animation: finauraFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes finauraFadeIn {
+      from { opacity: 0; transform: translateY(12px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Chat Header */
+    #finAuraChatbot .finaura-chat-header {
+      background: linear-gradient(135deg, #0a1128 0%, #1e3a8a 70%, #172554 100%);
+      color: #ffffff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      user-select: none;
+    }
+
+    #finAuraChatbot .finaura-header-left { display: flex; align-items: center; gap: 10px; }
+
+    #finAuraChatbot .finaura-header-logo {
+      width: 36px;
+      height: 36px;
+      background-color: rgba(255, 255, 255, 0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      flex-shrink: 0;
+    }
+
+    #finAuraChatbot .finaura-header-logo svg { width: 24px; height: 24px; }
+
+    #finAuraChatbot .finaura-header-titles h3 {
+      font-family: var(--fa-font-title);
+      font-size: 0.95rem;
+      font-weight: 600;
+      line-height: 1.2;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #finAuraChatbot .finaura-status-indicator {
+      width: 7px;
+      height: 7px;
+      background-color: #34d399;
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 6px rgba(52, 211, 153, 0.7);
+    }
+
+    #finAuraChatbot .finaura-header-titles p {
+      font-size: 0.72rem;
+      color: #cbd5e1;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    #finAuraChatbot .finaura-header-actions { display: flex; align-items: center; gap: 4px; }
+
+    #finAuraChatbot .finaura-header-action-btn {
+      background: transparent;
+      border: none;
+      color: #ffffff;
+      width: 30px;
+      height: 30px;
+      border-radius: var(--fa-radius-btn);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      transition: background-color 0.15s ease;
+    }
+
+    #finAuraChatbot .finaura-header-action-btn:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    #finAuraChatbot .finaura-header-action-btn:focus-visible { outline: 2px solid #ffffff; }
+
+    /* Free Text Search Bar */
+    #finAuraChatbot .finaura-search-wrapper {
+      padding: 8px 12px;
+      background-color: #f1f5f9;
+      border-bottom: 1px solid var(--fa-border-slate);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #finAuraChatbot .finaura-search-form {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      background: #ffffff;
+      border: 1px solid var(--fa-border-slate);
+      border-radius: 20px;
+      padding: 4px 10px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    #finAuraChatbot .finaura-search-form:focus-within {
+      border-color: var(--fa-blue-accent);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    #finAuraChatbot .finaura-search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 12px;
+      font-family: var(--fa-font);
+      color: var(--fa-text-navy);
+      background: transparent;
+    }
+
+    #finAuraChatbot .finaura-search-input::placeholder {
+      color: var(--fa-text-light);
+    }
+
+    #finAuraChatbot .finaura-search-btn {
+      background: transparent;
+      border: none;
+      color: var(--fa-blue-accent);
+      cursor: pointer;
+      font-size: 12px;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    #finAuraChatbot .finaura-search-btn:hover {
+      color: var(--fa-blue-accent-hover);
+    }
+
+    /* Message Body */
+    #finAuraChatbot .finaura-chat-body {
+      flex: 1;
+      padding: 14px;
+      overflow-y: auto;
+      background-color: var(--fa-bg-slate);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scroll-behavior: smooth;
+    }
+
+    #finAuraChatbot .finaura-chat-body::-webkit-scrollbar { width: 5px; }
+    #finAuraChatbot .finaura-chat-body::-webkit-scrollbar-track { background: var(--fa-bg-slate); }
+    #finAuraChatbot .finaura-chat-body::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+    #finAuraChatbot .finaura-msg-row { display: flex; flex-direction: column; gap: 3px; width: 100%; }
+    #finAuraChatbot .finaura-msg-row.bot { align-items: flex-start; }
+    #finAuraChatbot .finaura-msg-row.user { align-items: flex-end; }
+
+    #finAuraChatbot .finaura-msg-bubble {
+      max-width: 88%;
+      padding: 10px 13px;
+      border-radius: var(--fa-radius-bubble);
+      font-size: 0.85rem;
+      line-height: 1.45;
+      word-break: break-word;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    #finAuraChatbot .finaura-msg-bubble.bot {
+      background-color: var(--fa-bg-white);
+      color: var(--fa-text-navy);
+      border: 1px solid var(--fa-border-slate);
+      border-top-left-radius: 2px;
+    }
+
+    #finAuraChatbot .finaura-msg-bubble.user {
+      background-color: var(--fa-navy-primary);
+      color: #ffffff;
+      border-top-right-radius: 2px;
+    }
+
+    #finAuraChatbot .finaura-msg-title {
+      font-family: var(--fa-font-title);
+      font-weight: 700;
+      color: var(--fa-navy-primary);
+      font-size: 0.88rem;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #finAuraChatbot .finaura-msg-text { white-space: pre-line; }
+
+    #finAuraChatbot .finaura-msg-time {
+      font-size: 0.65rem;
+      color: var(--fa-text-light);
+      margin-top: 3px;
+      padding: 0 4px;
+    }
+
+    #finAuraChatbot .finaura-typing {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background-color: var(--fa-bg-white);
+      border: 1px solid var(--fa-border-slate);
+      padding: 8px 12px;
+      border-radius: var(--fa-radius-bubble);
+      border-top-left-radius: 2px;
+      width: fit-content;
+    }
+
+    #finAuraChatbot .finaura-typing-dot {
+      width: 5px;
+      height: 5px;
+      background-color: var(--fa-blue-accent);
+      border-radius: 50%;
+      animation: finauraDotBounce 1.2s infinite ease-in-out;
+    }
+
+    #finAuraChatbot .finaura-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    #finAuraChatbot .finaura-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes finauraDotBounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-4px); }
+    }
+
+    /* Controls Area */
+    #finAuraChatbot .finaura-chat-controls {
+      padding: 10px 14px 12px 14px;
+      background-color: var(--fa-bg-white);
+      border-top: 1px solid var(--fa-border-slate);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    #finAuraChatbot .finaura-controls-hint {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--fa-text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    #finAuraChatbot .finaura-options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    #finAuraChatbot .finaura-options-list::-webkit-scrollbar { width: 4px; }
+    #finAuraChatbot .finaura-options-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+
+    #finAuraChatbot .finaura-btn-option {
+      background-color: var(--fa-bg-white);
+      color: var(--fa-text-navy);
+      border: 1px solid var(--fa-border-slate);
+      padding: 8px 12px;
+      border-radius: var(--fa-radius-btn);
+      font-family: var(--fa-font);
+      font-size: 0.82rem;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s ease;
+      outline: none;
+      min-height: 38px;
+    }
+
+    #finAuraChatbot .finaura-btn-option:hover {
+      background-color: var(--fa-blue-light);
+      border-color: var(--fa-blue-border);
+      color: var(--fa-navy-primary);
+    }
+
+    #finAuraChatbot .finaura-btn-option:focus-visible { outline: 2px solid var(--fa-blue-accent); outline-offset: 1px; }
+
+    #finAuraChatbot .finaura-btn-option i {
+      font-size: 11px;
+      color: var(--fa-blue-accent);
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+
+    #finAuraChatbot .finaura-btn-nav {
+      background-color: #f8fafc;
+      color: var(--fa-text-muted);
+      border: 1px solid var(--fa-border-slate);
+      padding: 7px 12px;
+      border-radius: var(--fa-radius-btn);
+      font-family: var(--fa-font);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      min-height: 36px;
+    }
+
+    #finAuraChatbot .finaura-btn-nav:hover { background-color: #ffffff; color: var(--fa-text-navy); border-color: #94a3b8; }
+
+    #finAuraChatbot .finaura-btn-cta {
+      background-color: var(--fa-blue-accent);
+      color: #ffffff;
+      border: 1px solid var(--fa-blue-accent);
+      padding: 10px 14px;
+      border-radius: var(--fa-radius-btn);
+      font-family: var(--fa-font);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.15s ease;
+      outline: none;
+      width: 100%;
+      text-decoration: none;
+      min-height: 40px;
+    }
+
+    #finAuraChatbot .finaura-btn-cta:hover { background-color: var(--fa-blue-accent-hover); border-color: var(--fa-blue-accent-hover); }
+    #finAuraChatbot .finaura-btn-cta:focus-visible { outline: 2px solid var(--fa-navy-primary); outline-offset: 2px; }
+
+    /* WhatsApp CTA variant */
+    #finAuraChatbot .finaura-btn-whatsapp {
+      background-color: var(--fa-green-accent);
+      color: #ffffff;
+      border: 1px solid var(--fa-green-accent);
+      padding: 10px 14px;
+      border-radius: var(--fa-radius-btn);
+      font-family: var(--fa-font);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.15s ease;
+      outline: none;
+      width: 100%;
+      text-decoration: none;
+      min-height: 40px;
+    }
+    #finAuraChatbot .finaura-btn-whatsapp:hover { background-color: var(--fa-green-hover); border-color: var(--fa-green-hover); }
+    #finAuraChatbot .finaura-btn-whatsapp:focus-visible { outline: 2px solid var(--fa-navy-primary); outline-offset: 2px; }
+
+    /* In-Widget Quick Contact Form */
+    #finAuraChatbot .finaura-contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: #f8fafc;
+      border: 1px solid var(--fa-border-slate);
+      border-radius: var(--fa-radius-btn);
+      padding: 10px;
+    }
+
+    #finAuraChatbot .finaura-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    #finAuraChatbot .finaura-form-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--fa-text-muted);
+    }
+
+    #finAuraChatbot .finaura-form-input,
+    #finAuraChatbot .finaura-form-select {
+      padding: 7px 10px;
+      font-size: 0.8rem;
+      border: 1px solid var(--fa-border-slate);
+      border-radius: var(--fa-radius-btn);
+      outline: none;
+      font-family: var(--fa-font);
+      background: #ffffff;
+      color: var(--fa-text-navy);
+    }
+
+    #finAuraChatbot .finaura-form-input:focus,
+    #finAuraChatbot .finaura-form-select:focus {
+      border-color: var(--fa-blue-accent);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+    }
+
+    #finAuraChatbot .finaura-chat-disclaimer {
+      padding: 8px 12px;
+      background-color: #f1f5f9;
+      border-top: 1px solid var(--fa-border-slate);
+      font-size: 0.65rem;
+      color: var(--fa-text-light);
+      text-align: center;
+      line-height: 1.35;
+      user-select: none;
+    }
+
+    @media (max-width: 480px) {
+      #finAuraChatbot .finaura-trigger-btn { bottom: 16px; right: 16px; width: 54px; height: 54px; font-size: 20px; }
+      #finAuraChatbot .finaura-chat-window {
+        bottom: 78px; right: 12px; width: calc(100vw - 24px); max-width: 100vw;
+        height: 540px; max-height: calc(100vh - 90px); border-radius: 12px;
+      }
+      #finAuraChatbot .finaura-chat-body { padding: 10px; }
+      #finAuraChatbot .finaura-chat-controls { padding: 8px 10px 10px 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ROOT CONTAINER SCOPED UNDER #finAuraChatbot -->
+  <div id="finAuraChatbot">
+
+    <!-- FLOATING TRIGGER BUTTON -->
+    <button type="button" id="finauraTriggerBtn" class="finaura-trigger-btn" aria-label="FinAura Assistant" title="FinAura Assistant">
+      <i class="fa-solid fa-headset" aria-hidden="true"></i>
+      <span class="finaura-trigger-tooltip">FinAura Assistant</span>
+    </button>
+
+    <!-- CHATBOT WINDOW -->
+    <div id="finauraChatWindow" class="finaura-chat-window" role="dialog" aria-labelledby="finauraHeaderTitle" aria-modal="false">
+      <header class="finaura-chat-header">
+        <div class="finaura-header-left">
+          <!-- VALID PLAIN HTML SVG WITH KEBAB-CASE ATTRIBUTES -->
+          <div class="finaura-header-logo">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="faWhiteLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#FFFFFF" />
+                  <stop offset="100%" stop-color="#E2E8F0" />
+                </linearGradient>
+              </defs>
+              <g>
+                <text x="42" y="65" font-family="'Cinzel', 'Georgia', serif" font-weight="900" font-size="46" fill="url(#faWhiteLogoGrad)" text-anchor="end">F</text>
+                <rect x="52" y="50" width="4" height="15" rx="1" fill="url(#faWhiteLogoGrad)" />
+                <rect x="59" y="42" width="4" height="23" rx="1" fill="url(#faWhiteLogoGrad)" />
+                <rect x="66" y="33" width="4" height="32" rx="1" fill="url(#faWhiteLogoGrad)" />
+                <rect x="73" y="22" width="4" height="43" rx="1" fill="url(#faWhiteLogoGrad)" />
+                <path d="M 22 55 Q 52 48 76 21" stroke="url(#faWhiteLogoGrad)" stroke-width="3.5" stroke-linecap="round" />
+                <path d="M 68 20 Q 77 19 78 20 T 74 29" stroke="url(#faWhiteLogoGrad)" stroke-width="3" stroke-linecap="round" fill="url(#faWhiteLogoGrad)" />
+              </g>
+            </svg>
+          </div>
+          <div class="finaura-header-titles">
+            <h3 id="finauraHeaderTitle">
+              FinAura Capital Assistant
+              <span class="finaura-status-indicator" title="Online"></span>
+            </h3>
+            <p>Financial Information & Assistance</p>
+          </div>
+        </div>
+
+        <div class="finaura-header-actions">
+          <button type="button" id="finauraRestartBtn" class="finaura-header-action-btn" title="Restart Conversation" aria-label="Restart Conversation">
+            <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+          </button>
+          <button type="button" id="finauraCloseBtn" class="finaura-header-action-btn" title="Close Assistant" aria-label="Close Assistant">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- FREE-TEXT SEARCH / QUESTION INPUT BOX -->
+      <div class="finaura-search-wrapper">
+        <form id="finauraSearchForm" class="finaura-search-form">
+          <input 
+            type="text" 
+            id="finauraSearchInput" 
+            class="finaura-search-input" 
+            placeholder="Type a question (e.g., what is SIP, NAV, SWP)..." 
+            autocomplete="off"
+          />
+          <button type="submit" class="finaura-search-btn" title="Search topic">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+      </div>
+
+      <div id="finauraChatBody" class="finaura-chat-body" role="log" aria-live="polite"></div>
+
+      <div class="finaura-chat-controls">
+        <div id="finauraControlsHint" class="finaura-controls-hint">
+          <span>Please select an option:</span>
+        </div>
+        <div id="finauraOptionsList" class="finaura-options-list"></div>
+      </div>
+
+      <footer class="finaura-chat-disclaimer">
+        Information provided by FinAura Capital Assistant is for general educational purposes only and should not be considered personalized investment, financial or insurance advice. Mutual Fund investments are subject to market risks. Insurance is subject to terms and conditions.
+      </footer>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ========================================================================
+         1. CONFIGURATION
+         ======================================================================== */
+      // Paste your real Google Form URL below or use the integrated in-widget form
+      const GOOGLE_FORM_URL = "https://forms.gle/mnC4LFNZMtRZ1MPd9";
+      
+      // WhatsApp Business Number (country code 91 for India, no spaces or +)
+      const WHATSAPP_NUMBER = "919423669236"; 
+
+      // Advisor Profile Metadata
+      const ADVISOR_INFO = {
+        name: "Shubham Vilas Dalvi",
+        designation: "NISM-Certified Mutual Fund Distributor",
+        business: "FinAura Capital",
+        website: "https://finncap-in.vercel.app/"
+      };
+
+      /* ========================================================================
+         2. PRELOADED CHATBOT DATA
+         ======================================================================== */
+      const chatbotData = {
+        investment: {
+          title: "Investment Options",
+          prompt: "What would you like to know about?",
+          submenus: {
+            mutual_funds: {
+              label: "Mutual Funds",
+              prompt: "What would you like to know about Mutual Funds?",
+              topics: {
+                what_are_mf: { 
+                  label: "What are Mutual Funds?", 
+                  title: "WHAT ARE MUTUAL FUNDS?", 
+                  keywords: ["mutual fund", "what is mutual fund", "mf", "pool money", "funds"],
+                  answer: "A mutual fund pools money from multiple investors and invests it in a portfolio of securities such as equities, bonds or other assets. Mutual funds are managed according to the objectives and strategy of the respective scheme." 
+                },
+                nav: { 
+                  label: "What is NAV?", 
+                  title: "NAV", 
+                  keywords: ["nav", "net asset value", "unit price"],
+                  answer: "NAV, or Net Asset Value, represents the per-unit value of a mutual fund. It is broadly calculated using the value of the scheme's assets minus applicable liabilities and expenses, divided by the number of outstanding units." 
+                },
+                expense_ratio: { 
+                  label: "What is Expense Ratio?", 
+                  title: "EXPENSE RATIO", 
+                  keywords: ["expense ratio", "ter", "fund fee", "fund charges", "cost"],
+                  answer: "The expense ratio represents the operating expenses charged by a mutual fund scheme as a percentage of its assets. These expenses may include fund management and administration costs." 
+                },
+                exit_load: { 
+                  label: "What is Exit Load?", 
+                  title: "EXIT LOAD", 
+                  keywords: ["exit load", "penalty", "early redemption", "withdrawal fee"],
+                  answer: "Exit load is a fee that may apply when an investor redeems units within a specified period. The applicable amount and conditions depend on the particular mutual fund scheme." 
+                },
+                aum: { 
+                  label: "What is AUM?", 
+                  title: "AUM", 
+                  keywords: ["aum", "assets under management", "fund size"],
+                  answer: "AUM stands for Assets Under Management. It represents the total value of assets managed by a mutual fund or asset manager. A higher AUM does not automatically mean that a fund is better." 
+                },
+                direct_vs_regular: { 
+                  label: "Direct vs Regular Plans", 
+                  title: "DIRECT VS REGULAR", 
+                  keywords: ["direct plan", "regular plan", "distributor plan", "direct vs regular"],
+                  answer: "Direct plans are purchased directly from the mutual fund without a distributor, while regular plans are distributed through intermediaries. The cost structure and services available can differ between the two." 
+                },
+                index_fund: { 
+                  label: "What is an Index Fund?", 
+                  title: "INDEX FUND", 
+                  keywords: ["index fund", "passive fund", "nifty 50", "sensex fund"],
+                  answer: "An index fund is designed to track a specific market index. Instead of actively selecting securities to outperform the market, it generally aims to replicate the performance of its chosen benchmark, subject to expenses and tracking differences." 
+                },
+                tracking_error: { 
+                  label: "What is Tracking Error?", 
+                  title: "TRACKING ERROR", 
+                  keywords: ["tracking error", "index deviation"],
+                  answer: "Tracking error measures how closely an index fund or ETF follows its benchmark index. A smaller tracking error generally indicates that the fund has followed its benchmark more closely." 
+                },
+                diversification: { 
+                  label: "What is Diversification?", 
+                  title: "DIVERSIFICATION", 
+                  keywords: ["diversification", "spread risk", "portfolio allocation"],
+                  answer: "Diversification means spreading investments across different securities, sectors or asset classes. It can reduce dependence on any single investment, although it cannot eliminate investment risk." 
+                }
+              }
+            },
+            sip: {
+              label: "SIP",
+              prompt: "What would you like to know about SIP?",
+              topics: {
+                what_is_sip: { 
+                  label: "What is SIP?", 
+                  title: "WHAT IS SIP?", 
+                  keywords: ["sip", "what is sip", "systematic investment plan", "monthly investment"],
+                  answer: "SIP, or Systematic Investment Plan, is a method of investing a fixed amount at regular intervals, commonly into a mutual fund scheme. It encourages disciplined investing and allows investments to be made gradually." 
+                },
+                guarantee_returns: { 
+                  label: "Does SIP Guarantee Returns?", 
+                  title: "DOES SIP GUARANTEE RETURNS?", 
+                  keywords: ["sip guarantee", "guaranteed return", "fixed return"],
+                  answer: "No. SIP does not guarantee returns. The returns depend on the performance of the underlying investment, market conditions and the selected scheme." 
+                },
+                rupee_cost_averaging: { 
+                  label: "What is Rupee Cost Averaging?", 
+                  title: "RUPEE COST AVERAGING", 
+                  keywords: ["rupee cost averaging", "averaging", "market volatility sip"],
+                  answer: "Rupee cost averaging means investing a fixed amount regularly, which results in purchasing more units when prices are lower and fewer units when prices are higher. It does not guarantee profits or eliminate investment risk." 
+                },
+                compounding: { 
+                  label: "What is Compounding?", 
+                  title: "COMPOUNDING", 
+                  keywords: ["compounding", "power of compounding", "long term returns"],
+                  answer: "Compounding occurs when returns generated by an investment remain invested and potentially generate additional returns over time. The effect generally becomes more significant over longer investment periods." 
+                },
+                step_up_sip: { 
+                  label: "What is Step-up SIP?", 
+                  title: "STEP-UP SIP", 
+                  keywords: ["step up sip", "top up sip", "increase sip amount annually"],
+                  answer: "A step-up SIP increases the investment amount periodically. For example, an investor may start with a monthly SIP of Rs. 5,000 and increase the amount by a fixed amount or percentage at predetermined intervals." 
+                },
+                increase_sip: { 
+                  label: "Can I Increase My SIP?", 
+                  title: "INCREASE SIP", 
+                  keywords: ["increase sip", "modify sip", "raise sip amount"],
+                  answer: "Yes. Investors may increase their SIP amount through a step-up or top-up facility if it is available for the relevant scheme or platform." 
+                },
+                missed_sip: { 
+                  label: "What Happens If I Miss an SIP?", 
+                  title: "MISSED SIP", 
+                  keywords: ["missed sip", "skip sip", "insufficient balance sip", "stop sip penalty"],
+                  answer: "A missed SIP installment generally means that the investment for that installment does not take place. Repeated payment failures may have additional consequences depending on the payment mandate and applicable terms." 
+                },
+                stop_during_fall: { 
+                  label: "Should I Stop SIP During a Market Fall?", 
+                  title: "STOP SIP DURING MARKET FALL", 
+                  keywords: ["market fall sip", "market crash sip", "stop sip in bear market"],
+                  answer: "A market decline does not automatically mean an SIP should be stopped. SIPs are generally designed for disciplined periodic investing. Investors should consider their financial goals, investment horizon and risk tolerance before making changes." 
+                },
+                sip_vs_lumpsum: { 
+                  label: "SIP vs Lumpsum", 
+                  title: "SIP VS LUMPSUM", 
+                  keywords: ["sip vs lumpsum", "lumpsum or sip", "which is better sip or lumpsum"],
+                  answer: "SIP involves investing periodically, while lumpsum investing involves investing a larger amount at one time. The appropriate approach depends on factors such as available capital, investment horizon, market conditions and risk tolerance." 
+                }
+              }
+            },
+            lumpsum: {
+              label: "Lumpsum Investment",
+              prompt: "What would you like to know about Lumpsum Investment?",
+              topics: {
+                what_is_lumpsum: { 
+                  label: "What is Lumpsum Investment?", 
+                  title: "LUMPSUM INVESTMENT", 
+                  keywords: ["lumpsum", "what is lumpsum", "one time investment"],
+                  answer: "Lumpsum investment means investing a larger amount in a single transaction instead of making regular periodic investments." 
+                },
+                is_riskier: { 
+                  label: "Is Lumpsum Riskier Than SIP?", 
+                  title: "LUMPSUM VS SIP RISK", 
+                  keywords: ["lumpsum risk", "lumpsum vs sip risk"],
+                  answer: "The risk depends on the underlying investment and timing. A lumpsum investment places the available capital into the market at a particular point in time, whereas SIP spreads investments across multiple dates." 
+                },
+                combine_both: { 
+                  label: "Can I Combine SIP and Lumpsum?", 
+                  title: "COMBINING SIP AND LUMPSUM", 
+                  keywords: ["combine sip and lumpsum", "both sip and lumpsum"],
+                  answer: "Yes. An investor can use regular SIP contributions while also making additional lumpsum investments, subject to the scheme's rules and the investor's financial plan." 
+                }
+              }
+            },
+            swp: {
+              label: "SWP",
+              prompt: "What would you like to know about SWP?",
+              topics: {
+                what_is_swp: { 
+                  label: "What is SWP?", 
+                  title: "SYSTEMATIC WITHDRAWAL PLAN (SWP)", 
+                  keywords: ["swp", "what is swp", "systematic withdrawal plan", "monthly income"],
+                  answer: "SWP, or Systematic Withdrawal Plan, allows an investor to withdraw a specified amount from a mutual fund investment at regular intervals, subject to the scheme's terms." 
+                },
+                guaranteed_income: { 
+                  label: "Can SWP Provide Guaranteed Income?", 
+                  title: "GUARANTEED INCOME", 
+                  keywords: ["swp guarantee", "swp fixed income"],
+                  answer: "SWP does not guarantee income. Withdrawals reduce the investment balance, while the remaining investment continues to be affected by market performance." 
+                },
+                deplete_investment: { 
+                  label: "Can SWP Deplete My Investment?", 
+                  title: "INVESTMENT DEPLETION", 
+                  keywords: ["swp capital depletion", "swp risk"],
+                  answer: "Yes. If withdrawals are high compared with portfolio returns and the available corpus, the investment can reduce significantly or eventually be exhausted." 
+                },
+                swp_vs_dividend: { 
+                  label: "SWP vs Dividend", 
+                  title: "SWP VS DIVIDEND", 
+                  keywords: ["swp vs dividend", "dividend option vs swp"],
+                  answer: "SWP is an investor-initiated withdrawal from an investment. It is different from distributions made under a mutual fund scheme's applicable distribution structure." 
+                }
+              }
+            },
+            stp: {
+              label: "STP",
+              prompt: "What would you like to know about STP?",
+              topics: {
+                what_is_stp: { 
+                  label: "What is STP?", 
+                  title: "SYSTEMATIC TRANSFER PLAN (STP)", 
+                  keywords: ["stp", "what is stp", "systematic transfer plan", "transfer between funds"],
+                  answer: "STP, or Systematic Transfer Plan, allows an investor to transfer a specified amount from one eligible mutual fund scheme to another at regular intervals." 
+                },
+                why_use_stp: { 
+                  label: "Why Do Investors Use STP?", 
+                  title: "WHY USE STP?", 
+                  keywords: ["why use stp", "liquid to equity stp"],
+                  answer: "Investors may use STP to gradually move money between eligible schemes instead of transferring the entire amount at once. It can help manage deployment timing but does not eliminate market risk." 
+                },
+                is_tax_free: { 
+                  label: "Is STP Tax-Free?", 
+                  title: "TAX IMPLICATIONS", 
+                  keywords: ["stp tax", "is stp taxable"],
+                  answer: "Not necessarily. A transfer may involve redemption from the source scheme, and applicable tax consequences can arise depending on the transaction and prevailing tax rules." 
+                }
+              }
+            },
+            etf: {
+              label: "ETFs",
+              prompt: "What would you like to know about ETFs?",
+              topics: {
+                what_is_etf: { 
+                  label: "What is an ETF?", 
+                  title: "EXCHANGE TRADED FUNDS (ETFs)", 
+                  keywords: ["etf", "what is etf", "exchange traded funds", "gold etf"],
+                  answer: "An Exchange Traded Fund is a fund that trades on a stock exchange during market hours. It generally tracks an index, sector, commodity or other underlying asset or basket." 
+                },
+                etf_vs_index_mf: { 
+                  label: "ETF vs Index Mutual Fund", 
+                  title: "ETF VS INDEX MUTUAL FUND", 
+                  keywords: ["etf vs index fund", "etf vs mutual fund"],
+                  answer: "Both may track the same benchmark, but ETFs trade on stock exchanges during market hours, while mutual fund transactions follow the applicable purchase, redemption and NAV mechanisms." 
+                },
+                liquidity_risk: { 
+                  label: "What is ETF Liquidity Risk?", 
+                  title: "ETF LIQUIDITY RISK", 
+                  keywords: ["etf liquidity", "etf trading volume"],
+                  answer: "Liquidity risk occurs when there are insufficient buyers or sellers at a desired price. This can affect the ease and cost of buying or selling an ETF." 
+                },
+                bid_ask_spread: { 
+                  label: "What is Bid-Ask Spread?", 
+                  title: "BID-ASK SPREAD", 
+                  keywords: ["bid ask spread", "etf pricing difference"],
+                  answer: "The bid-ask spread is the difference between the highest price a buyer is willing to pay and the lowest price a seller is willing to accept. A wider spread can increase transaction costs." 
+                }
+              }
+            },
+            stocks: {
+              label: "Stocks",
+              prompt: "What would you like to know about Stocks?",
+              topics: {
+                what_are_stocks: { 
+                  label: "What are Stocks?", 
+                  title: "STOCKS", 
+                  keywords: ["stock", "stocks", "equity", "shares", "what is share"],
+                  answer: "Stocks represent ownership in a company. When you purchase shares, you become a shareholder and participate in the company's potential gains and losses." 
+                },
+                market_cap: { 
+                  label: "What is Market Capitalization?", 
+                  title: "MARKET CAPITALIZATION", 
+                  keywords: ["market cap", "large cap", "mid cap", "small cap"],
+                  answer: "Market capitalization is generally calculated by multiplying a company's outstanding shares by its current share price. It is commonly used to categorize companies by size." 
+                },
+                pe_ratio: { 
+                  label: "What is P/E Ratio?", 
+                  title: "P/E RATIO", 
+                  keywords: ["pe ratio", "price to earnings", "valuation"],
+                  answer: "The P/E ratio compares a company's market price per share with its earnings per share. It is one valuation metric and should not be used alone when evaluating a company." 
+                },
+                volatility: { 
+                  label: "What is Volatility?", 
+                  title: "VOLATILITY", 
+                  keywords: ["volatility", "market fluctuation", "swing"],
+                  answer: "Volatility refers to the degree to which an investment's price fluctuates over time. Higher volatility generally means larger price movements and greater short-term uncertainty." 
+                },
+                investing_vs_trading: { 
+                  label: "Investing vs Trading", 
+                  title: "INVESTING VS TRADING", 
+                  keywords: ["investing vs trading", "long term vs intraday"],
+                  answer: "Investing generally focuses on longer-term wealth creation, while trading generally involves shorter-term buying and selling based on price movements. Both involve risk." 
+                }
+              }
+            },
+            advanced_concepts: {
+              label: "Advanced Investment Concepts",
+              prompt: "What concept would you like to explore?",
+              topics: {
+                asset_allocation: { 
+                  label: "Asset Allocation", 
+                  title: "ASSET ALLOCATION", 
+                  keywords: ["asset allocation", "portfolio mix", "equity debt ratio"],
+                  answer: "Asset allocation is the process of distributing investments among asset classes such as equity, debt and other investments based on factors such as financial goals, investment horizon and risk tolerance." 
+                },
+                diversification_adv: { 
+                  label: "Diversification", 
+                  title: "DIVERSIFICATION", 
+                  keywords: ["diversification advanced", "unsystematic risk"],
+                  answer: "Diversification spreads investments across different assets or securities to reduce dependence on the performance of a single investment. It cannot completely eliminate investment risk." 
+                },
+                inflation_risk: { 
+                  label: "Inflation Risk", 
+                  title: "INFLATION RISK", 
+                  keywords: ["inflation", "purchasing power risk"],
+                  answer: "Inflation risk is the risk that rising prices reduce the purchasing power of money over time. Investments need to be evaluated in the context of both returns and inflation." 
+                },
+                risk_vs_volatility: { 
+                  label: "Risk vs Volatility", 
+                  title: "RISK VS VOLATILITY", 
+                  keywords: ["risk vs volatility", "loss vs fluctuation"],
+                  answer: "Volatility describes the magnitude of price fluctuations, while investment risk is broader and includes the possibility of losing capital or not achieving a financial objective." 
+                },
+                compounding_adv: { 
+                  label: "Compounding", 
+                  title: "COMPOUNDING", 
+                  keywords: ["compounding returns", "exponential growth"],
+                  answer: "Compounding occurs when returns remain invested and potentially generate additional returns over time. The effect can become more significant over longer periods." 
+                },
+                investment_horizon: { 
+                  label: "Investment Horizon", 
+                  title: "INVESTMENT HORIZON", 
+                  keywords: ["investment horizon", "time frame", "short term vs long term"],
+                  answer: "Investment horizon is the expected period for which an investor plans to remain invested. Different financial goals may require different investment horizons." 
+                },
+                risk_tolerance: { 
+                  label: "Risk Tolerance", 
+                  title: "RISK TOLERANCE", 
+                  keywords: ["risk tolerance", "risk appetite", "risk profiling"],
+                  answer: "Risk tolerance refers to an investor's ability and willingness to accept fluctuations or potential losses in pursuit of investment objectives." 
+                }
+              }
+            }
+          }
+        },
+        insurance: {
+          title: "Insurance Options",
+          prompt: "What type of insurance are you interested in?",
+          submenus: {
+            health_insurance: {
+              label: "Health Insurance",
+              prompt: "What would you like to know about Health Insurance?",
+              topics: {
+                what_is_health: { 
+                  label: "What is Health Insurance?", 
+                  title: "HEALTH INSURANCE", 
+                  keywords: ["health insurance", "mediclaim", "medical cover", "hospitalization"],
+                  answer: "Health insurance provides financial protection against eligible medical and hospitalization expenses, subject to the policy's terms, conditions, exclusions and applicable limits." 
+                },
+                sum_insured: { 
+                  label: "What is Sum Insured?", 
+                  title: "SUM INSURED", 
+                  keywords: ["sum insured", "coverage limit", "policy amount"],
+                  answer: "The sum insured is the maximum amount of coverage available under a health insurance policy, subject to its terms, conditions, exclusions and applicable limits." 
+                },
+                waiting_period: { 
+                  label: "What is a Waiting Period?", 
+                  title: "WAITING PERIOD", 
+                  keywords: ["waiting period", "ped", "pre-existing disease"],
+                  answer: "A waiting period is a specified period during which certain illnesses, treatments or conditions may not be covered. The applicable waiting period depends on the policy." 
+                },
+                cashless_claim: { 
+                  label: "What is a Cashless Claim?", 
+                  title: "CASHLESS CLAIM", 
+                  keywords: ["cashless", "cashless claim", "network hospital", "tpa"],
+                  answer: "A cashless claim facility may allow eligible treatment expenses to be settled directly between the insurer and a network hospital, subject to policy terms, authorization and applicable conditions." 
+                },
+                room_rent_limit: { 
+                  label: "What is a Room Rent Limit?", 
+                  title: "ROOM RENT LIMIT", 
+                  keywords: ["room rent", "room rent capping", "proportionate deduction"],
+                  answer: "A room-rent limit restricts the amount payable toward hospital room charges under certain policies. Such limits may affect claim calculations depending on the policy terms." 
+                }
+              }
+            },
+            term_insurance: {
+              label: "Term Insurance",
+              prompt: "What would you like to know about Term Insurance?",
+              topics: {
+                what_is_term: { 
+                  label: "What is Term Insurance?", 
+                  title: "TERM INSURANCE", 
+                  keywords: ["term insurance", "life insurance", "term plan", "death benefit"],
+                  answer: "Term insurance provides life insurance coverage for a specified period. If the insured person dies during the policy term, the nominee may receive the applicable death benefit, subject to policy terms and conditions." 
+                },
+                why_buy_term: { 
+                  label: "Why Buy Term Insurance?", 
+                  title: "WHY BUY TERM INSURANCE?", 
+                  keywords: ["why term insurance", "pure life cover", "family security"],
+                  answer: "Term insurance is generally used to provide financial protection to dependents in the event of the insured person's death." 
+                },
+                what_affects_premium: { 
+                  label: "What Affects Premium?", 
+                  title: "WHAT AFFECTS PREMIUM?", 
+                  keywords: ["term premium", "premium calculation", "age smoking rider"],
+                  answer: "Premiums can depend on factors such as age, coverage amount, policy term, health information, lifestyle, occupation and underwriting requirements." 
+                },
+                how_much_coverage: { 
+                  label: "How Much Coverage Do I Need?", 
+                  title: "COVERAGE ASSESSMENT", 
+                  keywords: ["term coverage amount", "how much term cover", "human life value"],
+                  answer: "The appropriate coverage depends on factors such as income, liabilities, dependents, financial goals and existing assets. A proper assessment is recommended before selecting coverage." 
+                }
+              }
+            },
+            car_insurance: {
+              label: "Car Insurance",
+              prompt: "What would you like to know about Car Insurance?",
+              topics: {
+                what_is_car: { 
+                  label: "What is Car Insurance?", 
+                  title: "CAR INSURANCE", 
+                  keywords: ["car insurance", "motor insurance", "auto insurance", "vehicle insurance"],
+                  answer: "Car insurance provides financial protection against covered risks related to a vehicle, subject to policy terms, exclusions and applicable conditions." 
+                },
+                third_party: { 
+                  label: "Third-Party Insurance", 
+                  title: "THIRD-PARTY INSURANCE", 
+                  keywords: ["third party", "tp insurance", "mandatory car insurance"],
+                  answer: "Third-party motor insurance provides coverage for specified legal liabilities arising from injury to or death of a third party and damage to third-party property, subject to applicable law and policy terms." 
+                },
+                comprehensive: { 
+                  label: "Comprehensive Insurance", 
+                  title: "COMPREHENSIVE INSURANCE", 
+                  keywords: ["comprehensive insurance", "own damage", "od cover"],
+                  answer: "Comprehensive motor insurance generally combines third-party liability coverage with coverage for specified own-damage risks, subject to policy terms, exclusions and applicable conditions." 
+                },
+                idv: { 
+                  label: "What is IDV?", 
+                  title: "IDV (INSURED DECLARED VALUE)", 
+                  keywords: ["idv", "insured declared value", "vehicle valuation"],
+                  answer: "IDV, or Insured Declared Value, is the declared value of the insured vehicle used for certain claim calculations, particularly in cases such as total loss or theft, according to applicable policy terms." 
+                },
+                ncb: { 
+                  label: "What is a No Claim Bonus?", 
+                  title: "NO CLAIM BONUS (NCB)", 
+                  keywords: ["ncb", "no claim bonus", "claim free discount"],
+                  answer: "No Claim Bonus is a benefit that may be offered for claim-free periods, subject to the insurer's applicable terms and conditions." 
+                }
+              }
+            }
+          }
+        }
+      };
+
+      /* ========================================================================
+         3. STATE & DOM REFERENCES
+         ======================================================================== */
+      let isOpen = false;
+      let navHistory = [];
+      let lastTopicLabel = "your question";
+
+      const triggerBtn = document.getElementById("finauraTriggerBtn");
+      const chatWindow = document.getElementById("finauraChatWindow");
+      const chatBody = document.getElementById("finauraChatBody");
+      const optionsList = document.getElementById("finauraOptionsList");
+      const controlsHint = document.getElementById("finauraControlsHint");
+      const closeBtn = document.getElementById("finauraCloseBtn");
+      const restartBtn = document.getElementById("finauraRestartBtn");
+      const searchForm = document.getElementById("finauraSearchForm");
+      const searchInput = document.getElementById("finauraSearchInput");
+
+      function getCurrentTimeFormatted() {
+        const now = new Date();
+        let hours = now.getHours();
+        let minutes = now.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        minutes = minutes < 10 ? '0' + minutes : minutes;
+        return `${hours}:${minutes} ${ampm}`;
+      }
+
+      function showTypingIndicator() {
+        const typingEl = document.createElement("div");
+        typingEl.id = "finauraActiveTyping";
+        typingEl.className = "finaura-typing";
+        typingEl.innerHTML = '<span class="finaura-typing-dot"></span><span class="finaura-typing-dot"></span><span class="finaura-typing-dot"></span>';
+        chatBody.appendChild(typingEl);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      function removeTypingIndicator() {
+        const typingEl = document.getElementById("finauraActiveTyping");
+        if (typingEl) typingEl.remove();
+      }
+
+      function appendMessage(sender, text, title = null) {
+        removeTypingIndicator();
+        const row = document.createElement("div");
+        row.className = `finaura-msg-row ${sender}`;
+        const bubble = document.createElement("div");
+        bubble.className = `finaura-msg-bubble ${sender}`;
+        if (title && sender === "bot") {
+          const titleEl = document.createElement("div");
+          titleEl.className = "finaura-msg-title";
+          titleEl.innerHTML = `<i class="fa-solid fa-sparkles text-blue-600"></i> ${title}`;
+          bubble.appendChild(titleEl);
+        }
+        const textEl = document.createElement("div");
+        textEl.className = "finaura-msg-text";
+        textEl.textContent = text;
+        bubble.appendChild(textEl);
+        row.appendChild(bubble);
+        const timeEl = document.createElement("span");
+        timeEl.className = "finaura-msg-time";
+        timeEl.textContent = getCurrentTimeFormatted();
+        row.appendChild(timeEl);
+        chatBody.appendChild(row);
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      function sendBotMessageWithTransition(text, title = null, callback = null) {
+        showTypingIndicator();
+        setTimeout(function () {
+          appendMessage("bot", text, title);
+          if (callback) callback();
+        }, 150);
+      }
+
+      function clearOptions() { optionsList.innerHTML = ""; }
+
+      /* ========================================================================
+         4. KEYWORD MATCHING SEARCH ENGINE (NO AI / NO NLP)
+         ======================================================================== */
+      function searchTopicByQuery(query) {
+        const cleaned = query.toLowerCase().trim().replace(/[?!.,]/g, '');
+        if (!cleaned) return null;
+
+        const words = cleaned.split(/\s+/).filter(w => !["what", "is", "a", "an", "the", "how", "to", "does", "can", "i", "my", "about", "tell", "me"].includes(w));
+
+        let bestMatch = null;
+        let highestScore = 0;
+
+        for (const catKey of ['investment', 'insurance']) {
+          const submenus = chatbotData[catKey].submenus;
+          for (const subKey in submenus) {
+            const topics = submenus[subKey].topics;
+            for (const topicKey in topics) {
+              const topic = topics[topicKey];
+              let score = 0;
+
+              // Exact phrase match in label or title
+              if (topic.label.toLowerCase().includes(cleaned) || topic.title.toLowerCase().includes(cleaned)) {
+                score += 5;
+              }
+
+              // Keyword array matching
+              if (topic.keywords) {
+                topic.keywords.forEach(kw => {
+                  if (cleaned.includes(kw) || kw.includes(cleaned)) score += 4;
+                  words.forEach(w => {
+                    if (kw.includes(w)) score += 2;
+                  });
+                });
+              }
+
+              if (score > highestScore) {
+                highestScore = score;
+                bestMatch = { catKey, subKey, topicKey, topic };
+              }
+            }
+          }
+        }
+
+        return highestScore >= 2 ? bestMatch : null;
+      }
+
+      searchForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        if (!query) return;
+
+        appendMessage("user", query);
+        searchInput.value = "";
+
+        const match = searchTopicByQuery(query);
+
+        if (match) {
+          renderTopicAnswer(match.catKey, match.subKey, match.topicKey);
+        } else {
+          sendBotMessageWithTransition(
+            `I couldn't find an exact answer for "${query}". You can select a topic from the menu below or contact our financial advisor directly on WhatsApp.`,
+            "TOPIC NOT FOUND",
+            function () {
+              clearOptions();
+              controlsHint.textContent = "Recommended options:";
+
+              // WhatsApp CTA with user query
+              const btnWhatsapp = document.createElement("a");
+              btnWhatsapp.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi FinAura Capital, I was searching for: " + query + " on your website assistant.")}`;
+              btnWhatsapp.target = "_blank";
+              btnWhatsapp.rel = "noopener noreferrer";
+              btnWhatsapp.className = "finaura-btn-whatsapp";
+              btnWhatsapp.innerHTML = "<i class=\"fa-brands fa-whatsapp\"></i><span>Ask Advisor on WhatsApp</span>";
+              optionsList.appendChild(btnWhatsapp);
+
+              // Quick Enquiry Form Button
+              const btnForm = document.createElement("button");
+              btnForm.type = "button";
+              btnForm.className = "finaura-btn-cta";
+              btnForm.innerHTML = "<span>Submit Quick Enquiry</span><i class=\"fa-solid fa-file-signature\"></i>";
+              btnForm.onclick = function () { appendMessage("user", "Submit Quick Enquiry"); renderInWidgetContactForm(query); };
+              optionsList.appendChild(btnForm);
+
+              // Main Menu Button
+              const btnMain = document.createElement("button");
+              btnMain.type = "button";
+              btnMain.className = "finaura-btn-nav";
+              btnMain.style.width = "100%";
+              btnMain.innerHTML = "<i class=\"fa-solid fa-house\"></i> Back to Main Menu";
+              btnMain.onclick = function () { appendMessage("user", "Back to Main Menu"); resetToWelcome(); };
+              optionsList.appendChild(btnMain);
+            }
+          );
+        }
+      });
+
+      /* ========================================================================
+         5. NAVIGATION FLOW CONTROLLERS
+         ======================================================================== */
+      function renderWelcomeView(addToHistory = true) {
+        if (addToHistory) navHistory = [{ view: 'welcome' }];
+        clearOptions();
+        controlsHint.textContent = "Please select an option:";
+        appendMessage("bot", "Hello, I'm the FinAura Capital Assistant.\nHow can I help you today?");
+
+        const btnInvestment = document.createElement("button");
+        btnInvestment.type = "button";
+        btnInvestment.className = "finaura-btn-option";
+        btnInvestment.innerHTML = "<span>Investment</span><i class=\"fa-solid fa-chevron-right\"></i>";
+        btnInvestment.onclick = function () { appendMessage("user", "Investment"); renderInvestmentMenu(); };
+        optionsList.appendChild(btnInvestment);
+
+        const btnInsurance = document.createElement("button");
+        btnInsurance.type = "button";
+        btnInsurance.className = "finaura-btn-option";
+        btnInsurance.innerHTML = "<span>Insurance</span><i class=\"fa-solid fa-chevron-right\"></i>";
+        btnInsurance.onclick = function () { appendMessage("user", "Insurance"); renderInsuranceMenu(); };
+        optionsList.appendChild(btnInsurance);
+
+        const btnContact = document.createElement("button");
+        btnContact.type = "button";
+        btnContact.className = "finaura-btn-nav";
+        btnContact.style.width = "100%";
+        btnContact.style.marginTop = "4px";
+        btnContact.innerHTML = "<i class=\"fa-solid fa-file-signature\"></i> Direct Enquiry Form";
+        btnContact.onclick = function () { appendMessage("user", "Direct Enquiry Form"); renderInWidgetContactForm(); };
+        optionsList.appendChild(btnContact);
+      }
+
+      function renderInvestmentMenu(addToHistory = true) {
+        if (addToHistory) navHistory.push({ view: 'investment_menu' });
+        clearOptions();
+        controlsHint.textContent = "Select an investment category:";
+        sendBotMessageWithTransition(chatbotData.investment.prompt, null, function () {
+          const submenus = chatbotData.investment.submenus;
+          for (const [key, sub] of Object.entries(submenus)) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "finaura-btn-option";
+            btn.innerHTML = `<span>${sub.label}</span><i class="fa-solid fa-chevron-right"></i>`;
+            btn.onclick = function () { appendMessage("user", sub.label); renderSubmenu('investment', key); };
+            optionsList.appendChild(btn);
+          }
+          const btnBack = document.createElement("button");
+          btnBack.type = "button";
+          btnBack.className = "finaura-btn-nav";
+          btnBack.style.width = "100%";
+          btnBack.style.marginTop = "4px";
+          btnBack.innerHTML = "<i class=\"fa-solid fa-arrow-left\"></i> Back to Main Menu";
+          btnBack.onclick = function () { appendMessage("user", "Back to Main Menu"); handleBack(); };
+          optionsList.appendChild(btnBack);
+        });
+      }
+
+      function renderInsuranceMenu(addToHistory = true) {
+        if (addToHistory) navHistory.push({ view: 'insurance_menu' });
+        clearOptions();
+        controlsHint.textContent = "Select an insurance category:";
+        sendBotMessageWithTransition(chatbotData.insurance.prompt, null, function () {
+          const submenus = chatbotData.insurance.submenus;
+          for (const [key, sub] of Object.entries(submenus)) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "finaura-btn-option";
+            btn.innerHTML = `<span>${sub.label}</span><i class="fa-solid fa-chevron-right"></i>`;
+            btn.onclick = function () { appendMessage("user", sub.label); renderSubmenu('insurance', key); };
+            optionsList.appendChild(btn);
+          }
+          const btnBack = document.createElement("button");
+          btnBack.type = "button";
+          btnBack.className = "finaura-btn-nav";
+          btnBack.style.width = "100%";
+          btnBack.style.marginTop = "4px";
+          btnBack.innerHTML = "<i class=\"fa-solid fa-arrow-left\"></i> Back to Main Menu";
+          btnBack.onclick = function () { appendMessage("user", "Back to Main Menu"); handleBack(); };
+          optionsList.appendChild(btnBack);
+        });
+      }
+
+      function renderSubmenu(categoryKey, subKey, addToHistory = true) {
+        if (addToHistory) navHistory.push({ view: 'submenu', categoryKey: categoryKey, subKey: subKey });
+        clearOptions();
+        const sub = chatbotData[categoryKey].submenus[subKey];
+        controlsHint.textContent = `Select a question (${sub.label}):`;
+        sendBotMessageWithTransition(sub.prompt, null, function () {
+          const topics = sub.topics;
+          for (const [topicKey, topic] of Object.entries(topics)) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "finaura-btn-option";
+            btn.innerHTML = `<span>${topic.label}</span><i class="fa-solid fa-chevron-right"></i>`;
+            btn.onclick = function () { appendMessage("user", topic.label); renderTopicAnswer(categoryKey, subKey, topicKey); };
+            optionsList.appendChild(btn);
+          }
+          const btnBack = document.createElement("button");
+          btnBack.type = "button";
+          btnBack.className = "finaura-btn-nav";
+          btnBack.style.width = "100%";
+          btnBack.style.marginTop = "4px";
+          btnBack.innerHTML = "<i class=\"fa-solid fa-arrow-left\"></i> Back";
+          btnBack.onclick = function () { appendMessage("user", "Back"); handleBack(); };
+          optionsList.appendChild(btnBack);
+        });
+      }
+
+      function renderTopicAnswer(categoryKey, subKey, topicKey, addToHistory = true) {
+        if (addToHistory) navHistory.push({ view: 'topic_answer', categoryKey: categoryKey, subKey: subKey, topicKey: topicKey });
+        clearOptions();
+        const topic = chatbotData[categoryKey].submenus[subKey].topics[topicKey];
+        lastTopicLabel = topic.label;
+
+        sendBotMessageWithTransition(topic.answer, topic.title, function () {
+          setTimeout(function () {
+            appendMessage("bot", "Would you like assistance with this?");
+            controlsHint.textContent = "Please select an option:";
+
+            // Direct WhatsApp CTA button with topic context
+            const btnWhatsapp = document.createElement("a");
+            btnWhatsapp.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hi, I have an enquiry about " + topic.label + " from the FinAura Capital website.")}`;
+            btnWhatsapp.target = "_blank";
+            btnWhatsapp.rel = "noopener noreferrer";
+            btnWhatsapp.className = "finaura-btn-whatsapp";
+            btnWhatsapp.innerHTML = "<i class=\"fa-brands fa-whatsapp\"></i><span>Chat on WhatsApp</span>";
+            btnWhatsapp.onclick = function () { appendMessage("user", "Chat on WhatsApp"); };
+            optionsList.appendChild(btnWhatsapp);
+
+            // In-Widget / Google Form Enquiry CTA
+            const btnEnquiry = document.createElement("button");
+            btnEnquiry.type = "button";
+            btnEnquiry.className = "finaura-btn-cta";
+            btnEnquiry.innerHTML = "<span>Enquiry Now</span><i class=\"fa-solid fa-arrow-right\"></i>";
+            btnEnquiry.onclick = function () { appendMessage("user", "Enquiry Now"); renderInWidgetContactForm(topic.label); };
+            optionsList.appendChild(btnEnquiry);
+
+            const btnAskAnother = document.createElement("button");
+            btnAskAnother.type = "button";
+            btnAskAnother.className = "finaura-btn-option";
+            btnAskAnother.innerHTML = `<span>Ask Another Question</span><i class="fa-solid fa-rotate-left"></i>`;
+            btnAskAnother.onclick = function () { appendMessage("user", "Ask Another Question"); renderSubmenu(categoryKey, subKey); };
+            optionsList.appendChild(btnAskAnother);
+
+            const btnMain = document.createElement("button");
+            btnMain.type = "button";
+            btnMain.className = "finaura-btn-nav";
+            btnMain.style.width = "100%";
+            btnMain.innerHTML = "<i class=\"fa-solid fa-house\"></i> Main Menu";
+            btnMain.onclick = function () { appendMessage("user", "Main Menu"); resetToWelcome(); };
+            optionsList.appendChild(btnMain);
+          }, 160);
+        });
+      }
+
+      /* ========================================================================
+         6. WORKING IN-WIDGET ENQUIRY FORM FLOW
+         ======================================================================== */
+      function renderInWidgetContactForm(prefilledTopic = "") {
+        if (navHistory[navHistory.length - 1]?.view !== 'enquiry_form') {
+          navHistory.push({ view: 'enquiry_form', prefilledTopic });
+        }
+        clearOptions();
+        controlsHint.textContent = "Complete your enquiry:";
+
+        sendBotMessageWithTransition("Please share your contact details below. Our NISM-certified advisor will get in touch with you.", "QUICK ENQUIRY", function () {
+          const formWrapper = document.createElement("div");
+          formWrapper.className = "finaura-contact-form";
+
+          formWrapper.innerHTML = `
+            <div class="finaura-form-group">
+              <label class="finaura-form-label">Full Name *</label>
+              <input type="text" id="faFormName" class="finaura-form-input" placeholder="e.g. Ramesh Kumar" required />
+            </div>
+            <div class="finaura-form-group">
+              <label class="finaura-form-label">Mobile Number *</label>
+              <input type="tel" id="faFormPhone" class="finaura-form-input" placeholder="e.g. 9876543210" required />
+            </div>
+            <div class="finaura-form-group">
+              <label class="finaura-form-label">Topic of Interest</label>
+              <input type="text" id="faFormTopic" class="finaura-form-input" value="${prefilledTopic || lastTopicLabel || 'Mutual Funds & SIP'}" />
+            </div>
+            <button type="button" id="faFormSubmitBtn" class="finaura-btn-cta" style="margin-top: 4px;">
+              <i class="fa-solid fa-paper-plane"></i> Submit via WhatsApp / Form
+            </button>
+            ${GOOGLE_FORM_URL && GOOGLE_FORM_URL !== "YOUR_GOOGLE_FORM_URL_HERE" ? `
+              <a href="${GOOGLE_FORM_URL}" target="_blank" rel="noopener noreferrer" class="finaura-btn-nav" style="width:100%; text-decoration:none; font-size:11px;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Google Form Instead
+              </a>
+            ` : ''}
+          `;
+
+          optionsList.appendChild(formWrapper);
+
+          const submitBtn = document.getElementById("faFormSubmitBtn");
+          submitBtn.onclick = function () {
+            const name = document.getElementById("faFormName").value.trim();
+            const phone = document.getElementById("faFormPhone").value.trim();
+            const topic = document.getElementById("faFormTopic").value.trim();
+
+            if (!name || !phone) {
+              alert("Please enter both your name and phone number.");
+              return;
+            }
+
+            appendMessage("user", `Enquiry Submitted:\nName: ${name}\nPhone: ${phone}\nTopic: ${topic}`);
+
+            // Automatically open WhatsApp message with pre-filled enquiry text
+            const waText = `*New Advisory Enquiry - FinAura Capital*\n\nName: ${name}\nPhone: ${phone}\nTopic of Interest: ${topic}\n\nSent via FinAura Website Assistant.`;
+            const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+            window.open(waUrl, '_blank');
+
+            renderContactPostSubmission(name);
+          };
+
+          const btnBack = document.createElement("button");
+          btnBack.type = "button";
+          btnBack.className = "finaura-btn-nav";
+          btnBack.style.width = "100%";
+          btnBack.style.marginTop = "4px";
+          btnBack.innerHTML = "<i class=\"fa-solid fa-arrow-left\"></i> Back";
+          btnBack.onclick = function () { appendMessage("user", "Back"); handleBack(); };
+          optionsList.appendChild(btnBack);
+        });
+      }
+
+      function renderContactPostSubmission(userName = "") {
+        clearOptions();
+        controlsHint.textContent = "Enquiry received:";
+        sendBotMessageWithTransition(
+          `Thank you${userName ? ' ' + userName : ''}! Your enquiry has been received. Our team will review your request and connect with you shortly.`,
+          "SUBMISSION CONFIRMED",
+          function () {
+            const btnMain = document.createElement("button");
+            btnMain.type = "button";
+            btnMain.className = "finaura-btn-option";
+            btnMain.innerHTML = "<span>Main Menu</span><i class=\"fa-solid fa-house\"></i>";
+            btnMain.onclick = function () { appendMessage("user", "Main Menu"); resetToWelcome(); };
+            optionsList.appendChild(btnMain);
+
+            const btnClose = document.createElement("button");
+            btnClose.type = "button";
+            btnClose.className = "finaura-btn-nav";
+            btnClose.style.width = "100%";
+            btnClose.innerHTML = "<i class=\"fa-solid fa-xmark\"></i> Close Chat";
+            btnClose.onclick = function () { closeChat(); };
+            optionsList.appendChild(btnClose);
+          }
+        );
+      }
+
+      function handleBack() {
+        if (navHistory.length <= 1) { resetToWelcome(); return; }
+        navHistory.pop();
+        const previousState = navHistory[navHistory.length - 1];
+        if (!previousState || previousState.view === 'welcome') resetToWelcome();
+        else if (previousState.view === 'investment_menu') renderInvestmentMenu(false);
+        else if (previousState.view === 'insurance_menu') renderInsuranceMenu(false);
+        else if (previousState.view === 'submenu') renderSubmenu(previousState.categoryKey, previousState.subKey, false);
+        else if (previousState.view === 'topic_answer') renderTopicAnswer(previousState.categoryKey, previousState.subKey, previousState.topicKey, false);
+        else resetToWelcome();
+      }
+
+      function resetToWelcome() { chatBody.innerHTML = ""; clearOptions(); renderWelcomeView(true); }
+
+      function openChat() { isOpen = true; chatWindow.classList.add("is-open"); resetToWelcome(); }
+
+      function closeChat() {
+        isOpen = false;
+        chatWindow.classList.remove("is-open");
+        chatBody.innerHTML = "";
+        clearOptions();
+        navHistory = [];
+      }
+
+      /* Event Listeners */
+      triggerBtn.addEventListener("click", function () { if (isOpen) closeChat(); else openChat(); });
+      closeBtn.addEventListener("click", closeChat);
+      restartBtn.addEventListener("click", resetToWelcome);
+      document.addEventListener("keydown", function (e) { if (e.key === "Escape" && isOpen) closeChat(); });
+
+    })();
+  </script>
+</body>
+</html>

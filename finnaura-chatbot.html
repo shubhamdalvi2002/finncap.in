@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinAura Capital Assistant</title>
+  <!-- Font Awesome for clean, professional icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- Google Fonts: Inter & Outfit for refined typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ==========================================================================
+       CSS STYLES - FINAURA CAPITAL CHATBOT
+       ========================================================================== */
+    :root {
+      --fa-primary: #1e3a8a;          /* Deep professional navy blue */
+      --fa-primary-hover: #172554;    /* Darker navy blue for hover */
+      --fa-accent: #2563eb;           /* Bright royal blue */
+      --fa-accent-light: #eff6ff;     /* Subtle light blue background */
+      --fa-accent-border: #bfdbfe;    /* Light blue border */
+      --fa-bg-chat: #ffffff;          /* Pure white chat window */
+      --fa-bg-bot-msg: #f8fafc;       /* Clean neutral bot message bubble */
+      --fa-border-bot-msg: #e2e8f0;   /* Bot bubble border */
+      --fa-text-main: #0f172a;        /* High contrast dark slate text */
+      --fa-text-muted: #475569;       /* Secondary neutral text */
+      --fa-text-light: #64748b;       /* Tertiary neutral text */
+      --fa-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.1);
+      --fa-radius-lg: 16px;
+      --fa-radius-md: 10px;
+      --fa-radius-sm: 6px;
+      --fa-font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --fa-font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--fa-font-sans);
+      background-color: #f1f5f9;
+      color: var(--fa-text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+    }
+
+    /* Demo container for testing standalone file */
+    .demo-page-container {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 32px 24px;
+      background-color: #ffffff;
+      border-radius: var(--fa-radius-lg);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+    }
+
+    .demo-page-container h1 {
+      font-family: var(--fa-font-heading);
+      color: var(--fa-primary);
+      font-size: 1.875rem;
+      margin-bottom: 8px;
+    }
+
+    .demo-page-container p {
+      color: var(--fa-text-muted);
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+    }
+
+    .demo-badge {
+      display: inline-block;
+      background-color: var(--fa-accent-light);
+      color: var(--fa-accent);
+      border: 1px solid var(--fa-accent-border);
+      padding: 4px 12px;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+    }
+
+    /* Floating Chat Trigger Button */
+    .finaura-chat-trigger {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9998;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: var(--fa-primary);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 10px 15px -3px rgba(30, 58, 138, 0.3), 0 4px 6px -4px rgba(30, 58, 138, 0.2);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      outline: none;
+    }
+
+    .finaura-chat-trigger:hover {
+      background-color: var(--fa-primary-hover);
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 14px 20px -3px rgba(30, 58, 138, 0.35);
+    }
+
+    .finaura-chat-trigger:focus-visible {
+      outline: 3px solid var(--fa-accent);
+      outline-offset: 3px;
+    }
+
+    .finaura-chat-trigger-tooltip {
+      position: absolute;
+      right: 72px;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: #0f172a;
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: var(--fa-radius-sm);
+      font-size: 0.8rem;
+      font-weight: 500;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .finaura-chat-trigger:hover .finaura-chat-trigger-tooltip {
+      opacity: 1;
+    }
+
+    /* Main Chatbot Window */
+    .finaura-chat-widget {
+      position: fixed;
+      bottom: 96px;
+      right: 24px;
+      width: 390px;
+      max-width: calc(100vw - 32px);
+      height: 580px;
+      max-height: calc(100vh - 120px);
+      background-color: var(--fa-bg-chat);
+      border-radius: var(--fa-radius-lg);
+      box-shadow: var(--fa-shadow);
+      border: 1px solid #cbd5e1;
+      display: none; /* Controlled via JS */
+      flex-direction: column;
+      z-index: 9999;
+      overflow: hidden;
+      font-size: 14px;
+    }
+
+    .finaura-chat-widget.active {
+      display: flex;
+      animation: finauraFadeSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes finauraFadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    /* Chatbot Header */
+    .finaura-chat-header {
+      background-color: var(--fa-primary);
+      color: #ffffff;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      user-select: none;
+    }
+
+    .finaura-header-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .finaura-header-icon-box {
+      width: 36px;
+      height: 36px;
+      background-color: rgba(255, 255, 255, 0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .finaura-header-text h3 {
+      font-family: var(--fa-font-heading);
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.2;
+      color: #ffffff;
+    }
+
+    .finaura-header-text p {
+      font-size: 0.72rem;
+      color: #cbd5e1;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .finaura-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .finaura-header-btn {
+      background: transparent;
+      border: none;
+      color: #cbd5e1;
+      width: 28px;
+      height: 28px;
+      border-radius: var(--fa-radius-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      transition: all 0.15s ease;
+    }
+
+    .finaura-header-btn:hover {
+      background-color: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    .finaura-header-btn:focus-visible {
+      outline: 2px solid #ffffff;
+    }
+
+    /* Conversation Area */
+    .finaura-chat-body {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      background-color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+
+    .finaura-chat-body::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .finaura-chat-body::-webkit-scrollbar-track {
+      background: #f8fafc;
+    }
+
+    .finaura-chat-body::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    /* Message Bubbles */
+    .finaura-msg-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%;
+    }
+
+    .finaura-msg-group.bot {
+      align-items: flex-start;
+    }
+
+    .finaura-msg-group.user {
+      align-items: flex-end;
+    }
+
+    .finaura-msg-bubble {
+      max-width: 88%;
+      padding: 11px 14px;
+      border-radius: var(--fa-radius-md);
+      font-size: 0.875rem;
+      line-height: 1.45;
+      word-break: break-word;
+    }
+
+    .finaura-msg-bubble.bot {
+      background-color: var(--fa-bg-bot-msg);
+      color: var(--fa-text-main);
+      border: 1px solid var(--fa-border-bot-msg);
+      border-top-left-radius: 2px;
+    }
+
+    .finaura-msg-bubble.user {
+      background-color: var(--fa-primary);
+      color: #ffffff;
+      border-top-right-radius: 2px;
+    }
+
+    .finaura-msg-title {
+      font-family: var(--fa-font-heading);
+      font-weight: 700;
+      color: var(--fa-primary);
+      font-size: 0.92rem;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .finaura-msg-text {
+      color: var(--fa-text-main);
+    }
+
+    /* Options / Interactive Buttons Area */
+    .finaura-chat-controls {
+      padding: 12px 16px 14px 16px;
+      background-color: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .finaura-controls-hint {
+      font-size: 0.73rem;
+      font-weight: 500;
+      color: var(--fa-text-light);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    .finaura-options-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 175px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+
+    .finaura-options-grid::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .finaura-options-grid::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    .finaura-btn-option {
+      background-color: #ffffff;
+      color: var(--fa-primary);
+      border: 1px solid var(--fa-accent-border);
+      padding: 9px 14px;
+      border-radius: var(--fa-radius-sm);
+      font-family: var(--fa-font-sans);
+      font-size: 0.83rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s ease;
+      outline: none;
+    }
+
+    .finaura-btn-option:hover {
+      background-color: var(--fa-accent-light);
+      border-color: var(--fa-accent);
+      color: var(--fa-primary-hover);
+      transform: translateX(2px);
+    }
+
+    .finaura-btn-option:focus-visible {
+      outline: 2px solid var(--fa-accent);
+      outline-offset: 1px;
+    }
+
+    .finaura-btn-option i {
+      font-size: 11px;
+      color: var(--fa-accent);
+    }
+
+    /* Special CTA Button (e.g. Submit Enquiry) */
+    .finaura-btn-cta {
+      background-color: var(--fa-accent);
+      color: #ffffff;
+      border: 1px solid var(--fa-accent);
+      padding: 10px 14px;
+      border-radius: var(--fa-radius-sm);
+      font-family: var(--fa-font-sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      outline: none;
+      width: 100%;
+      text-decoration: none;
+    }
+
+    .finaura-btn-cta:hover {
+      background-color: var(--fa-primary);
+      border-color: var(--fa-primary);
+    }
+
+    .finaura-btn-cta:focus-visible {
+      outline: 2px solid var(--fa-primary);
+      outline-offset: 2px;
+    }
+
+    /* Secondary Nav Buttons (Back, Main Menu) */
+    .finaura-btn-nav {
+      background-color: transparent;
+      color: var(--fa-text-muted);
+      border: 1px solid #cbd5e1;
+      padding: 7px 12px;
+      border-radius: var(--fa-radius-sm);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .finaura-btn-nav:hover {
+      background-color: #ffffff;
+      color: var(--fa-text-main);
+      border-color: #94a3b8;
+    }
+
+    .finaura-btn-nav:focus-visible {
+      outline: 2px solid var(--fa-primary);
+    }
+
+    .finaura-nav-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .finaura-nav-row .finaura-btn-nav {
+      flex: 1;
+    }
+
+    /* Disclaimer Footer */
+    .finaura-chat-disclaimer {
+      padding: 8px 16px;
+      background-color: #f1f5f9;
+      border-top: 1px solid #e2e8f0;
+      font-size: 0.68rem;
+      color: var(--fa-text-light);
+      text-align: center;
+      line-height: 1.35;
+    }
+
+    /* Responsive Design adjustments */
+    @media (max-width: 480px) {
+      .finaura-chat-trigger {
+        bottom: 16px;
+        right: 16px;
+        width: 54px;
+        height: 54px;
+        font-size: 20px;
+      }
+
+      .finaura-chat-widget {
+        bottom: 80px;
+        right: 12px;
+        width: calc(100vw - 24px);
+        max-width: 100vw;
+        height: 520px;
+        max-height: calc(100vh - 96px);
+        border-radius: 14px;
+      }
+
+      .finaura-chat-body {
+        padding: 12px;
+      }
+
+      .finaura-chat-controls {
+        padding: 10px 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- DEMO WEBSITE WRAPPER (For immediate preview testing) -->
+  <main class="demo-page-container">
+    <span class="demo-badge">FinAura Capital Assistant</span>
+    <h1>FinAura Capital</h1>
+    <p>
+      Welcome to the FinAura Capital Financial Advisory portal. Click the blue assistant icon located at the bottom-right corner of the page to launch the interactive, rule-based financial chatbot.
+    </p>
+    <p style="font-size: 0.85rem; color: #64748b;">
+      The chatbot provides clean, client-friendly educational information about mutual funds, SIPs, systematic plans, stocks, and insurance policies, followed by a direct enquiry redirect.
+    </p>
+  </main>
+
+  <!-- ==========================================================================
+       CHATBOT FLOATING TRIGGER BUTTON
+       ========================================================================== -->
+  <button 
+    type="button" 
+    id="finauraChatTrigger" 
+    class="finaura-chat-trigger" 
+    aria-label="Open FinAura Capital Financial Assistant"
+    title="Open FinAura Capital Assistant"
+  >
+    <i class="fa-solid fa-headset" aria-hidden="true"></i>
+    <span class="finaura-chat-trigger-tooltip">Financial Assistance</span>
+  </button>
+
+  <!-- ==========================================================================
+       CHATBOT WIDGET WINDOW
+       ========================================================================== -->
+  <div 
+    id="finauraChatWidget" 
+    class="finaura-chat-widget" 
+    role="dialog" 
+    aria-labelledby="finauraChatTitle" 
+    aria-modal="false"
+  >
+    <!-- Header -->
+    <header class="finaura-chat-header">
+      <div class="finaura-header-info">
+        <div class="finaura-header-icon-box">
+          <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+        </div>
+        <div class="finaura-header-text">
+          <h3 id="finauraChatTitle">FinAura Capital Assistant</h3>
+          <p>Financial Information & Assistance</p>
+        </div>
+      </div>
+      <div class="finaura-header-actions">
+        <button 
+          type="button" 
+          id="finauraResetBtn" 
+          class="finaura-header-btn" 
+          title="Restart Conversation" 
+          aria-label="Restart Conversation"
+        >
+          <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>
+        </button>
+        <button 
+          type="button" 
+          id="finauraCloseBtn" 
+          class="finaura-header-btn" 
+          title="Close Assistant" 
+          aria-label="Close Assistant"
+        >
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Message History Area -->
+    <div id="finauraChatBody" class="finaura-chat-body" role="log" aria-live="polite">
+      <!-- Chat bubbles rendered dynamically via JavaScript -->
+    </div>
+
+    <!-- Controls / Option Selection Area -->
+    <div class="finaura-chat-controls">
+      <div id="finauraControlsHint" class="finaura-controls-hint">Please select an option below:</div>
+      <div id="finauraOptionsContainer" class="finaura-options-grid">
+        <!-- Interactive buttons injected dynamically -->
+      </div>
+      <div id="finauraNavRow" class="finaura-nav-row" style="display: none;">
+        <!-- Back and Main Menu buttons -->
+      </div>
+    </div>
+
+    <!-- Educational Financial Disclaimer -->
+    <footer class="finaura-chat-disclaimer">
+      Information provided is for general educational purposes only and should not be considered investment, financial or insurance advice. Products are subject to applicable terms, conditions, risks and eligibility.
+    </footer>
+  </div>
+
+  <!-- ==========================================================================
+       JAVASCRIPT LOGIC - RULE-BASED ENGINE
+       ========================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ========================================================================
+         1. CONFIGURATION
+         ======================================================================== */
+      // Paste your Google Form URL here:
+      const GOOGLE_FORM_URL = "https://forms.gle/mnC4LFNZMtRZ1MPd9";
+
+      /* ========================================================================
+         2. PRELOADED EDUCATIONAL CONTENT (RULE-BASED DATA ENGINE)
+         ======================================================================== */
+      const chatbotData = {
+        // Investment category details
+        investment: {
+          title: "Investment Options",
+          prompt: "What would you like to know about?",
+          items: {
+            mutual_funds: {
+              label: "Mutual Funds",
+              title: "Mutual Funds",
+              content: "A mutual fund pools money from multiple investors and invests it in a diversified portfolio of securities such as equities, bonds or other assets. Mutual funds are managed by professional fund managers and are available across different risk and investment objectives."
+            },
+            sip: {
+              label: "SIP",
+              title: "Systematic Investment Plan (SIP)",
+              content: "SIP allows you to invest a fixed amount regularly, usually monthly, into a mutual fund. It helps develop disciplined investing and allows you to invest gradually instead of investing a large amount at once."
+            },
+            lumpsum: {
+              label: "Lumpsum Investment",
+              title: "Lumpsum Investment",
+              content: "Lumpsum investment means investing a larger amount in a mutual fund or other investment in a single transaction instead of making regular installments."
+            },
+            swp: {
+              label: "SWP",
+              title: "Systematic Withdrawal Plan (SWP)",
+              content: "SWP allows an investor to withdraw a fixed amount from a mutual fund investment at regular intervals. It can be useful for creating a regular cash flow from an investment portfolio."
+            },
+            stp: {
+              label: "STP",
+              title: "Systematic Transfer Plan (STP)",
+              content: "STP allows an investor to transfer a fixed amount from one mutual fund scheme to another at regular intervals. It is commonly used to gradually move money between different types of mutual fund investments."
+            },
+            etf: {
+              label: "ETFs",
+              title: "Exchange Traded Funds (ETFs)",
+              content: "An ETF is an investment fund that is traded on a stock exchange like a stock. ETFs can provide exposure to a group of securities, an index, sector or other assets through a single investment."
+            },
+            stocks: {
+              label: "Stocks",
+              title: "Stocks",
+              content: "Stocks represent ownership in a company. When you purchase shares of a company, you become a shareholder. Stock investments can offer growth potential but also involve market risk."
+            }
+          }
+        },
+
+        // Insurance category details
+        insurance: {
+          title: "Insurance Options",
+          prompt: "What type of insurance are you interested in?",
+          items: {
+            health_insurance: {
+              label: "Health Insurance",
+              title: "Health Insurance",
+              content: "Health insurance provides financial protection against eligible medical and hospitalization expenses. Depending on the policy, it may cover hospitalization, treatments, surgeries and other eligible healthcare expenses."
+            },
+            term_insurance: {
+              label: "Term Insurance",
+              title: "Term Insurance",
+              content: "Term insurance provides life insurance coverage for a specified period. If the insured person passes away during the policy term, the policy provides a death benefit to the nominee, subject to the policy terms and conditions."
+            },
+            car_insurance: {
+              label: "Car Insurance",
+              title: "Car Insurance",
+              content: "Car insurance provides financial protection against covered risks related to your vehicle. Depending on the policy, coverage may include accidental damage, theft and third-party liabilities, subject to the policy terms and conditions."
+            }
+          }
+        }
+      };
+
+      /* ========================================================================
+         3. CHAT STATE MANAGEMENT
+         ======================================================================== */
+      let currentView = "welcome"; // Possible values: 'welcome', 'investment_list', 'insurance_list', 'topic_detail', 'enquiry'
+      let activeCategory = null;   // 'investment' | 'insurance'
+      let activeTopicKey = null;   // e.g., 'mutual_funds', 'sip', etc.
+
+      /* DOM Elements */
+      const chatTrigger = document.getElementById("finauraChatTrigger");
+      const chatWidget = document.getElementById("finauraChatWidget");
+      const chatBody = document.getElementById("finauraChatBody");
+      const optionsContainer = document.getElementById("finauraOptionsContainer");
+      const navRow = document.getElementById("finauraNavRow");
+      const controlsHint = document.getElementById("finauraControlsHint");
+      const closeBtn = document.getElementById("finauraCloseBtn");
+      const resetBtn = document.getElementById("finauraResetBtn");
+
+      /* ========================================================================
+         4. UI RENDERING FUNCTIONS
+         ======================================================================== */
+      
+      /**
+       * Append a message bubble to the chat body
+       * @param {string} sender - 'bot' | 'user'
+       * @param {string} text - Plain text message
+       * @param {string} [title] - Optional title for structured bot messages
+       */
+      function appendMessage(sender, text, title = null) {
+        const group = document.createElement("div");
+        group.className = `finaura-msg-group ${sender}`;
+
+        const bubble = document.createElement("div");
+        bubble.className = `finaura-msg-bubble ${sender}`;
+
+        if (title && sender === "bot") {
+          const titleEl = document.createElement("div");
+          titleEl.className = "finaura-msg-title";
+          titleEl.textContent = title;
+          bubble.appendChild(titleEl);
+        }
+
+        const textEl = document.createElement("div");
+        textEl.className = "finaura-msg-text";
+        textEl.textContent = text;
+        bubble.appendChild(textEl);
+
+        group.appendChild(bubble);
+        chatBody.appendChild(group);
+
+        // Auto-scroll to bottom of conversation
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      /**
+       * Clears conversation history and controls
+       */
+      function clearChatBody() {
+        chatBody.innerHTML = "";
+      }
+
+      function clearControls() {
+        optionsContainer.innerHTML = "";
+        navRow.innerHTML = "";
+        navRow.style.display = "none";
+      }
+
+      /* ========================================================================
+         5. NAVIGATION & FLOW HANDLERS
+         ======================================================================== */
+
+      /**
+       * Show Welcome / Main Menu Screen
+       */
+      function renderWelcomeView() {
+        currentView = "welcome";
+        activeCategory = null;
+        activeTopicKey = null;
+
+        clearChatBody();
+        clearControls();
+
+        appendMessage("bot", "Hello, I’m the FinAura Capital Assistant.\nHow can I help you today?");
+
+        controlsHint.textContent = "Please select a category below:";
+
+        // Option 1: Investment
+        const btnInvestment = document.createElement("button");
+        btnInvestment.type = "button";
+        btnInvestment.className = "finaura-btn-option";
+        btnInvestment.innerHTML = "<span>Investment</span><i class=\"fa-solid fa-chevron-right\"></i>";
+        btnInvestment.onclick = function () {
+          appendMessage("user", "Investment");
+          renderInvestmentList();
+        };
+        optionsContainer.appendChild(btnInvestment);
+
+        // Option 2: Insurance
+        const btnInsurance = document.createElement("button");
+        btnInsurance.type = "button";
+        btnInsurance.className = "finaura-btn-option";
+        btnInsurance.innerHTML = "<span>Insurance</span><i class=\"fa-solid fa-chevron-right\"></i>";
+        btnInsurance.onclick = function () {
+          appendMessage("user", "Insurance");
+          renderInsuranceList();
+        };
+        optionsContainer.appendChild(btnInsurance);
+      }
+
+      /**
+       * Show Investment Options List
+       */
+      function renderInvestmentList() {
+        currentView = "investment_list";
+        activeCategory = "investment";
+        activeTopicKey = null;
+
+        clearControls();
+        appendMessage("bot", chatbotData.investment.prompt);
+        controlsHint.textContent = "Select an investment topic:";
+
+        const items = chatbotData.investment.items;
+        for (const [key, item] of Object.entries(items)) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "finaura-btn-option";
+          btn.innerHTML = `<span>${item.label}</span><i class="fa-solid fa-chevron-right"></i>`;
+          btn.onclick = function () {
+            appendMessage("user", item.label);
+            renderTopicDetail("investment", key);
+          };
+          optionsContainer.appendChild(btn);
+        }
+
+        // Back button to Main Menu
+        const btnBack = document.createElement("button");
+        btnBack.type = "button";
+        btnBack.className = "finaura-btn-option";
+        btnBack.style.borderColor = "#cbd5e1";
+        btnBack.style.color = "#475569";
+        btnBack.innerHTML = "<span>Back to Main Menu</span><i class=\"fa-solid fa-arrow-left\"></i>";
+        btnBack.onclick = function () {
+          appendMessage("user", "Back");
+          renderWelcomeView();
+        };
+        optionsContainer.appendChild(btnBack);
+      }
+
+      /**
+       * Show Insurance Options List
+       */
+      function renderInsuranceList() {
+        currentView = "insurance_list";
+        activeCategory = "insurance";
+        activeTopicKey = null;
+
+        clearControls();
+        appendMessage("bot", chatbotData.insurance.prompt);
+        controlsHint.textContent = "Select an insurance topic:";
+
+        const items = chatbotData.insurance.items;
+        for (const [key, item] of Object.entries(items)) {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "finaura-btn-option";
+          btn.innerHTML = `<span>${item.label}</span><i class="fa-solid fa-chevron-right"></i>`;
+          btn.onclick = function () {
+            appendMessage("user", item.label);
+            renderTopicDetail("insurance", key);
+          };
+          optionsContainer.appendChild(btn);
+        }
+
+        // Back button to Main Menu
+        const btnBack = document.createElement("button");
+        btnBack.type = "button";
+        btnBack.className = "finaura-btn-option";
+        btnBack.style.borderColor = "#cbd5e1";
+        btnBack.style.color = "#475569";
+        btnBack.innerHTML = "<span>Back to Main Menu</span><i class=\"fa-solid fa-arrow-left\"></i>";
+        btnBack.onclick = function () {
+          appendMessage("user", "Back");
+          renderWelcomeView();
+        };
+        optionsContainer.appendChild(btnBack);
+      }
+
+      /**
+       * Show Topic Detail & Explanation
+       * @param {string} categoryKey - 'investment' | 'insurance'
+       * @param {string} topicKey - Subtopic key
+       */
+      function renderTopicDetail(categoryKey, topicKey) {
+        currentView = "topic_detail";
+        activeCategory = categoryKey;
+        activeTopicKey = topicKey;
+
+        const topic = chatbotData[categoryKey].items[topicKey];
+        clearControls();
+
+        // 1. Display Topic Title & Content
+        appendMessage("bot", topic.content, topic.title);
+
+        // 2. Display Enquiry prompt
+        setTimeout(function () {
+          appendMessage("bot", "Would you like to make an enquiry?");
+        }, 150);
+
+        controlsHint.textContent = "Choose an option below:";
+
+        // Button 1: Enquiry Now
+        const btnEnquiry = document.createElement("button");
+        btnEnquiry.type = "button";
+        btnEnquiry.className = "finaura-btn-option";
+        btnEnquiry.style.backgroundColor = "#eff6ff";
+        btnEnquiry.style.borderColor = "#3b82f6";
+        btnEnquiry.innerHTML = "<span>Enquiry Now</span><i class=\"fa-solid fa-file-signature\"></i>";
+        btnEnquiry.onclick = function () {
+          appendMessage("user", "Enquiry Now");
+          renderEnquiryView();
+        };
+        optionsContainer.appendChild(btnEnquiry);
+
+        // Button 2: Back to Options List
+        const backLabel = categoryKey === "investment" ? "Back to Investment Options" : "Back to Insurance Options";
+        const btnBackList = document.createElement("button");
+        btnBackList.type = "button";
+        btnBackList.className = "finaura-btn-option";
+        btnBackList.innerHTML = `<span>${backLabel}</span><i class="fa-solid fa-list-ul"></i>`;
+        btnBackList.onclick = function () {
+          appendMessage("user", backLabel);
+          if (categoryKey === "investment") {
+            renderInvestmentList();
+          } else {
+            renderInsuranceList();
+          }
+        };
+        optionsContainer.appendChild(btnBackList);
+
+        // Button 3: Main Menu
+        const btnMainMenu = document.createElement("button");
+        btnMainMenu.type = "button";
+        btnMainMenu.className = "finaura-btn-option";
+        btnMainMenu.style.borderColor = "#cbd5e1";
+        btnMainMenu.style.color = "#475569";
+        btnMainMenu.innerHTML = "<span>Main Menu</span><i class=\"fa-solid fa-house\"></i>";
+        btnMainMenu.onclick = function () {
+          appendMessage("user", "Main Menu");
+          renderWelcomeView();
+        };
+        optionsContainer.appendChild(btnMainMenu);
+      }
+
+      /**
+       * Show Enquiry Form Redirect View
+       */
+      function renderEnquiryView() {
+        currentView = "enquiry";
+
+        clearControls();
+
+        appendMessage("bot", "Please continue to our enquiry form. Our team will review your request and contact you for further assistance.");
+
+        controlsHint.textContent = "Click below to submit enquiry:";
+
+        // Primary Action: Submit Enquiry Button (Opens Google Form)
+        const btnSubmit = document.createElement("a");
+        btnSubmit.href = GOOGLE_FORM_URL;
+        btnSubmit.target = "_blank";
+        btnSubmit.rel = "noopener noreferrer";
+        btnSubmit.className = "finaura-btn-cta";
+        btnSubmit.innerHTML = "<span>Submit Enquiry</span><i class=\"fa-solid fa-arrow-up-right-from-square\"></i>";
+        btnSubmit.onclick = function () {
+          // Keep conversational record
+          appendMessage("user", "Opened Enquiry Form");
+        };
+        optionsContainer.appendChild(btnSubmit);
+
+        // Navigation Row: Back / Main Menu
+        navRow.style.display = "flex";
+
+        const btnBack = document.createElement("button");
+        btnBack.type = "button";
+        btnBack.className = "finaura-btn-nav";
+        btnBack.innerHTML = "<i class=\"fa-solid fa-arrow-left\"></i> Back";
+        btnBack.onclick = function () {
+          if (activeCategory && activeTopicKey) {
+            renderTopicDetail(activeCategory, activeTopicKey);
+          } else if (activeCategory === "investment") {
+            renderInvestmentList();
+          } else if (activeCategory === "insurance") {
+            renderInsuranceList();
+          } else {
+            renderWelcomeView();
+          }
+        };
+        navRow.appendChild(btnBack);
+
+        const btnMain = document.createElement("button");
+        btnMain.type = "button";
+        btnMain.className = "finaura-btn-nav";
+        btnMain.innerHTML = "<i class=\"fa-solid fa-house\"></i> Main Menu";
+        btnMain.onclick = function () {
+          renderWelcomeView();
+        };
+        navRow.appendChild(btnMain);
+      }
+
+      /* ========================================================================
+         6. OPEN / CLOSE / RESET HANDLERS
+         ======================================================================== */
+
+      /**
+       * Opens the chatbot widget
+       */
+      function openChat() {
+        chatWidget.classList.add("active");
+        renderWelcomeView();
+      }
+
+      /**
+       * Closes and resets the chatbot widget
+       */
+      function closeChat() {
+        chatWidget.classList.remove("active");
+        // Complete state reset on exit
+        clearChatBody();
+        clearControls();
+        currentView = "welcome";
+        activeCategory = null;
+        activeTopicKey = null;
+      }
+
+      /**
+       * Restarts the conversation from the beginning
+       */
+      function resetChat() {
+        renderWelcomeView();
+      }
+
+      /* ========================================================================
+         7. EVENT LISTENERS
+         ======================================================================== */
+      chatTrigger.addEventListener("click", function () {
+        if (chatWidget.classList.contains("active")) {
+          closeChat();
+        } else {
+          openChat();
+        }
+      });
+
+      closeBtn.addEventListener("click", closeChat);
+      resetBtn.addEventListener("click", resetChat);
+
+      // Close chatbot with ESC key
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && chatWidget.classList.contains("active")) {
+          closeChat();
+        }
+      });
+
+    })();
+  </script>
+</body>
+</html>

@@ -1,22 +1,26 @@
 import React from 'react';
 
 interface FinauraLogoProps {
-  variant?: 'full' | 'icon' | 'horizontal';
+  variant?: 'full' | 'icon' | 'horizontal' | 'icon-white' | 'horizontal-white';
   className?: string;
   imgClassName?: string;
   // If the user has uploaded their logo.png to the public folder, they can set this to true
   useImage?: boolean;
+  colorMode?: 'gold' | 'white';
 }
 
 export const FinauraLogo: React.FC<FinauraLogoProps> = ({
   variant = 'horizontal',
   className = '',
   imgClassName = '',
-  useImage = false
+  useImage = false,
+  colorMode
 }) => {
+  const isWhite = colorMode === 'white' || variant === 'icon-white' || variant === 'horizontal-white';
+
   // If user requests to use the image they uploaded or if we want to support image fallback
   if (useImage) {
-    if (variant === 'icon') {
+    if (variant === 'icon' || variant === 'icon-white') {
       return (
         <img 
           src="/logo.png" 
@@ -38,12 +42,12 @@ export const FinauraLogo: React.FC<FinauraLogoProps> = ({
           referrerPolicy="no-referrer"
           className={`h-11 w-11 object-contain rounded-full shadow-[0_0_15px_rgba(201,168,76,0.2)] border border-gold/20 ${imgClassName}`}
         />
-        {variant === 'horizontal' && (
+        {(variant === 'horizontal' || variant === 'horizontal-white') && (
           <div className="flex flex-col select-none">
-            <span className="font-serif text-xl font-extrabold tracking-wide text-gold leading-none">
+            <span className={`font-serif text-xl font-extrabold tracking-wide leading-none ${isWhite ? 'text-white' : 'text-gold'}`}>
               FINAURA
             </span>
-            <span className="text-[9px] text-muted-foreground uppercase tracking-[0.25em] font-medium leading-normal mt-0.5">
+            <span className={`text-[9px] uppercase tracking-[0.25em] font-medium leading-normal mt-0.5 ${isWhite ? 'text-slate-200' : 'text-muted-foreground'}`}>
               CAPITAL
             </span>
           </div>
@@ -54,23 +58,32 @@ export const FinauraLogo: React.FC<FinauraLogoProps> = ({
 
   // --- VERY HIGH FIDELITY PURE VECTOR SVG FALLBACK ---
   // This SVG is an executive piece of design mimicking the user's uploaded gold coin seal.
-  // It features fine typography, golden radial/linear gradient shading, inner compass star layout, 
+  // It features fine typography, golden or white gradient shading, inner compass star layout, 
   // stylized monogram 'F', dynamic upward trend curve with pointer, and a 4-bar column ledger chart.
 
-  if (variant === 'icon') {
+  if (variant === 'icon' || variant === 'icon-white') {
+    const gradId = isWhite ? 'nav-white' : 'nav-gold';
     return (
       <svg 
         viewBox="0 0 100 100" 
-        className={`h-9 w-9 text-gold fill-none select-none ${className}`}
+        className={`h-9 w-9 fill-none select-none ${isWhite ? 'text-white' : 'text-gold'} ${className}`}
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          <linearGradient id="nav-gold" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#FFF2CC" />
-            <stop offset="30%" stopColor="#ECC86A" />
-            <stop offset="70%" stopColor="#C9A84C" />
-            <stop offset="100%" stopColor="#967425" />
-          </linearGradient>
+          {isWhite ? (
+            <linearGradient id="nav-white" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="50%" stopColor="#F8FAFC" />
+              <stop offset="100%" stopColor="#E2E8F0" />
+            </linearGradient>
+          ) : (
+            <linearGradient id="nav-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFF2CC" />
+              <stop offset="30%" stopColor="#ECC86A" />
+              <stop offset="70%" stopColor="#C9A84C" />
+              <stop offset="100%" stopColor="#967425" />
+            </linearGradient>
+          )}
         </defs>
         
         {/* Central Monogram symbol only for clean navbar icon */}
@@ -82,31 +95,31 @@ export const FinauraLogo: React.FC<FinauraLogoProps> = ({
             fontFamily="'Cinzel', 'Playfair Display', 'Georgia', 'Times New Roman', serif" 
             fontWeight="900" 
             fontSize="46" 
-            fill="url(#nav-gold)"
+            fill={`url(#${gradId})`}
             textAnchor="end"
           >
             F
           </text>
           
           {/* 4 Growing Ledger Columns */}
-          <rect x="52" y="50" width="4" height="15" rx="1" fill="url(#nav-gold)" />
-          <rect x="59" y="42" width="4" height="23" rx="1" fill="url(#nav-gold)" />
-          <rect x="66" y="33" width="4" height="32" rx="1" fill="url(#nav-gold)" />
-          <rect x="73" y="22" width="4" height="43" rx="1" fill="url(#nav-gold)" />
+          <rect x="52" y="50" width="4" height="15" rx="1" fill={`url(#${gradId})`} />
+          <rect x="59" y="42" width="4" height="23" rx="1" fill={`url(#${gradId})`} />
+          <rect x="66" y="33" width="4" height="32" rx="1" fill={`url(#${gradId})`} />
+          <rect x="73" y="22" width="4" height="43" rx="1" fill={`url(#${gradId})`} />
 
           {/* Upward vector swoop arrow */}
           <path 
             d="M 22 55 Q 52 48 76 21" 
-            stroke="url(#nav-gold)" 
+            stroke={`url(#${gradId})`} 
             strokeWidth="3.5" 
             strokeLinecap="round" 
           />
           <path 
             d="M 68 20 Q 77 19 78 20 T 74 29" 
-            stroke="url(#nav-gold)" 
+            stroke={`url(#${gradId})`} 
             strokeWidth="3" 
-            strokeLinecap="round"
-            fill="url(#nav-gold)"
+            strokeLinecap="round" 
+            fill={`url(#${gradId})`}
           />
         </g>
       </svg>

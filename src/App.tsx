@@ -7,6 +7,7 @@ import { About } from './components/About';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
+import { FinAuraAssistant } from './components/FinAuraAssistant';
 import { PartnerPortal } from './components/PartnerPortal';
 import { AeroFinInsurance } from './components/AeroFinInsurance';
 import { HealthInsurancePage } from './components/HealthInsurancePage';
@@ -209,6 +210,7 @@ export default function App() {
 
       <Footer />
       <WhatsAppButton />
+      <FinAuraAssistant />
     </div>
   );
 }
