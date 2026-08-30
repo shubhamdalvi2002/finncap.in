@@ -114,7 +114,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
               id="partner-logout-desktop-btn"
               onClick={() => {
                 sessionStorage.removeItem('finaura_partner_auth');
-                sessionStorage.removeItem('finaura_partner_token');
                 window.location.hash = '#home';
               }} 
               className="hidden sm:block border border-red-500/40 text-red-400 hover:bg-red-500/5 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
@@ -191,7 +190,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage }) => {
                   onClick={() => {
                     setMobileOpen(false);
                     sessionStorage.removeItem('finaura_partner_auth');
-                    sessionStorage.removeItem('finaura_partner_token');
                     window.location.hash = '#home';
                   }}
                   className="border border-red-500/40 text-red-400 hover:bg-red-500/5 py-3 px-8 rounded-full font-bold uppercase tracking-wider text-xs text-center transition-all bg-transparent cursor-pointer"

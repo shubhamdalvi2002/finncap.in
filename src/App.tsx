@@ -25,7 +25,6 @@ export default function App() {
   useEffect(() => {
     if (currentPage !== 'partner') {
       sessionStorage.removeItem('finaura_partner_auth');
-      sessionStorage.removeItem('finaura_partner_token');
     }
   }, [currentPage]);
 

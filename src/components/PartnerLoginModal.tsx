@@ -40,40 +40,33 @@ export const PartnerLoginModal: React.FC<PartnerLoginModalProps> = ({ isOpen, on
     };
   }, [isOpen, onClose]);
 
-  const handleLoginSubmit = async (e: React.FormEvent) => {
+  const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMsg('');
 
-    try {
-      const response = await fetch('/api/partner-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          email: email.trim(),
-          password
-        })
-      });
+    const targetUser = 'finnauracapital@gmail.com';
+    const targetPass = 'India@11';
 
-      const data = await response.json();
-
-      if (response.ok && data.token) {
-        // Store the signed session token
-        sessionStorage.setItem('finaura_partner_token', data.token);
-        sessionStorage.setItem('finaura_partner_auth', 'true');
-        
-        // Close modal and redirect to Partner Portal page
-        onClose();
-        window.location.hash = '#partner';
-      } else {
-        setErrorMsg(data.message || 'Invalid credentials. Please verify your Partner Identity/Password and try again.');
-      }
-    } catch (err) {
-      setErrorMsg('Unable to connect to authentication server. Please verify your network connection and retry.');
-    } finally {
-      setIsSubmitting(false);
+    const normalizedEmail = email.trim().toLowerCase();
+    
+    // Validate credentials
+    if (
+      (normalizedEmail === targetUser || normalizedEmail === 'finnauracapital' || normalizedEmail === 'admin') &&
+      password === targetPass
+    ) {
+      // SUCCESS
+      sessionStorage.setItem('finaura_partner_auth', 'true');
+      
+      // Close modal and redirect to Partner Portal page
+      onClose();
+      window.location.hash = '#partner';
+    } else {
+      // FAILURE
+      setTimeout(() => {
+        setErrorMsg('Invalid credentials. Please verify your Partner Identity/Password and try again.');
+        setIsSubmitting(false);
+      }, 400);
     }
   };
 
