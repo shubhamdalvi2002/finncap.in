@@ -182,6 +182,8 @@ export const FinAuraAssistant: React.FC = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [smartMatch, setSmartMatch] = useState<{ category: 'investment' | 'insurance'; key: string } | null>(null);
+  const [isSmartMatching, setIsSmartMatching] = useState(false);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -333,6 +335,49 @@ export const FinAuraAssistant: React.FC = () => {
         (t.tag && t.tag.toLowerCase().includes(searchQuery.toLowerCase()))
       );
 
+  // Smart-match fallback: only runs when the plain keyword search above finds
+  // nothing. Sends the query + a fixed list of topic IDs to /api/chatbot-match.
+  // The server (Gemini) only ever returns one of those IDs — never freeform
+  // text — so the answer shown to the user always comes from chatbotData
+  // below, never from the model directly. If the API isn't configured or the
+  // request fails, this silently does nothing and the existing "no results"
+  // message still shows, so the chatbot works fine without it too.
+  useEffect(() => {
+    const trimmed = searchQuery.trim();
+    setSmartMatch(null);
+
+    if (trimmed.length < 4 || filteredTopics.length > 0) {
+      setIsSmartMatching(false);
+      return;
+    }
+
+    setIsSmartMatching(true);
+    const timeoutId = setTimeout(async () => {
+      try {
+        const topicsPayload = allTopics.map(t => ({ id: `${t.category}:${t.key}`, label: t.title }));
+        const response = await fetch('/api/chatbot-match', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: trimmed, topics: topicsPayload }),
+        });
+        const data = await response.json();
+        if (data.matched && typeof data.topicId === 'string') {
+          const [category, key] = data.topicId.split(':');
+          if ((category === 'investment' || category === 'insurance') && chatbotData[category]?.items[key]) {
+            setSmartMatch({ category, key });
+          }
+        }
+      } catch {
+        // Silent fallback — local search results (or "no results") still show.
+      } finally {
+        setIsSmartMatching(false);
+      }
+    }, 500); // debounce so we don't call the API on every keystroke
+
+    return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
   return (
     <>
       {/* Floating Chat Trigger Button with Pure White Headset Icon */}
@@ -468,6 +513,32 @@ export const FinAuraAssistant: React.FC = () => {
                       <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
                     </button>
                   ))
+                ) : smartMatch ? (
+                  <button
+                    type="button"
+                    onClick={() => selectTopic(smartMatch.category, smartMatch.key)}
+                    className="w-full bg-white hover:bg-blue-50 border border-blue-200 hover:border-blue-300 p-3 rounded-xl text-left transition-all group flex items-center justify-between shadow-sm cursor-pointer"
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <Sparkles className="w-3 h-3 text-blue-500" />
+                        <span className="text-[10px] font-semibold text-blue-600 uppercase tracking-wide">Closest match</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-xs text-blue-950 group-hover:text-blue-700">
+                          {chatbotData[smartMatch.category].items[smartMatch.key].label}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                        {chatbotData[smartMatch.category].items[smartMatch.key].content}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                  </button>
+                ) : isSmartMatching ? (
+                  <div className="text-center py-8 text-slate-400 text-xs">
+                    Searching for the closest topic…
+                  </div>
                 ) : (
                   <div className="text-center py-8 text-slate-500 text-xs">
                     No matching financial topics found for "{searchQuery}".

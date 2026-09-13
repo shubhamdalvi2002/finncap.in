@@ -27,6 +27,7 @@ const INITIAL_STOCKS = [
 ];
 
 const app = express();
+app.use(express.json());
 const httpServer = createServer(app);
 const wss = new WebSocketServer({ server: httpServer });
 const PORT = 3000;
@@ -41,6 +42,65 @@ let marketIndicators = {
 };
 
 let isApiKeyInvalid = false;
+
+/* ============================================================================
+   CHATBOT SMART-MATCH (free-text -> preloaded topic, never freeform answers)
+   The chatbot's actual answers always come from the hardcoded chatbotData in
+   FinAuraAssistant.tsx — never from the model. Gemini's ONLY job here is to
+   pick the closest matching topic ID from a fixed list we send it. We then
+   validate the returned ID against that same list server-side before trusting
+   it, so the model can never inject text the client will display as-is.
+   Uses Gemini's free tier (@google/genai). If GEMINI_API_KEY isn't set, the
+   endpoint reports "not_configured" and the client falls back to its existing
+   local keyword search — the chatbot still works fully without this.
+   ============================================================================ */
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const genAI = GEMINI_API_KEY ? new GoogleGenAI({ apiKey: GEMINI_API_KEY }) : null;
+
+app.post("/api/chatbot-match", async (req, res) => {
+  if (!genAI) {
+    return res.status(503).json({ matched: false, reason: "not_configured" });
+  }
+
+  const { query, topics } = req.body || {};
+  if (
+    typeof query !== "string" || !query.trim() ||
+    !Array.isArray(topics) || topics.length === 0 ||
+    !topics.every((t: any) => t && typeof t.id === "string" && typeof t.label === "string")
+  ) {
+    return res.status(400).json({ matched: false, reason: "bad_request" });
+  }
+
+  const validIds = new Set(topics.map((t: any) => t.id));
+  const topicList = topics.map((t: any) => `${t.id}: ${t.label}`).join("\n");
+  const safeQuery = query.trim().slice(0, 300);
+
+  const prompt = `You are a strict topic classifier for a financial services chatbot. You do not answer questions or give advice.
+
+Given the user's question and a fixed list of topic IDs, respond with ONLY the single best-matching topic ID from the list. If none reasonably match, respond with exactly: no_match
+
+Topics:
+${topicList}
+
+User question: "${safeQuery}"
+
+Respond with only the topic ID or "no_match". No explanation, no punctuation, no extra words.`;
+
+  try {
+    const response = await genAI.models.generateContent({
+      model: "gemini-2.5-flash-lite",
+      contents: prompt,
+    });
+    const rawAnswer = (response.text || "").trim();
+    if (validIds.has(rawAnswer)) {
+      return res.json({ matched: true, topicId: rawAnswer });
+    }
+    return res.json({ matched: false, reason: "no_match" });
+  } catch (err) {
+    console.error("[chatbot-match] Gemini error:", err);
+    return res.status(502).json({ matched: false, reason: "api_error" });
+  }
+});
 
 const fetchMarketIndicators = async () => {
   const apiKey = process.env.FINANCIAL_API_KEY;
