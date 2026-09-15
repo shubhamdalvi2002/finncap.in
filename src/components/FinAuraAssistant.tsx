@@ -17,12 +17,16 @@ import {
   ShieldCheck, 
   MessageSquare,
   Sparkles,
-  ArrowUpRight
+  ArrowUpRight,
+  PhoneCall,
+  Phone
 } from 'lucide-react';
 import { FinauraLogo } from './FinauraLogo';
 
 const GOOGLE_FORM_URL = "https://forms.gle/mnC4LFNZMtRZ1MPd9";
 const WHATSAPP_URL = "https://wa.me/919423669236?text=Hi%20FinAura%20Capital!%20I%20would%20like%20to%20enquire%20about%20your%20financial%20services.";
+const ADVISOR_PHONE = "+91 7218918236";
+const ADVISOR_TEL_URL = "tel:+917218918236";
 
 interface TopicItem {
   label: string;
@@ -170,9 +174,10 @@ interface Message {
   title?: string;
   tag?: string;
   highlights?: string[];
+  actionType?: 'advisor_prompt' | 'call_connected';
 }
 
-type ChatView = 'welcome' | 'investment_list' | 'insurance_list' | 'topic_detail' | 'enquiry';
+type ChatView = 'welcome' | 'investment_list' | 'insurance_list' | 'topic_detail' | 'enquiry' | 'calling';
 
 export const FinAuraAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -237,7 +242,8 @@ export const FinAuraAssistant: React.FC = () => {
     title?: string, 
     tag?: string,
     highlights?: string[],
-    callback?: () => void
+    callback?: () => void,
+    actionType?: 'advisor_prompt' | 'call_connected'
   ) => {
     if (sender === 'user') {
       setMessages(prev => [
@@ -248,7 +254,8 @@ export const FinAuraAssistant: React.FC = () => {
           text,
           title,
           tag,
-          highlights
+          highlights,
+          actionType
         }
       ]);
       if (callback) callback();
@@ -266,7 +273,8 @@ export const FinAuraAssistant: React.FC = () => {
           text,
           title,
           tag,
-          highlights
+          highlights,
+          actionType
         }
       ]);
       if (callback) callback();
@@ -294,14 +302,51 @@ export const FinAuraAssistant: React.FC = () => {
 
     addMessageWithTyping('bot', topic.content, topic.title, topic.tag, topic.highlights, () => {
       setTimeout(() => {
-        addMessageWithTyping('bot', 'Would you like to make an enquiry or speak with a financial advisor?');
+        addMessageWithTyping(
+          'bot', 
+          'Would you like to make an enquiry or speak with a financial advisor?',
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'advisor_prompt'
+        );
       }, 100);
       setCurrentView('topic_detail');
     });
   };
 
+  const handleCallAdvisor = () => {
+    setSearchQuery('');
+    addMessageWithTyping('user', 'Yes, speak with a financial advisor');
+
+    // Direct dial call immediately on +91 7218918236
+    try {
+      window.location.href = ADVISOR_TEL_URL;
+    } catch (e) {
+      console.warn("Direct dial trigger:", e);
+    }
+
+    addMessageWithTyping(
+      'bot',
+      `Connecting you directly with our financial advisor at ${ADVISOR_PHONE}.\n\nIf the phone dialer didn’t launch automatically on your device, tap the button below to dial directly.`,
+      'Direct Financial Advisor Call',
+      'Direct Dialing',
+      [
+        `Advisor Phone: ${ADVISOR_PHONE}`,
+        'Personalized guidance for investments & insurance',
+        'Direct consultation with senior advisory desk'
+      ],
+      () => {
+        setCurrentView('calling');
+      },
+      'call_connected'
+    );
+  };
+
   const handleEnquiryClick = () => {
-    addMessageWithTyping('user', 'Enquiry Now');
+    setSearchQuery('');
+    addMessageWithTyping('user', 'Send Enquiry Form');
     addMessageWithTyping(
       'bot', 
       'Please continue to our enquiry form or WhatsApp desk. Our team will review your request and connect with you for personalized advisory.',
@@ -484,6 +529,58 @@ export const FinAuraAssistant: React.FC = () => {
             {/* Live Search Results Overlay if Searching */}
             {searchQuery.trim() !== '' ? (
               <div className="flex-1 p-3 overflow-y-auto bg-slate-50 flex flex-col gap-2">
+                {/* Instant Advisor Call Match if user searched "yes", "call", "advisor", etc. */}
+                {(searchQuery.toLowerCase().includes('yes') || 
+                  searchQuery.toLowerCase().includes('call') || 
+                  searchQuery.toLowerCase().includes('advisor') || 
+                  searchQuery.toLowerCase().includes('7218') || 
+                  searchQuery.toLowerCase().includes('speak')) && (
+                  <button
+                    type="button"
+                    onClick={handleCallAdvisor}
+                    className="w-full bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-300 p-2.5 rounded-xl text-left transition-all group flex items-center justify-between shadow-xs cursor-pointer"
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <PhoneCall className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="text-[10px] font-bold text-emerald-700 uppercase tracking-wide">Direct Call</span>
+                      </div>
+                      <div className="font-semibold text-xs text-emerald-950">
+                        Yes — Call Financial Advisor
+                      </div>
+                      <p className="text-[11px] text-emerald-700/90 font-mono mt-0.5">
+                        {ADVISOR_PHONE}
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-emerald-500 group-hover:text-emerald-700 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                  </button>
+                )}
+
+                {/* Instant Enquiry Form Match if user searched "enquiry", "form", "no" */}
+                {(searchQuery.toLowerCase().includes('enquiry') || 
+                  searchQuery.toLowerCase().includes('form') || 
+                  searchQuery.toLowerCase() === 'no') && (
+                  <button
+                    type="button"
+                    onClick={handleEnquiryClick}
+                    className="w-full bg-blue-50 hover:bg-blue-100/80 border border-blue-200 p-2.5 rounded-xl text-left transition-all group flex items-center justify-between shadow-xs cursor-pointer"
+                  >
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <FileSignature className="w-3.5 h-3.5 text-blue-600" />
+                        <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wide">Enquiry Desk</span>
+                      </div>
+                      <div className="font-semibold text-xs text-blue-950">
+                        Send Online Enquiry Form
+                      </div>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Google Form & WhatsApp Consultation
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-blue-500 group-hover:text-blue-700 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                  </button>
+                )}
+
                 <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider px-1">
                   Matching Results ({filteredTopics.length})
                 </div>
@@ -598,6 +695,46 @@ export const FinAuraAssistant: React.FC = () => {
                         </div>
                       )}
 
+                      {/* Inline Interactive Actions for Advisor Question */}
+                      {msg.sender === 'bot' && (msg.actionType === 'advisor_prompt' || msg.text.includes('Would you like to make an enquiry or speak with a financial advisor?')) && (
+                        <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-col gap-1.5">
+                          <button
+                            type="button"
+                            onClick={handleCallAdvisor}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs py-2 px-3 rounded-lg flex items-center justify-between transition-all shadow-xs cursor-pointer group"
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <PhoneCall className="w-3.5 h-3.5" />
+                              <span>Yes — Speak with Advisor</span>
+                            </div>
+                            <span className="text-[10px] bg-emerald-700/90 px-1.5 py-0.5 rounded font-mono">
+                              {ADVISOR_PHONE}
+                            </span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleEnquiryClick}
+                            className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs py-1.5 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                          >
+                            <FileSignature className="w-3.5 h-3.5 text-slate-500" />
+                            <span>Send Enquiry Form</span>
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Direct Dial Confirmation Button */}
+                      {msg.sender === 'bot' && msg.actionType === 'call_connected' && (
+                        <div className="mt-3 pt-2.5 border-t border-slate-100 flex flex-col gap-1.5">
+                          <a
+                            href={ADVISOR_TEL_URL}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-all shadow-xs text-center cursor-pointer"
+                          >
+                            <PhoneCall className="w-3.5 h-3.5 animate-pulse" />
+                            <span>Tap to Dial {ADVISOR_PHONE}</span>
+                          </a>
+                        </div>
+                      )}
+
                       {/* Copy Action Button for Bot Cards */}
                       {msg.sender === 'bot' && msg.title && (
                         <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-end">
@@ -649,8 +786,9 @@ export const FinAuraAssistant: React.FC = () => {
                     {currentView === 'welcome' && 'Select Category'}
                     {currentView === 'investment_list' && 'Investment Categories'}
                     {currentView === 'insurance_list' && 'Insurance Solutions'}
-                    {currentView === 'topic_detail' && 'Next Steps'}
+                    {currentView === 'topic_detail' && 'Advisor Call / Enquiry'}
                     {currentView === 'enquiry' && 'Submit Enquiry'}
+                    {currentView === 'calling' && 'Direct Advisor Call'}
                   </span>
                   <span className="text-[9px] text-slate-400 font-normal">Rule-based • Fast response</span>
                 </div>
@@ -762,17 +900,39 @@ export const FinAuraAssistant: React.FC = () => {
                   {/* VIEW 4: TOPIC DETAILS & ACTIONS */}
                   {currentView === 'topic_detail' && (
                     <>
-                      <motion.button
-                        whileHover={{ scale: 1.01 }}
-                        whileTap={{ scale: 0.98 }}
-                        type="button"
-                        onClick={handleEnquiryClick}
-                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-3.5 py-2.5 rounded-lg text-xs flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer"
-                      >
-                        <FileSignature className="w-3.5 h-3.5" />
-                        <span>Enquiry Now</span>
-                        <ArrowUpRight className="w-3.5 h-3.5 opacity-80" />
-                      </motion.button>
+                      <div className="flex flex-col gap-1.5">
+                        <motion.button
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.98 }}
+                          type="button"
+                          onClick={handleCallAdvisor}
+                          className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold px-3.5 py-2.5 rounded-lg text-xs flex items-center justify-between transition-all shadow-xs cursor-pointer group"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                              <PhoneCall className="w-3.5 h-3.5 text-white" />
+                            </div>
+                            <span className="font-bold">Yes — Call Financial Advisor</span>
+                          </div>
+                          <span className="text-[11px] bg-white/20 px-2 py-0.5 rounded text-white font-mono">
+                            {ADVISOR_PHONE}
+                          </span>
+                        </motion.button>
+
+                        <motion.button
+                          whileHover={{ scale: 1.01 }}
+                          whileTap={{ scale: 0.98 }}
+                          type="button"
+                          onClick={handleEnquiryClick}
+                          className="w-full bg-white hover:bg-blue-50/70 border border-blue-200 hover:border-blue-300 text-blue-950 font-semibold px-3.5 py-2 rounded-lg text-xs flex items-center justify-between transition-all shadow-xs cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <FileSignature className="w-3.5 h-3.5 text-blue-600" />
+                            <span>Send Enquiry Form</span>
+                          </div>
+                          <ArrowUpRight className="w-3.5 h-3.5 text-slate-400" />
+                        </motion.button>
+                      </div>
 
                       <div className="grid grid-cols-2 gap-1.5 pt-0.5">
                         <button
@@ -838,6 +998,53 @@ export const FinAuraAssistant: React.FC = () => {
                               setCurrentView('investment_list');
                             } else {
                               setCurrentView('insurance_list');
+                            }
+                          }}
+                          className="flex-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium py-1.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <ArrowLeft className="w-3 h-3" /> Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleReset}
+                          className="flex-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium py-1.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <Home className="w-3 h-3" /> Main Menu
+                        </button>
+                      </div>
+                    </>
+                  )}
+
+                  {/* VIEW 6: CALLING CONFIRMATION */}
+                  {currentView === 'calling' && (
+                    <>
+                      <div className="flex flex-col gap-2">
+                        <a
+                          href={ADVISOR_TEL_URL}
+                          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-3.5 py-2.5 rounded-lg text-xs flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer text-center"
+                        >
+                          <PhoneCall className="w-4 h-4 animate-pulse" />
+                          <span>Dial {ADVISOR_PHONE}</span>
+                        </a>
+
+                        <button
+                          type="button"
+                          onClick={handleEnquiryClick}
+                          className="w-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium py-2 px-3 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                        >
+                          <FileSignature className="w-3.5 h-3.5 text-blue-600" />
+                          <span>Send Enquiry Form Instead</span>
+                        </button>
+                      </div>
+
+                      <div className="flex gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (activeCategory && activeTopicKey) {
+                              setCurrentView('topic_detail');
+                            } else {
+                              handleReset();
                             }
                           }}
                           className="flex-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-medium py-1.5 rounded-lg text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
